@@ -1,4 +1,4 @@
-process MAKE_IMAGE_DIM_PLOT {
+process QC_IMAGE_DIM_PLOT {
     tag "$meta.id"
     label 'process_low'
 
@@ -25,7 +25,7 @@ process MAKE_IMAGE_DIM_PLOT {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    make_image_dim_plot.R \\
+    qc_image_dim_plot.R \\
         $args \\
         --input "$xenium_obj" \\
         --outfile ${prefix}.png

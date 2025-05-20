@@ -69,8 +69,8 @@ workflow PIPELINE_INITIALISATION {
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
-            meta, input_matrix, metadata_file, manual_annotation ->
-                return [ meta.id, meta, input_matrix, metadata_file, manual_annotation ]
+            meta, input_matrix, metadata_file, manual_annotation, gene_marker_list ->
+                return [ meta.id, meta, input_matrix, metadata_file, manual_annotation, gene_marker_list ]
         }
         .map { samplesheet ->
             validateInputSamplesheet(samplesheet)
@@ -120,9 +120,9 @@ workflow PIPELINE_COMPLETION {
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
-    def (metas, in_matrix, in_metadata, in_manual_annotation) = input[1..4]
+    def (metas, in_matrix, in_metadata, in_manual_annotation, gene_marker_list) = input[1..5]
 
-    return [ metas, in_matrix, in_metadata, in_manual_annotation ]
+    return [ metas, in_matrix, in_metadata, in_manual_annotation, gene_marker_list ]
 }
 //
 // Generate methods description for MultiQC
