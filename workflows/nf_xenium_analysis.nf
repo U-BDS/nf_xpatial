@@ -1,3 +1,5 @@
+#!/usr/bin/env nextflow
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
@@ -12,7 +14,11 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 include { CREATE_XENIUM_OBJ                         } from '../modules/local/create_xenium_object'
 include { MAKE_IMAGE_DIM_PLOT as RAW_IMAGE_DIM_PLOT } from '../modules/local/make_image_dim_plot'
 include { COMPILE_OBJECTS                           } from '../modules/local/compile_objects'
-include { ADD_MANUAL_ANNOTATIONS                    } from '../modules/local/add_manual_annotations'
+
+//
+// SUBWORKFLOW: Loaded from subworkflows/local/
+//
+include { MANUAL_ANNOTATIONS_QC } from '../subworkflows/local/manual_annotations_qc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,6 +35,19 @@ workflow NF_XENIUM_ANALYSIS {
 
     ch_versions = Channel.empty()
 
+    // Grab the header from the metadata sheet so we have values to group by in plots
+    ch_samplesheet
+        .map {
+            meta, xenium_input, metadata, manual_annotation ->
+                metadata_vals = metadata.text.readLines().first().split(',')
+                metadata_vals.collect { metadata_val -> [meta, metadata_val] }
+        }
+        .flatMap{
+            meta_metadata_val ->
+                meta_metadata_val
+        }
+        .set { ch_metadata_vals }
+
     //
     // MODULE: Read in xenium matrix and add metadata
     //
@@ -39,41 +58,24 @@ workflow NF_XENIUM_ANALYSIS {
                 [meta, xenium_input, metadata]
             }
     )
+
+    ch_xenium_obj = CREATE_XENIUM_OBJ.out.xenium_obj
     ch_versions = ch_versions.mix(CREATE_XENIUM_OBJ.out.versions)
 
-    // START ADD_MANUAL_ANNOTATION SUBWORKFLOW
-    
-    // Separate the samples that have manual annotations
-    ch_samplesheet
-        .join(CREATE_XENIUM_OBJ.out.xenium_obj)
-        .map{
-            meta, xenium_input, metadata, manual_annotation, xenium_rds ->
-                [meta, xenium_rds, manual_annotation]
-        }
-        .view()
-        .branch{
-            meta, xenium_rds, manual_annotation ->
-                with_annotation: manual_annotation
-                no_annotation: true
-        }
-        .set{ ch_sep_objects }
-    
     //
-    // MODULE: Add manual annotations where possible
+    // SUBWORKFLOW: Add manual annotations
     //
-
-    ADD_MANUAL_ANNOTATIONS(
-        ch_sep_objects.with_annotation
+    MANUAL_ANNOTATIONS_QC(
+        ch_samplesheet,
+        ch_xenium_obj,
+        ch_metadata_vals
     )
-    ch_annotated_xenium_obj = ADD_MANUAL_ANNOTATIONS.out.annotated_xenium_obj
-
-    // END ADD_MANUAL_ANNOTATION SUBWORFLOW
 
     //
     // MODULE: Compile objects into a list
     //
     COMPILE_OBJECTS(
-        CREATE_XENIUM_OBJ.out.xenium_obj
+        ch_xenium_obj
             .map{
                 meta, xenium_obj -> [xenium_obj]
             }
@@ -101,8 +103,7 @@ workflow NF_XENIUM_ANALYSIS {
             name:  'nf_xenium_analysis_software_'  + 'versions.yml',
             sort: true,
             newLine: true
-        ).set { ch_collated_versions }
-
+        ).set { ch_collated_versions } */
 
     emit:
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
