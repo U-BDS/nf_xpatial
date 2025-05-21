@@ -20,7 +20,7 @@ include { COMPILE_OBJECTS                         } from '../modules/local/compi
 //
 include { MANUAL_ANNOTATIONS_QC } from '../subworkflows/local/manual_annotations_qc/main'
 include { MARKER_GENE_PAIRS_QC  } from '../subworkflows/local/marker_gene_pairs_qc/main'
-//include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main'
+include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,10 +108,10 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Perform qc on cell shapes
     //
-    /*
+    
     CELL_SHAPE_QC (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
-    )*/
+    )
 
     //
     // Collate and save software versions

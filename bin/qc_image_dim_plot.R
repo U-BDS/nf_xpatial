@@ -13,6 +13,8 @@ library(Seurat)     # Main analysis package
 # Plotting
 library(ggplot2)
 library(patchwork)
+library(RColorBrewer)
+library(Polychrome)
 
 ###############################
 ### COMMAND-LINE PARAMETERS ###

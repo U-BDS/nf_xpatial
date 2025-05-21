@@ -45,6 +45,5 @@ process COMPILE_OBJECTS {
         object = obj_list,
         file = "${prefix}_merged.rds"
     )
-
     """
 }
