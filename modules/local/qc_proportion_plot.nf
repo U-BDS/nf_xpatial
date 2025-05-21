@@ -12,8 +12,8 @@ process QC_PROPORTION_PLOT {
 
     input:
     tuple val(meta), path(xenium_obj)
-    val plot_col
-    val sample_col
+    val fill_col
+    val x_col
 
     output:
     tuple val(meta), path("*.png"), emit: proportion_plot
@@ -31,8 +31,8 @@ process QC_PROPORTION_PLOT {
         $args \\
         --input "$xenium_obj" \\
         --outfile ${prefix}_proportion_plot.png \\
-        --fill_col "$plot_col" \\
-        --x_col "$sample_col"
+        --fill_col "$fill_col" \\
+        --x_col "$x_col"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -56,7 +56,7 @@ workflow CELL_SHAPE_QC {
         //
         CELL_SHAPE_PLOT (
             COMPILE_OBJECTS.out.compiled_obj,
-            "segmentation_method",
+            "shape_classification",
             "Sample"
         )
         ch_versions = ch_versions.mix(CELL_SHAPE_PLOT.out.versions)

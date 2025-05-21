@@ -101,7 +101,7 @@ combined_metadata <- do.call(rbind, lapply(1:length(xenium_objs), function(i) {
 }))
 
 # Plot the data
-plot <- ggplot(combined_metadata, aes(x = opt$x_col, fill = opt$fill_col)) +
+plot <- ggplot(combined_metadata, aes_string(x = opt$x_col, fill = opt$fill_col)) +
     geom_bar(position = "fill", stat = "count") + # Stacked bar plot with proportions
     labs(title = paste(tools::toTitleCase(gsub("_", " ", opt$fill_col)), "Distribution Across Samples"),
         x = "Sample",
