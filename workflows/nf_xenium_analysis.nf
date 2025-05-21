@@ -12,8 +12,6 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 // MODULE: Loaded from modules/local/
 //
 include { CREATE_XENIUM_OBJ                       } from '../modules/local/create_xenium_object'
-include { QC_IMAGE_DIM_PLOT as RAW_IMAGE_DIM_PLOT } from '../modules/local/qc_image_dim_plot'
-include { COMPILE_OBJECTS                         } from '../modules/local/compile_objects'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -21,6 +19,7 @@ include { COMPILE_OBJECTS                         } from '../modules/local/compi
 include { MANUAL_ANNOTATIONS_QC } from '../subworkflows/local/manual_annotations_qc/main'
 include { MARKER_GENE_PAIRS_QC  } from '../subworkflows/local/marker_gene_pairs_qc/main'
 include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main'
+include { GENERAL_QC            } from '../subworkflows/local/general_qc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,28 +72,6 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // MODULE: Compile objects into a list
-    //
-    COMPILE_OBJECTS (
-        ch_xenium_obj
-            .map{
-                meta, xenium_obj -> [xenium_obj]
-            }
-            .collect()
-            .map{
-                [ [ 'id': 'compiled_RAW' ], it ]
-            }
-    )
-
-    //
-    // MODULE: Create an initial Image Dim Plot
-    //
-    RAW_IMAGE_DIM_PLOT (
-        COMPILE_OBJECTS.out.compiled_obj
-    )
-    ch_versions = ch_versions.mix(RAW_IMAGE_DIM_PLOT.out.versions)
-
-    //
     // SUBWORKFLOW: Perform qc for all marker gene pairings
     //
     MARKER_GENE_PAIRS_QC (
@@ -108,8 +85,14 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Perform qc on cell shapes
     //
-    
     CELL_SHAPE_QC (
+        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
+    )
+
+    //
+    // SUBWORKFLOW: Perform basic QC on the xenium objects
+    //
+    GENERAL_QC (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
     )
 
