@@ -85,7 +85,8 @@ xenium_obj <- readRDS(file = opt$input)
 # Read in marker gene list if passed in
 marker_gene_list <- NULL
 if (!is.null(opt$gene_list) && opt$gene_list != "") {
-    marker_gene_list <- read.csv(opt$gene_list, sep = ",")
+    marker_gene_list <- read.csv(opt$gene_list, sep = ",", header=FALSE)
+    marker_gene_list <- unlist(marker_gene_list, use.names = FALSE)
 }
 
 ####################################################
@@ -149,6 +150,8 @@ for (i in seq_along(eval_genes)){
                 gene2 = gene2,
                 spearman_r = cor_test$estimate,
                 spearman_p = cor_test$p.value,
+                gini_gene1 = gini_gene1,
+                gini_gene2 = gini_gene2,
                 filter_pass = filter_pass
             )
         }

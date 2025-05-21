@@ -10,7 +10,6 @@ workflow MARKER_GENE_PAIRS_QC {
     main:
         ch_versions = Channel.empty()
 
-        ch_xenium_data.view()
         //
         // MODULE: Generate Gini Score and Spearman Correlation for each gene pair
         //
