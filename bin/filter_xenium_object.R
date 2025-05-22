@@ -240,7 +240,8 @@ write.csv(
         gsub(".rds", "", opt$outfile),
         "_filtering_stats.csv"
     ),
-    row.names = FALSE
+    row.names = FALSE,
+    quote = FALSE
 )
 
 ####################

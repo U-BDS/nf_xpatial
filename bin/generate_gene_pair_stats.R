@@ -165,7 +165,8 @@ for (i in seq_along(eval_genes)){
 write.csv(
     gene_pair_stats_df,
     opt$outfile,
-    row.names = FALSE
+    row.names = FALSE,
+    quote = FALSE
 )
 
 ####################

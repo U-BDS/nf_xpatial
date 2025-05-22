@@ -141,7 +141,8 @@ saveRDS(
 write.csv(
     x = cell_classification,
     file = opt$shape_file,
-    row.names = FALSE
+    row.names = FALSE,
+    quote = FALSE
 )
 
 ####################

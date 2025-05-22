@@ -85,7 +85,8 @@ mutex_gene_pair_df <- gene_pair_stats_df %>%
 write.csv(
     mutex_gene_pair_df,
     opt$outfile,
-    row.names = FALSE
+    row.names = FALSE,
+    quote = FALSE
 )
 
 ####################
