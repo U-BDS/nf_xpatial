@@ -153,7 +153,7 @@ if (!opt$skip_percentile_filter){
     # Filter my minimum counts
     tryCatch(
         {
-            xenium_obj <- subset(xenium_obj, nFeature_Xenium > min_count)
+            xenium_obj <- subset(xenium_obj, nFeature_Xenium >= min_count)
         }, error = function(e) {
             message("Error in min percentile filtering: ", e)
         }
@@ -162,7 +162,7 @@ if (!opt$skip_percentile_filter){
     # Filter by maximum counts
     tryCatch(
         {
-            xenium_obj <- subset(xenium_obj, nFeature_Xenium < max_count)
+            xenium_obj <- subset(xenium_obj, nFeature_Xenium <= max_count)
         }, error = function(e) {
             message("Error in max percentile filtering: ", e)
         }
@@ -180,12 +180,12 @@ if (!opt$skip_nCount_filter){
 
     # Filter by minimum nFeature
     if (!is.null(opt$min_nCount)){
-        xenium_obj <- subset(xenium_obj, nCount_Xenium > opt$min_nCount)
+        xenium_obj <- subset(xenium_obj, nCount_Xenium >= opt$min_nCount)
     }
 
     # Filter by maximum nFeature
     if (!is.null(opt$max_nCount)){
-        xenium_obj <- subset(xenium_obj, nCount_Xenium < opt$max_nCount)
+        xenium_obj <- subset(xenium_obj, nCount_Xenium <= opt$max_nCount)
     }
 
     # Calculate cells removed
@@ -200,12 +200,12 @@ if (!opt$skip_nFeature_filter){
 
     # Filter by minimum nFeature
     if (!is.null(opt$min_nFeature)){
-        xenium_obj <- subset(xenium_obj, nFeature_Xenium > opt$min_nFeature)
+        xenium_obj <- subset(xenium_obj, nFeature_Xenium >= opt$min_nFeature)
     }
 
     # Filter by maximum nFeature
     if (!is.null(opt$max_nFeature)){
-        xenium_obj <- subset(xenium_obj, nFeature_Xenium < opt$max_nFeature)
+        xenium_obj <- subset(xenium_obj, nFeature_Xenium <= opt$max_nFeature)
     }
 
     # Calculate cells removed
