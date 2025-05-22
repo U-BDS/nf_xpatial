@@ -128,6 +128,67 @@
                     "hidden": true
                 }
             }
+        },
+        "filtering_options": {
+            "title": "Filtering Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "fa_icon": "fas fa-cut",
+            "properties": {
+                "skip_filtering": {
+                    "type": "boolean",
+                    "description": "Skip filtering alltogether"
+                },
+                "skip_column_removal": {
+                    "type": "boolean",
+                    "description": "Skip unneeded column removal"
+                },
+                "columns_to_remove": {
+                    "type": "string",
+                    "description": "A comma-delimited list of unnecessary columns to remove from the xenium object",
+                    "default": "nCount_BlankCodeword,nFeature_BlankCodeword,nCount_ControlCodeword,nFeature_ControlCodeword,nCount_ControlProbe,nFeature_ControlProbe"
+                },
+                "skip_percentile_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the percentile based filtering",
+                    "default": true
+                },
+                "min_percentile": {
+                    "type": "number",
+                    "description": "The minimum percentile threshold for percentile based filtering"
+                },
+                "max_percentile": {
+                    "type": "number",
+                    "description": "The maximum percentile threshold for percentile based filtering"
+                },
+                "skip_nFeature_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the nFeature filtering"
+                },
+                "min_nFeature": {
+                    "type": "number",
+                    "description": "The minimum nFeature threshold for nFeature filtering",
+                    "default": 10.0
+                },
+                "max_nFeature": {
+                    "type": "number",
+                    "description": "The maximum nFeature threshold for nFeature filtering"
+                },
+                "skip_nCount_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the nCount filtering"
+                },
+                "min_nCount": {
+                    "type": "number",
+                    "description": "The minimum nCount threshold for nCount filtering",
+                    "default": 10.0
+                },
+                "max_nCount": {
+                    "type": "number",
+                    "description": "The maximum nCount threshold for nCount filtering"
+                }
+            }
         }
     },
     "allOf": [
@@ -139,6 +200,9 @@
         },
         {
             "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/filtering_options"
         }
     ]
 }
