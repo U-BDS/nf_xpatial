@@ -11,7 +11,8 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 //
 // MODULE: Loaded from modules/local/
 //
-include { CREATE_XENIUM_OBJ                       } from '../modules/local/create_xenium_object'
+include { CREATE_XENIUM_OBJ } from '../modules/local/create_xenium_object'
+include { FILTER_XENIUM_OBJ } from '../modules/local/filter_xenium_object'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -64,7 +65,7 @@ workflow NF_XENIUM_ANALYSIS {
     ch_versions = ch_versions.mix(CREATE_XENIUM_OBJ.out.versions)
 
     //
-    // SUBWORKFLOW: Add manual annotations
+    // SUBWORKFLOW: Add manual annotations and produce qc plots
     //
     MANUAL_ANNOTATIONS_QC (
         ch_samplesheet,
@@ -93,6 +94,13 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Perform basic QC on the xenium objects
     //
     GENERAL_QC (
+        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
+    )
+
+    //
+    // MODULE: Filter the xenium data
+    //
+    FILTER_XENIUM_OBJ (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
     )
 
