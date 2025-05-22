@@ -2,6 +2,7 @@
 
 include { GENERATE_GENE_PAIR_STATS   } from '../../../modules/local/generate_gene_pair_stats'
 include { DETERMINE_MUTEX_GENE_PAIRS } from '../../../modules/local/determine_mutex_gene_pairs'
+include { QC_BARNYARD_PLOT           } from '../../../modules/local/qc_barnyard_plot'
 
 workflow MARKER_GENE_PAIRS_QC {
     take:
@@ -26,10 +27,33 @@ workflow MARKER_GENE_PAIRS_QC {
         )
         ch_versions = ch_versions.mix(DETERMINE_MUTEX_GENE_PAIRS.out.versions)
 
+        // Cartesian product the xenium data with ALL gene pairings
+        ch_xenium_data
+            .map{
+                meta, gene_list, xenium_rds ->
+                    [meta, xenium_rds]
+            }
+            .combine (
+                GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+                    .flatMap{
+                        meta, gene_pair_stats ->
+                            gene_pair_stats.splitCsv(header: true)
+                    }
+                    .map{ row -> [row['gene1'], row['gene2']] }
+                    .unique()
+        )
+        .map {
+            meta, xenium_rds, gene1, gene2 ->
+                [meta, xenium_rds, ['gene1': gene1, 'gene2': gene2]]
+        }
+        .set { ch_xenium_gene_pairs }
+
         //
         // MODULE: Generate Barnyard Plot
         //
-
+        QC_BARNYARD_PLOT (
+            ch_xenium_gene_pairs
+        )
 
         //
         // MODULE: Generate Heatmap Plot
