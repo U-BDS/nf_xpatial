@@ -62,7 +62,7 @@ workflow MARKER_GENE_PAIRS_QC {
     emit:
         gene_pair_stats = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
         exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
-        barnyard_plot = null
+        barnyard_plot = QC_BARNYARD_PLOT.out.barnyard_plot
         heatmap_plot = null
         versions = ch_versions
 

@@ -50,7 +50,7 @@ plot_barnyard <- function(
 
     # Classify cells based on gene expression
     plot_data$Category <- "None"
-    plot_data$Category[plot_data$x_gene > 0 & plot_data$x_gene == 0] <- x_lab
+    plot_data$Category[plot_data$x_gene > 0 & plot_data$y_gene == 0] <- x_lab
     plot_data$Category[plot_data$x_gene == 0 & plot_data$y_gene > 0] <- y_lab
     plot_data$Category[plot_data$x_gene > 0 & plot_data$y_gene > 0] <- "Mixed"
     
@@ -92,7 +92,8 @@ plot_barnyard <- function(
         y = y_lab,
         subtitle = subtitle_text  # Add subtitle here
         ) +
-        theme(legend.position = "bottom")
+        theme(legend.position = "bottom") +
+        ggtitle(paste0("Barnyard Plot for ", x_lab, " and ", y_lab))
     
     if (!legend) {
         scatter_plot <- scatter_plot + theme(legend.position = "none")
@@ -110,7 +111,8 @@ plot_barnyard <- function(
             annotation_data$Count, " (", annotation_data$Percentage, "%)"
             ),
             hjust = 0, size = 4, color = "black"
-        )
+        ) +
+        ggtitle(paste0("Barnyard Plot for ", x_gene, " and ", y_gene))
     }
     
     # Add marginal plot types if specified
@@ -157,7 +159,7 @@ params_list <- list(
     make_option(
         c("--height"),
         type="integer",
-        default=1000,
+        default=500,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
