@@ -169,7 +169,7 @@
                 "min_nFeature": {
                     "type": "number",
                     "description": "The minimum nFeature threshold for nFeature filtering",
-                    "default": 10.0
+                    "default": 10
                 },
                 "max_nFeature": {
                     "type": "number",
@@ -182,11 +182,38 @@
                 "min_nCount": {
                     "type": "number",
                     "description": "The minimum nCount threshold for nCount filtering",
-                    "default": 10.0
+                    "default": 10
                 },
                 "max_nCount": {
                     "type": "number",
                     "description": "The maximum nCount threshold for nCount filtering"
+                },
+                "skip_cell_area_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the cell area filtering"
+                },
+                "min_cell_area": {
+                    "type": "integer",
+                    "description": "The minimum cell area for cell area filtering",
+                    "default": -1
+                },
+                "max_cell_area": {
+                    "type": "integer",
+                    "description": "The maximum cell area for cell area filtering"
+                }
+            }
+        },
+        "normalization_options": {
+            "title": "Normalization Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "fa_icon": "fas fa-align-justify",
+            "properties": {
+                "normalization_method": {
+                    "type": "string",
+                    "pattern": "^(sctransform|area|log)(,(sctransform|area|log))*$",
+                    "description": "Choose the normalization method to use (log, sctransform, and/or area). Multiple options can be chosen in a comma delimited list"
                 }
             }
         }
@@ -203,6 +230,9 @@
         },
         {
             "$ref": "#/$defs/filtering_options"
+        },
+        {
+            "$ref": "#/$defs/normalization_options"
         }
     ]
 }

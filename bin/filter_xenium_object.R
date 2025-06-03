@@ -96,7 +96,22 @@ params_list <- list(
         c("--max_nCount"),
         type="integer",
         default=NULL,
-        help="The maximum number of nCounts to filter by")
+        help="The maximum number of nCounts to filter by"),
+    make_option(
+        c("--skip_cell_area_filter"),
+        action="store_true",
+        default=FALSE,
+        help="Skip filtering data by cell area"),
+    make_option(
+        c("--min_cell_area"),
+        type="integer",
+        default=NULL,
+        help="The minimum cell area to filter by"),
+    make_option(
+        c("--max_cell_area"),
+        type="integer",
+        default=NULL,
+        help="The maximum cell area to filter by")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -121,6 +136,7 @@ xenium_obj <- readRDS(file = opt$input)
 # Initialize variables to be output to assess filtering
 pre_filtered_cells <- sum(table(xenium_obj@meta.data$orig.ident))
 percentile_filtered <- 0
+cell_area_filtered <- 0
 nFeature_filtered <- 0
 nCount_filtered <- 0
 
@@ -190,6 +206,28 @@ if (!opt$skip_percentile_filter){
     percentile_filtered <- pre_percentile_filter_count - post_percentile_filter_count
 }
 
+# filter by cell area
+if (!opt$skip_cell_area_filter){
+    if ("Cell_Area" %in% colnames(xenium_obj@meta.data)){
+        # Save prefiltering count
+        pre_cell_area_filter_count <- sum(table(xenium_obj@meta.data$orig.ident))
+
+        # Filter by minimum nFeature
+        if (!is.null(opt$min_cell_area)){
+            xenium_obj <- subset(xenium_obj, subset = Cell_Area >= opt$min_cell_area)
+        }
+
+        # Filter by maximum nFeature
+        if (!is.null(opt$max_cell_area)){
+            xenium_obj <- subset(xenium_obj, subset = Cell_Area <= opt$max_nCount)
+        }
+
+        # Calculate cells removed
+        post_cell_area_filter_count <- sum(table(xenium_obj@meta.data$orig.ident))
+        cell_area_filtered <- pre_cell_area_filter_count - post_cell_area_filter_count
+    }
+}
+
 # filter by nCount
 if (!opt$skip_nCount_filter){
     # Save prefiltering count
@@ -247,6 +285,7 @@ cell_numbers <- data.frame(
     cells_pre_filter = pre_filtered_cells,
     cells_post_filter = post_filtered_cells,
     cells_filtered_percentile = percentile_filtered,
+    cells_filtered_cell_area = cell_area_filtered,
     cells_filtered_nFeature = nFeature_filtered,
     cells_filtered_nCount = nCount_filtered
 )

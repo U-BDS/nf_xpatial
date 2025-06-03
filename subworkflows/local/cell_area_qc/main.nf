@@ -83,7 +83,12 @@ workflow CELL_AREA_QC {
 
 
     emit:
-        versions              = ch_versions
+        cell_area_obj                        = ch_xenium_data
+        cell_area_outliers                   = CALCULATE_OUTLIERS.out.outlier_csv
+        cell_area_box_plot                   = QC_BOX_PLOT.out.box_plot
+        cell_area_overlapping_histogram_plot = QC_OVERLAPPING_HISTOGRAM_PLOT.out.overlapping_histogram_plot
+        cell_area_histogram_plot             = QC_HISTOGRAM_PLOT.out.histogram_plot 
+        versions                             = ch_versions
 
 
 }
