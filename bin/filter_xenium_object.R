@@ -48,6 +48,11 @@ params_list <- list(
         default="nCount_BlankCodeword,nFeature_BlankCodeword,nCount_ControlCodeword,nFeature_ControlCodeword,nCount_ControlProbe,nFeature_ControlProbe",
         help="The list of columns to be removed from the metadata"),
     make_option(
+        c("-f", "--filter_features"),
+        type="character",
+        default=NULL,
+        help="Comma-delimited list of features to filter out from the data. If empty, no features will be filtered out."),
+    make_option(
         c("--skip_percentile_filter"),
         action="store_true",
         default=FALSE,
@@ -133,6 +138,18 @@ if (!opt$skip_col_removal){
 # Remove control assays
 
 # Remove features
+if (!is.null(opt$filter_features)){
+    # Split the features by comma
+    features_to_filter <- str_split_1(opt$filter_features, ",")
+
+    features_keep <- Features(xenium_obj)[!Features(xenium_obj) %in% features_to_filter]
+
+    # Filter out the features from the data
+    xenium_obj <- subset(
+        xenium_obj,
+        features = features_keep
+    )
+}
 
 # filter by percentile
 if (!opt$skip_percentile_filter){

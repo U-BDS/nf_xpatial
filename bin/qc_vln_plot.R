@@ -47,7 +47,7 @@ params_list <- list(
     make_option(
         c("--height"),
         type="integer",
-        default=1000,
+        default=500,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
