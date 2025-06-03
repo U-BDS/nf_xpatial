@@ -112,13 +112,12 @@ overlapping_histogram_plot <-
         bins = opt$bins
     ) +
     geom_vline(
-        xintercept = opt$area_threshold,
+        xintercept = opt$threshold,
         linetype = "dashed",
         color = "red",
         size = 1
     ) +
     geom_vline(
-        overlapping_histogram_df,
         aes(xintercept = upper_bound, color = sample),
         linetype = "dotted",
         size = 1) +
