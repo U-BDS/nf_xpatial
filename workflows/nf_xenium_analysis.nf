@@ -21,6 +21,7 @@ include { MANUAL_ANNOTATIONS_QC } from '../subworkflows/local/manual_annotations
 include { MARKER_GENE_PAIRS_QC  } from '../subworkflows/local/marker_gene_pairs_qc/main'
 include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main'
 include { GENERAL_QC            } from '../subworkflows/local/general_qc/main'
+include { CELL_AREA_QC          } from '../subworkflows/local/cell_area_qc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,7 +74,7 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // SUBWORKFLOW: Perform qc for all marker gene pairings
+    // SUBWORKFLOW: Generate qc plots for all marker gene pairings
     //
     MARKER_GENE_PAIRS_QC (
         ch_samplesheet.map { 
@@ -84,14 +85,14 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // SUBWORKFLOW: Perform qc on cell shapes
+    // SUBWORKFLOW: Generate qc plots for cell shapes
     //
     CELL_SHAPE_QC (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
     )
 
     //
-    // SUBWORKFLOW: Perform basic QC on the xenium objects
+    // SUBWORKFLOW: Generate basic QC plots for xenium objects
     //
     GENERAL_QC (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
@@ -102,6 +103,14 @@ workflow NF_XENIUM_ANALYSIS {
     //
     FILTER_XENIUM_OBJ (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
+    )
+
+    //
+    // MODULE: Generate QC plots for cell area
+    //
+    //TODO: Does this need to be run post-filtering?
+    CELL_AREA_QC (
+        FILTER_XENIUM_OBJ.out.filtered_xenium_obj
     )
 
     //
