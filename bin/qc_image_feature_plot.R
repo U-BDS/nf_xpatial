@@ -35,6 +35,11 @@ params_list <- list(
         metavar="path",
         help="The output name for the seurat object"),
     make_option(
+        c("-a", "--assay"),
+        type="character",
+        default=NULL,
+        help="The assay to use for plotting (if applicable)"),
+    make_option(
         c("--width"),
         type="integer",
         default=500,
@@ -42,7 +47,7 @@ params_list <- list(
     make_option(
         c("--height"),
         type="integer",
-        default=500,
+        default=1500,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
@@ -91,6 +96,9 @@ features <- str_split_1(opt$features, ",")
 # Check if the input was a list of objects or a single object
 img_feature_plot <- NULL
 if ( typeof(xenium_objs) != "list" ) {
+    if (!is.null(opt$assay)){
+        DefaultAssay(xenium_objs) <- opt$assay
+    }
 
     img_feature_plot <- 
         ImageFeaturePlot(
@@ -106,6 +114,10 @@ if ( typeof(xenium_objs) != "list" ) {
     fig_list = list()
 
     for (i in 1:length(xenium_objs)){
+        if (!is.null(opt$assay)){
+            DefaultAssay(xenium_objs[[i]]) <- opt$assay
+        }
+
         fig_list[[i]] <- ImageFeaturePlot(
             xenium_objs[[i]],
             features = features

@@ -11,8 +11,10 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 //
 // MODULE: Loaded from modules/local/
 //
-include { CREATE_XENIUM_OBJ } from '../modules/local/create_xenium_object'
-include { FILTER_XENIUM_OBJ } from '../modules/local/filter_xenium_object'
+include { CREATE_XENIUM_OBJ                        } from '../modules/local/create_xenium_object'
+include { FILTER_XENIUM_OBJ                        } from '../modules/local/filter_xenium_object'
+include { COMPILE_OBJECTS as COMPILE_FILTERED_OBJS } from '../modules/local/compile_objects'
+include { QC_VLN_PLOT as POST_FILTERING_VLN_PLOT   } from '../modules/local/qc_vln_plot'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -22,6 +24,7 @@ include { MARKER_GENE_PAIRS_QC  } from '../subworkflows/local/marker_gene_pairs_
 include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main'
 include { GENERAL_QC            } from '../subworkflows/local/general_qc/main'
 include { CELL_AREA_QC          } from '../subworkflows/local/cell_area_qc/main'
+include { NORMALIZE_DATA        } from '../subworkflows/local/normalize_data/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,6 +114,36 @@ workflow NF_XENIUM_ANALYSIS {
     //TODO: Does this need to be run post-filtering?
     CELL_AREA_QC (
         FILTER_XENIUM_OBJ.out.filtered_xenium_obj
+    )
+
+    //
+    // MODULE: Post filtering Violin Plots
+    //
+    COMPILE_FILTERED_OBJS (
+        FILTER_XENIUM_OBJ.out.filtered_xenium_obj
+            .map{
+                meta, xenium_obj -> [xenium_obj]
+            }
+            .collect()
+            .map{
+                [ [ 'id': 'compiled_FILTERED' ], it ]
+            }
+    )
+
+    //
+    // MODULE: Post filtering Violin Plots
+    //
+
+    POST_FILTERING_VLN_PLOT (
+        COMPILE_FILTERED_OBJS.out.compiled_obj
+    )
+
+    //
+    // SUBWORKFLOW: Normalize xenium objects
+    //
+    NORMALIZE_DATA (
+        FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
+        params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : []
     )
 
     //
