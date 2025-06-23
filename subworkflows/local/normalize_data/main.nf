@@ -17,7 +17,7 @@ workflow NORMALIZE_DATA {
     main:
         ch_versions = Channel.empty()
         ch_normalized_objects = Channel.empty()
-        ch_compiled_objects = Channel.empty()
+        ch_compiled_norm_objects = Channel.empty()
 
         //
         // MODULE: Log Normalization
@@ -31,7 +31,7 @@ workflow NORMALIZE_DATA {
             ch_log_norm_objs = NORMALIZE_LOG.out.normalized_xenium_obj
                 .map {
                     meta, xenium_obj ->
-                        def new_meta = meta + [normalization: 'log']
+                        def new_meta = meta + [normalization: 'log_norm']
                     [new_meta, xenium_obj]
                 }
 
@@ -44,10 +44,10 @@ workflow NORMALIZE_DATA {
                     }
                     .collect()
                     .map{
-                        [ [ 'id': 'compiled_log_norm', 'normalization': 'log' ], it ]
+                        [ [ 'id': 'compiled_log_norm', 'normalization': 'log_norm' ], it ]
                     }
             )
-            ch_compiled_objects = ch_compiled_objects.mix(COMPILE_LOG_OBJECTS.out.compiled_obj)
+            ch_compiled_norm_objects = ch_compiled_norm_objects.mix(COMPILE_LOG_OBJECTS.out.compiled_obj)
         }
 
         //
@@ -78,7 +78,7 @@ workflow NORMALIZE_DATA {
         //                [ [ 'id': 'compiled_sct_norm' ], it ]
         //            }
         //    )
-        //    ch_compiled_objects = ch_compiled_objects.mix(COMPILE_SCT_OBJECTS.out.compiled_obj)
+        //    ch_compiled_norm_objects = ch_compiled_norm_objects.mix(COMPILE_SCT_OBJECTS.out.compiled_obj)
         //}
 
         //
@@ -93,7 +93,7 @@ workflow NORMALIZE_DATA {
             ch_area_norm_objs = NORMALIZE_AREA.out.normalized_xenium_obj
                 .map {
                     meta, xenium_obj ->
-                        def new_meta = meta + [normalization: 'area']
+                        def new_meta = meta + [normalization: 'area_norm']
                     [new_meta, xenium_obj]
                 }
 
@@ -106,17 +106,17 @@ workflow NORMALIZE_DATA {
                     }
                     .collect()
                     .map{
-                        [ [ 'id': 'compiled_area_norm', 'normalization': 'area'], it ]
+                        [ [ 'id': 'compiled_area_norm', 'normalization': 'area_norm'], it ]
                     }
             )
-            ch_compiled_objects = ch_compiled_objects.mix(COMPILE_AREA_OBJECTS.out.compiled_obj)
+            ch_compiled_norm_objects = ch_compiled_norm_objects.mix(COMPILE_AREA_OBJECTS.out.compiled_obj)
         }
 
         //
         // MODULE: nCount Feature Plot
         //
         QC_IFP_NORM_NFEATURE(
-            ch_compiled_objects
+            ch_compiled_norm_objects
         )
         ch_versions = ch_versions.mix(QC_IFP_NORM_NFEATURE.out.versions)
 
@@ -125,13 +125,14 @@ workflow NORMALIZE_DATA {
         // MODULE: nFeature Feature Plot
         //
         QC_IFP_NORM_NCOUNT(
-            ch_compiled_objects
+            ch_compiled_norm_objects
         )
         ch_versions = ch_versions.mix(QC_IFP_NORM_NCOUNT.out.versions)
 
 
     emit:
         normalized_objects          = ch_normalized_objects
+        compiled_norm_objects       = ch_compiled_norm_objects
         image_feature_plot_ncount   = QC_IFP_NORM_NCOUNT.out.image_feature_plot
         image_feature_plot_nfeature = QC_IFP_NORM_NFEATURE.out.image_feature_plot
         versions                    = ch_versions

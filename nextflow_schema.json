@@ -190,12 +190,12 @@
                 },
                 "skip_cell_area_filtering": {
                     "type": "boolean",
-                    "description": "Skip the cell area filtering"
+                    "description": "Skip the cell area filtering",
+                    "default": true
                 },
                 "min_cell_area": {
                     "type": "integer",
-                    "description": "The minimum cell area for cell area filtering",
-                    "default": -1
+                    "description": "The minimum cell area for cell area filtering"
                 },
                 "max_cell_area": {
                     "type": "integer",
@@ -213,9 +213,51 @@
                 "normalization_method": {
                     "type": "string",
                     "pattern": "^(sctransform|area|log)(,(sctransform|area|log))*$",
-                    "description": "Choose the normalization method to use (log, sctransform, and/or area). Multiple options can be chosen in a comma delimited list"
+                    "description": "Choose the normalization method to use (log, sctransform, and/or area). Multiple options can be chosen in a comma delimited list",
+                    "default": "log"
                 }
             }
+        },
+        "integration_options": {
+            "title": "Integration options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "dim_start": {
+                    "type": "number",
+                    "description": "The lowest dimension to test"
+                },
+                "dim_stop": {
+                    "type": "number",
+                    "description": "The highest dimension to test"
+                },
+                "dim_step": {
+                    "type": "number",
+                    "description": "The amount to increase dimensions by"
+                },
+                "res_start": {
+                    "type": "number",
+                    "description": "The lowest resolution to test"
+                },
+                "res_stop": {
+                    "type": "number",
+                    "description": "The highest resolution to test"
+                },
+                "res_step": {
+                    "type": "number",
+                    "description": "The amount to increase resolution by"
+                },
+                "selected_res": {
+                    "type": "number",
+                    "description": "Use this to specify a single resolution to explore"
+                },
+                "selected_dim": {
+                    "type": "number",
+                    "description": "Use this to specify a single dimension to explore"
+                }
+            },
+            "fa_icon": "fas fa-object-group"
         }
     },
     "allOf": [
@@ -233,6 +275,9 @@
         },
         {
             "$ref": "#/$defs/normalization_options"
+        },
+        {
+            "$ref": "#/$defs/integration_options"
         }
     ]
 }

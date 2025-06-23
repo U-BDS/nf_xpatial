@@ -43,7 +43,7 @@ process COMPILE_OBJECTS {
 
     saveRDS(
         object = obj_list,
-        file = "${prefix}_merged.rds"
+        file = "${prefix}_compiled.rds"
     )
     """
 }

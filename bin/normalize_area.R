@@ -108,8 +108,6 @@ xenium_obj <- FindVariableFeatures(xenium_obj)
 
 xenium_obj <- ScaleData(xenium_obj)
 
-DefaultAssay(xenium_obj) <- "Xenium"
-
 #################
 ### SAVE DATA ###
 #################

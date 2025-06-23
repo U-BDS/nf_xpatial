@@ -25,6 +25,7 @@ include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main
 include { GENERAL_QC            } from '../subworkflows/local/general_qc/main'
 include { CELL_AREA_QC          } from '../subworkflows/local/cell_area_qc/main'
 include { NORMALIZE_DATA        } from '../subworkflows/local/normalize_data/main'
+include { INTEGRATE_HARMONY     } from '../subworkflows/local/integrate_harmony/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,7 +110,7 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // MODULE: Generate QC plots for cell area
+    // SUBWORKFLOW: Generate QC plots for cell area
     //
     //TODO: Does this need to be run post-filtering?
     CELL_AREA_QC (
@@ -144,6 +145,25 @@ workflow NF_XENIUM_ANALYSIS {
     NORMALIZE_DATA (
         FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
         params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : []
+    )
+
+    //
+    // SUBWORKFLOW: Perform harmony integration on xenium objects
+    //
+
+    // Use the user-provided start, stop, and range values to generate a list of dimensions and resolutions
+    def dim_list = params.selected_dim < 0
+        ? (0..<( (params.dim_stop - params.dim_start) / params.dim_step )).collect {params.dim_start + it * params.dim_step}
+        : params.selected_dim
+
+    def res_list = params.selected_res < 0
+        ? (0..<( (params.res_stop - params.res_start) / params.res_step )).collect { params.res_start + it * params.res_step }
+        : params.selected_res
+
+    INTEGRATE_HARMONY (
+        NORMALIZE_DATA.out.compiled_norm_objects,
+        dim_list,
+        res_list
     )
 
     //
