@@ -28,7 +28,7 @@ process FIND_NEIGHBORS {
     find_neighbors.R \\
         $args \\
         $assay_flag \\
-        --reduction_name "harmony" \\
+        --reduction "harmony" \\
         --dim $dim \\
         --input "$xenium_object" \\
         --outfile ${prefix}_find_neighbors.rds

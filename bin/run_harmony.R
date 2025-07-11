@@ -7,17 +7,9 @@ set.seed(1234)
 ######################
 
 # General Utilities
-library(arrow)      # For reading/writing Parquet files
-library(dplyr)      # For data manipulation
-library(jsonlite)   # For working with JSON data
-library(knitr)      # For generating reports
 library(optparse)   # For parsing commandline arguments
-library(progressr)  # For progress bars
-library(purrr)      # Functional programming tools
 library(Seurat)     # Main analysis package
-
-# Plotting
-library(patchwork)  # For combining plots
+library(harmony)    # For Harmony integration
 
 # Set options
 options(future.globals.maxSize = 8192 * 1024^2)
@@ -43,6 +35,11 @@ params_list <- list(
         type="character",
         default="pca",
         help="The reduction name to evaluate on the xenium object"),
+    make_option(
+        c("-g", "--group_by_vars"),
+        type="character",
+        default="Sample",
+        help="The variables to group by"),
     make_option(
         c("-o", "--outfile"),
         type="character",

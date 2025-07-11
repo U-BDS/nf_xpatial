@@ -22,12 +22,10 @@ process MERGE_XENIUM_OBJECTS {
     script:
     def args       = task.ext.args ?: ""
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
     merge_xenium_objects.R \\
         $args \\
-        $assay_flag \\
         --input "$xenium_object" \\
         --outfile ${prefix}_merged.rds
 

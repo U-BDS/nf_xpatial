@@ -13,7 +13,7 @@ process RUN_TSNE {
     tuple val(meta), path(xenium_object), val(dim)
 
     output:
-    tuple val(meta), path("*.rds"), val(dim), emit: umap_xenium_obj
+    tuple val(meta), path("*.rds"), val(dim), emit: tsne_xenium_obj
     path 'versions.yml'                     , emit: versions
 
     when:
@@ -28,7 +28,7 @@ process RUN_TSNE {
     run_tsne.R \\
         $args \\
         $assay_flag \\
-        --reduction_name "harmony" \\
+        --reduction "harmony" \\
         --dim $dim \\
         --input "$xenium_object" \\
         --outfile ${prefix}_tsne.rds

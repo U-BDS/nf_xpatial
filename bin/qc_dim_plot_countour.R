@@ -159,14 +159,13 @@ dim_plot_countour <- Dimplot_contour_ggplot(
     xenium_obj,
     Embedding = opt$embedding,
     Metadat_column = opt$metadat_col,
-    pt.size = opt$pt_size
+    Point_Size = opt$pt_size
 )
 
 png(
     opt$outfile,
     width = opt$width,
-    height = opt$height,
-    bg = opt$background
+    height = opt$height
 )
 
 plot(dim_plot_countour)

@@ -28,7 +28,7 @@ process RUN_UMAP {
     run_umap.R \\
         $args \\
         $assay_flag \\
-        --reduction_name "harmony" \\
+        --reduction "harmony" \\
         --dim $dim \\
         --input "$xenium_object" \\
         --outfile ${prefix}_umap.rds

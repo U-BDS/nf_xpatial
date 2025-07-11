@@ -39,7 +39,7 @@ params_list <- list(
         default=NULL,
         help="The assay to operate on"),
     make_option(
-        c("-r", "--res"),
+        c("-r", "--resolution"),
         type="integer",
         help="The resolution to use for Find clusters"
     ),
@@ -61,11 +61,6 @@ if (is.null(opt$input)) {
 if (is.null(opt$assay)) {
     print_help(opt_parser)
     stop("Please provide the assay to integrate on as input.", call. = FALSE)
-}
-
-if (is.null(opt$reduction)) {
-    print_help(opt_parser)
-    stop("Please provide the reduction name to integrate on as input.", call. = FALSE)
 }
 
 ###################

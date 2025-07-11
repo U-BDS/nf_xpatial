@@ -9,8 +9,8 @@ include { RUN_UMAP                             } from '../../../modules/local/ru
 include { RUN_TSNE                             } from '../../../modules/local/run_tsne'
 include { FIND_NEIGHBORS                       } from '../../../modules/local/find_neighbors'
 include { FIND_CLUSTERS                        } from '../../../modules/local/find_clusters'
-include { QC_DIM_PLOT_CONTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_coutour'
-include { QC_DIM_PLOT_CONTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_coutour'
+include { QC_DIM_PLOT_COUNTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
+include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_VLN_PLOT                          } from '../../../modules/local/qc_vln_plot'
 include { QC_IMAGE_DIM_PLOT                    } from '../../../modules/local/qc_image_dim_plot'
 
@@ -55,33 +55,35 @@ workflow INTEGRATE_HARMONY {
 
         // MODULE: Find Clusters
         FIND_CLUSTERS (
-            FIND_NEIGHBORS.out.neighbors_xenium_obj.
-                .map {
-                    meta, xenium_object, dim ->
-                        [ meta, xenium_object ]
-                }
+            FIND_NEIGHBORS.out.find_neighbors_xenium_obj
                 .combine( Channel.from(res_list) )
+                .map {
+                    meta, xenium_obj, dim, res ->
+                        meta.dim = dim
+                        meta.res = res
+                        [meta, xenium_obj, res]
+                }
         )
 
         //
         // MODULE: Generate a dim plot with contours for UMAP
         //
         UMAP_DIM_PLOT (
-            FIND_CLUSTERS.out.clusters_xenium_obj
+            FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
         //
         // MODULE: Generate a dim plot with contours for TSNE
         //
         TSNE_DIM_PLOT (
-            FIND_CLUSTERS.out.clusters_xenium_obj
+            FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
         //
         // MODULE: Generate violin plots
         //
         QC_VLN_PLOT (
-            FIND_CLUSTERS.out.clusters_xenium_obj
+            FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
     emit:
