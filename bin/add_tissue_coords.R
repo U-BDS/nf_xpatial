@@ -61,38 +61,26 @@ if (is.null(opt$input)) {
 # Read in xenium_obj
 xenium_obj <- readRDS(file = opt$input)
 
-###########################
-### MERGE XENIUM OBJECT ###
-###########################
+#########################
+### ADD TISSUE COORDS ###
+#########################
 
-merged_xenium_obj <- NULL
+for (i in 1:length(xenium_obj)) {
+    DefaultAssay(xenium_obj[[i]]) <- opt$assay
 
-if (typeof(xenium_obj) == "list") {
-    if (length(xenium_obj) >= 2) {
-        merged_xenium_obj <- merge(
-            x = xenium_obj[[1]],
-            y = xenium_obj[2:length(xenium_obj)],
-            merge.data = TRUE
-        )
-    } else {
-        merged_xenium_obj <- xenium_obj[[1]]
-    }
+    coords <- GetTissueCoordinates(xenium_obj[[i]])
+    coords <- coords %>% tibble::column_to_rownames(var = "cell")
 
-} else {
-    merged_xenium_obj <- xenium_obj
+    xenium_obj[[i]] <- AddMetaData(xenium_obj[[i]], coords)
 }
 
-DefaultAssay(merged_xenium_obj) <- opt$assay
 
-if (opt$assay == "Xenium") {
-    merged_xenium_obj <- JoinLayers(merged_xenium_obj)
-}
 #################
 ### SAVE DATA ###
 #################
 
 saveRDS(
-    object = merged_xenium_obj,
+    object = xenium_obj,
     file = opt$outfile 
 )
 

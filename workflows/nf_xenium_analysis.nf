@@ -26,6 +26,7 @@ include { GENERAL_QC            } from '../subworkflows/local/general_qc/main'
 include { CELL_AREA_QC          } from '../subworkflows/local/cell_area_qc/main'
 include { NORMALIZE_DATA        } from '../subworkflows/local/normalize_data/main'
 include { INTEGRATE_HARMONY     } from '../subworkflows/local/integrate_harmony/main'
+include { BANKSY                } from '../subworkflows/local/banksy/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -164,6 +165,26 @@ workflow NF_XENIUM_ANALYSIS {
         NORMALIZE_DATA.out.compiled_norm_objects,
         dim_list,
         res_list
+    )
+
+    //
+    // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
+    //
+
+    // Generate the list of banksy values from user-provided lists
+    lambda = "0.2"
+    k_geom = "15"
+    nPCs = "30"
+    res = "1.2"
+    agf = true
+    max_iter = 60
+
+    BANKSY (
+        NORMALIZE_DATA.out.compiled_norm_objects,
+        lambda.split(',').collect { it as Float },
+        k_geom.split(',').collect { it as Integer },
+        nPCs.split(',').collect { it as Integer },
+        res.split(',').collect { it as Float },
     )
 
     //

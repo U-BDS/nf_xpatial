@@ -1,4 +1,4 @@
-process MERGE_XENIUM_OBJECTS {
+process ADD_TISSUE_COORDS {
     tag "$meta.id"
     label 'process_low'
 
@@ -13,7 +13,7 @@ process MERGE_XENIUM_OBJECTS {
     tuple val(meta), path(xenium_object)
 
     output:
-    tuple val(meta), path("*.rds"), emit: merged_xenium_obj
+    tuple val(meta), path("*.rds"), emit: tissue_coords_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
@@ -25,11 +25,11 @@ process MERGE_XENIUM_OBJECTS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    merge_xenium_objects.R \\
+    add_tissue_coords.R \\
         $args \\
         $assay_flag \\
         --input "$xenium_object" \\
-        --outfile ${prefix}_merged.rds
+        --outfile ${prefix}_tissue_coords.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
