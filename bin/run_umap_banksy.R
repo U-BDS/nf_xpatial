@@ -29,7 +29,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("--use_harmony"),

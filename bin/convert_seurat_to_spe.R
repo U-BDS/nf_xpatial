@@ -27,7 +27,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("-o", "--outfile"),
@@ -54,49 +53,54 @@ xenium_obj <- readRDS(file = opt$input)
 # Set the default assay
 DefaultAssay(xenium_obj) <- opt$assay
 
-counts <- Seurat::GetAssayData(
-    xenium_obj,
-    slot = "counts"
-)
-
-metadata <- xenium_obj@meta.data
-
-spatial_coords <- Seurat::GetTissueCoordinates(xenium_obj)
-
-colData <- S4Vectors::DataFrame(metadata)
-
-spatial_exp <- SpatialExperiment::SpatialExperiment(
-    assays = list(counts = counts),
-    colData = colData,
-    spatialCoords = as.matrix(spatial_coords[, c("x", "y")])
-)
-
-dim(xenium_obj)
-dim(spatial_coords)
-dim(spe)
-
-# # Extract counts
-# single_cell_exp <- Seurat::as.SingleCellExperiment(
+# counts <- Seurat::GetAssayData(
 #     xenium_obj,
-#     assay = opt$assay
+#     slot = "counts"
 # )
 
-# spatial_coords <- Seurat::GetTissueCoordinates(xenium_obj)
-# spatial_coords
+# metadata <- xenium_obj@meta.data
 
-# # Convert to spatial experiment object
-# spatial_exp <- SpatialExperiment(
-#     assays = assays(single_cell_exp),
-#     rowData = rowData(single_cell_exp),
-#     colData = colData(single_cell_exp),
-#     metadata = metadata(single_cell_exp),
-#     reducedDims = reducedDims(single_cell_exp),
-#     altExps = altExps(single_cell_exp),
-#     spatialCoords = as.matrix(spatial_coords[, c("x", "y")])
+# spatial_coords <- data.frame (x = xenium_obj$x, y = xenium_obj$y)
+# colData <- S4Vectors::DataFrame(metadata)
+
+# spe <- SpatialExperiment::SpatialExperiment(
+#     assays = list(counts = counts),
+#     colData = colData
 # )
 
-# # Set the default assay on the spatial experiment object
-# mainExpName(spatial_exp) <- opt$assay
+# head(xenium_obj@meta.data)
+# dim(xenium_obj)
+# dim(spatial_coords)
+# dim(spe)
+
+# spatial_exp <- SpatialExperiment::SpatialExperiment(
+#     assays = list(counts = counts),
+#     colData = colData,
+#     spatialCoords = as.matrix(spatial_coords)
+# )
+
+# Extract counts
+single_cell_exp <- Seurat::as.SingleCellExperiment(
+    xenium_obj,
+    assay = opt$assay
+)
+spatial_coords <- data.frame (x = xenium_obj$x, y = xenium_obj$y) 
+
+assays(single_cell_exp)
+
+# Convert to spatial experiment object
+spatial_exp <- SpatialExperiment(
+    assays = assays(single_cell_exp),
+    rowData = rowData(single_cell_exp),
+    colData = colData(single_cell_exp),
+    metadata = metadata(single_cell_exp),
+    reducedDims = reducedDims(single_cell_exp),
+    altExps = altExps(single_cell_exp),
+    spatialCoords = as.matrix(spatial_coords)
+)
+
+# Set the default assay on the spatial experiment object
+mainExpName(spatial_exp) <- opt$assay
 
 #################
 ### SAVE DATA ###

@@ -11,6 +11,7 @@ library(optparse)          # For parsing commandline arguments
 library(Seurat)            # For handling Seurat objects
 library(SpatialExperiment) # For handling SpatialExperiment objects
 library(stringr)           # For string manipulation
+library(data.table)        # For data table manipulation
 
 ###############################
 ### COMMAND-LINE PARAMETERS ###
@@ -27,7 +28,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("-o", "--outfile"),

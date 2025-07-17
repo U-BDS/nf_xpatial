@@ -29,7 +29,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("--k_geom"),
@@ -66,9 +65,11 @@ spe_xenium_obj <- readRDS(file = opt$input)
 # Set the default assay on the spatial experiment object
 mainExpName(spe_xenium_obj) <- opt$assay
 
+assays(spe_xenium_obj)
+
 # Compute banksy matrix
 spe_xenium_obj <- computeBanksy(
-    spe,
+    spe_xenium_obj,
     assay_name = "logcounts",
     compute_agf = opt$agf,
     k_geom = opt$k_geom,

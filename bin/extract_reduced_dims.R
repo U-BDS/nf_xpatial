@@ -27,7 +27,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("-o", "--outfile"),
@@ -48,7 +47,7 @@ opt <- parse_args(opt_parser)
 spe_xenium_obj <- readRDS(file = opt$input)
 
 # Set the default assay on the spatial experiment object
-mainExpName(spatial_exp) <- opt$assay
+mainExpName(spe_xenium_obj) <- opt$assay
 
 if (length(reducedDimNames(spe_xenium_obj)) == 0) {
     stop("No reduced dimensions found in the Spatial Experiment object")
@@ -59,7 +58,7 @@ if (length(reducedDimNames(spe_xenium_obj)) == 0) {
 ############################
 
 # Save each sample-specific data frame to a csv file
-for (dim_name in names(spe_xenium_obj)) {
+for (dim_name in reducedDimNames(spe_xenium_obj)) {
     reduced_dim_data <- reducedDim(spe_xenium_obj, dim_name)
 
     reduced_dim_df <- data.frame(

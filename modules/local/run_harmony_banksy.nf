@@ -25,7 +25,7 @@ process RUN_HARMONY_BANKSY {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    run_banksy_harmony.R \\
+    run_harmony_banksy.R \\
         $args \\
         $assay_flag \\
         --ncores ${task.cpus} \\

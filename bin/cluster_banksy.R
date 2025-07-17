@@ -29,7 +29,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("--param_str"),
@@ -39,7 +38,7 @@ params_list <- list(
         help="The string of parameters to use"),
     make_option(
         c("--lambda"),
-        type="float",
+        type="double",
         default=NULL,
         help="lambda values for Banksy clustering"),
    make_option(
@@ -49,7 +48,7 @@ params_list <- list(
         help="nPCs values for Banksy clustering"),
     make_option(
         c("--res"),
-        type="float",
+        type="double",
         default=NULL,
         help="Resolution values for Banksy clustering"),
     make_option(
@@ -79,7 +78,7 @@ mainExpName(spe_xenium_obj) <- opt$assay
 
 # Compute banksy matrix
 spe_xenium_obj <- clusterBanksy(
-    spe,
+    spe_xenium_obj,
     dimred = "BANKSY_harmony",
     resolution = opt$res,
     lambda = opt$lambda,
@@ -88,7 +87,7 @@ spe_xenium_obj <- clusterBanksy(
     verbose = TRUE
 )
 
-colData(spe_xenium_obj)[[paste0("clust_",opt$param_str)]] <- colData(spe_xenium_obj)[[ncol(colData(spe_xenium_obj))]]
+colData(spe_xenium_obj)[["clust_BSKY"]] <- colData(spe_xenium_obj)[[ncol(colData(spe_xenium_obj))]]
 
 #################
 ### SAVE DATA ###

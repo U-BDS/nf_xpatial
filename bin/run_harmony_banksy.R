@@ -29,16 +29,15 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("--max_iter"),
-        type="int",
+        type="integer",
         default=60,
         help="Maximum number of iterations for Banksy clustering"),
     make_option(
         c("--ncores"),
-        type="int",
+        type="integer",
         default=1,
         help="Number of cores to use for Harmony"),
    make_option(

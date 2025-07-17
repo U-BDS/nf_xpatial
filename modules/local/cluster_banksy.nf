@@ -11,7 +11,7 @@ process CLUSTER_BANKSY {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(lambda), val(nPCs)
+    tuple val(meta), path(spe_obj), val(nPCs), val(lambda), val(res)
 
     output:
     tuple val(meta), path("*.rds"), emit: banksy_cluster_spe_obj
@@ -25,13 +25,14 @@ process CLUSTER_BANKSY {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    compute_banksy_pca.R \\
+    cluster_banksy.R \\
         $args \\
         $assay_flag \\
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_pca_spe.rds" \\
         --lambda $lambda \\
-        --nPCs $nPCs
+        --nPCs $nPCs \\
+        --res $res
 
     """
 }

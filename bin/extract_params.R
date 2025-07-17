@@ -27,7 +27,6 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("-o", "--outfile"),
@@ -67,9 +66,9 @@ extract_named_list <- function(params_list, source_name = NULL) {
 }
 
 # Set the default assay on the spatial experiment object
-mainExpName(spatial_exp) <- opt$assay
+mainExpName(spe_xenium_obj) <- opt$assay
 
-all_params <- lappy(names(spe_xenium_obj@metadata), function(name) {
+all_params <- lapply(names(spe_xenium_obj@metadata), function(name) {
     extract_named_list(spe_xenium_obj@metadata[[name]], source_name = name)
 })
 

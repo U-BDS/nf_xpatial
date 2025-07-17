@@ -29,11 +29,10 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        metavar="path",
         help="The assay to keep during conversion"),
     make_option(
         c("--lambda"),
-        type="float",
+        type="double",
         default=NULL,
         help="lambda values for Banksy clustering"),
    make_option(
@@ -73,14 +72,14 @@ mainExpName(spe_xenium_obj) <- opt$assay
 
 # Compute banksy matrix
 spe_xenium_obj <- runBanksyPCA(
-    spe,
+    spe_xenium_obj,
     use_agf = opt$agf,
     lambda = opt$lambda,
-    nPCs = opt$nPCs,
+    npcs = opt$nPCs,
     seed = 1234
 )
 
-reducedDimNames(spe_xenium_obj) <- "Banksy_pca"
+reducedDimNames(spe_xenium_obj) <- "BANKSY_pca"
 
 #################
 ### SAVE DATA ###
