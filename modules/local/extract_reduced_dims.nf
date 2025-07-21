@@ -14,7 +14,9 @@ process EXTRACT_REDUCED_DIMS {
     tuple val(meta), path(spe_obj)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: reduced_dims_csv
+    tuple val(meta), path("BANKSY_pca*.tsv")    , emit: banksy_pca_csv
+    tuple val(meta), path("UMAP_BANKSY*.tsv")   , emit: banksy_umap_csv
+    tuple val(meta), path("BANKSY_harmony*.tsv"), emit: banksy_harmony_csv
 
     when:
     task.ext.when == null || task.ext.when

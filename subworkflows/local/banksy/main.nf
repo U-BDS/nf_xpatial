@@ -14,6 +14,9 @@ include { EXTRACT_CLUSTER_METADATA } from '../../../modules/local/extract_cluste
 include { EXTRACT_PARAMS           } from '../../../modules/local/extract_params'
 include { EXTRACT_XE_METADATA      } from '../../../modules/local/extract_xe_metadata'
 include { EXTRACT_REDUCED_DIMS     } from '../../../modules/local/extract_reduced_dims'
+include { MERGE_CLUSTER_TSV        } from '../../../modules/local/merge_cluster_tsv'
+include { ADD_BANKSY_TO_SEURAT     } from '../../../modules/local/add_banksy_to_seurat'
+include { QC_BANKSY_PLOTS          } from '../../../modules/local/qc_banksy_plots'
 
 workflow BANKSY {
     take:
@@ -42,33 +45,18 @@ workflow BANKSY {
         COMPUTE_BANKSY_MATRIX (
             STAGGER_SPATIAL_COORDS.out.coord_staggered_spe_object
                 .combine( Channel.from(k_geom_list) )
-                .map {
-                    meta, spe_obj, k_geom ->
-                        meta.k_geom = k_geom
-                        [meta, spe_obj, k_geom]
-                }
         )
 
         // MODULE: Compute BANKSY PCAs
         COMPUTE_BANKSY_PCA (
-            STAGGER_SPATIAL_COORDS.out.coord_staggered_spe_object
+            COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
                 .combine( Channel.from(lambda_list))
-                .combine( Channel.from(nPCs_list) ).
-                map {
-                    meta, spe_obj, lambda, nPCs ->
-                        meta.lambda = lambda
-                        meta.nPCs = nPCs
-                        [meta, spe_obj, lambda, nPCs]
-                }
+                .combine( Channel.from(nPCs_list) )
         )
 
         // MODULE: Run BANKSY Harmony
         RUN_HARMONY_BANKSY (
             COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
-                .map {
-                    meta, spe_obj ->
-                        [meta, spe_obj, meta.nPCs]
-                }
         )
 
         // MODULE: Run BANKSY UMAP
@@ -80,11 +68,6 @@ workflow BANKSY {
         CLUSTER_BANKSY (
             RUN_UMAP_BANKSY.out.banksy_umap_spe_obj
                 .combine( Channel.from(res_list) )
-                .map {
-                    meta, spe_obj, res ->
-                        meta.res = res
-                    [meta, spe_obj, meta.nPCs, meta.lambda, meta.res]
-                }
         )
 
         // MODULE: Extract cluster metadata
@@ -95,16 +78,60 @@ workflow BANKSY {
         // MODULE: Extract param data
         EXTRACT_PARAMS (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
+                .map {
+                    meta, csv, k_geom, lambda, nPCs, res ->
+                        [meta,  csv]
+                }
         )
 
         // MODULE: Extract Xenium Explorer metadata
         EXTRACT_XE_METADATA (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
+                .map {
+                    meta, csv, k_geom, lambda, nPCs, res ->
+                        [meta,  csv]
+                }
         )
 
         // MODULE: Extract Reduced Dims
         EXTRACT_REDUCED_DIMS (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
+                .map {
+                    meta, csv, k_geom, lambda, nPCs, res ->
+                        [meta,  csv]
+                }
+        )
+
+        // MODULE: Merge cluster tsvs
+        MERGE_CLUSTER_TSV (
+            EXTRACT_CLUSTER_METADATA.out.cluster_metadata
+                .groupTuple()
+        )
+
+        // MODULE: Add BANKSY clusters to Xenium Object
+        ADD_BANKSY_TO_SEURAT (
+            MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
+                .join (
+                    MERGE_CLUSTER_TSV.out.merged_cluster_csv
+                        .map {
+                            meta, csv ->
+                                keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
+                                [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
+                        }
+                )
+        )
+
+        // MODULE: Generate QC plots for BANKSY clusters
+        QC_BANKSY_PLOTS (
+            ADD_BANKSY_TO_SEURAT.out.banksy_xenium_obj
+                .combine (
+                    EXTRACT_REDUCED_DIMS.out.banksy_umap_csv
+                            .map {
+                                meta, csv ->
+                                    keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
+                                    [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
+                            }
+                , by: 0)
         )
 
     emit:

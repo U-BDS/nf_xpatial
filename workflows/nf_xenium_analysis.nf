@@ -172,7 +172,7 @@ workflow NF_XENIUM_ANALYSIS {
     //
 
     // Generate the list of banksy values from user-provided lists
-    lambda = "0.2"
+    lambda = "0.2,0.9"
     k_geom = "15"
     nPCs = "30"
     res = "1.2"

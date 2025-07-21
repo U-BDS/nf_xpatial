@@ -11,7 +11,7 @@ process EXTRACT_CLUSTER_METADATA {
         }"
 
     input:
-    tuple val(meta), path(spe_obj)
+    tuple val(meta), path(spe_obj), val(k_geom), val(lambda), val(nPCs), val(res)
 
     output:
     tuple val(meta), path("*.tsv"), emit: cluster_metadata

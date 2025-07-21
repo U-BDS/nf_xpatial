@@ -87,7 +87,7 @@ spe_xenium_obj <- clusterBanksy(
     verbose = TRUE
 )
 
-colData(spe_xenium_obj)[["clust_BSKY"]] <- colData(spe_xenium_obj)[[ncol(colData(spe_xenium_obj))]]
+colData(spe_xenium_obj)[[paste0("clust_", opt$param_str)]] <- colData(spe_xenium_obj)[[ncol(colData(spe_xenium_obj))]]
 
 #################
 ### SAVE DATA ###

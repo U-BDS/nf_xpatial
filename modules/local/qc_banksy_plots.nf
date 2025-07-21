@@ -1,4 +1,4 @@
-process COMPUTE_BANKSY_MATRIX {
+process QC_BANKSY_PLOTS {
     tag "$meta.id"
     label 'process_low'
 
@@ -11,10 +11,11 @@ process COMPUTE_BANKSY_MATRIX {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(k_geom)
+    tuple val(meta), path(xenium_obj), path(banksy_cluster_info)
 
     output:
-    tuple val(meta), path("*.rds"), val(k_geom), emit: banksy_mtx_spe_obj
+    tuple val(meta), path("*.png"), emit: vln_plot
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,11 +26,17 @@ process COMPUTE_BANKSY_MATRIX {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    compute_banksy_matrix.R \\
+    qc_banksy_plots.R \\
         $args \\
+        --input "$xenium_obj" \\
+        --banksy_clust_info $banksy_cluster_info \\
         $assay_flag \\
-        --input "$spe_obj" \\
-        --outfile "${prefix}_banksy_mtx_spe.rds" \\
-        --k_geom $k_geom
+        --outfile ${prefix}_banksy_plot.png
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
+        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
+    END_VERSIONS
     """
 }

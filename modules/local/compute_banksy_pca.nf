@@ -11,10 +11,10 @@ process COMPUTE_BANKSY_PCA {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(lambda), val(nPCs)
+    tuple val(meta), path(spe_obj), val(k_geom), val(lambda), val(nPCs)
 
     output:
-    tuple val(meta), path("*.rds"), emit: banksy_pca_spe_obj
+    tuple val(meta), path("*.rds"), val(k_geom), val(lambda), val(nPCs), emit: banksy_pca_spe_obj
 
     when:
     task.ext.when == null || task.ext.when
