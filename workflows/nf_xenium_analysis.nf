@@ -172,19 +172,12 @@ workflow NF_XENIUM_ANALYSIS {
     //
 
     // Generate the list of banksy values from user-provided lists
-    lambda = "0.2,0.9"
-    k_geom = "15"
-    nPCs = "30"
-    res = "1.2"
-    agf = true
-    max_iter = 60
-
     BANKSY (
         NORMALIZE_DATA.out.compiled_norm_objects,
-        lambda.split(',').collect { it as Float },
-        k_geom.split(',').collect { it as Integer },
-        nPCs.split(',').collect { it as Integer },
-        res.split(',').collect { it as Float },
+        params.lambda_BANKSY.split(',').collect { it as Float },
+        params.k_geom_BANKSY.split(',').collect { it as Integer },
+        params.nPCs_BANKSY.split(',').collect { it as Integer },
+        params.res_BANKSY.split(',').collect { it as Float },
     )
 
     //
