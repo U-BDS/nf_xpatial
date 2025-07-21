@@ -169,7 +169,7 @@
                 "min_nFeature": {
                     "type": "number",
                     "description": "The minimum nFeature threshold for nFeature filtering",
-                    "default": 10
+                    "default": 10.0
                 },
                 "max_nFeature": {
                     "type": "number",
@@ -182,7 +182,7 @@
                 "min_nCount": {
                     "type": "number",
                     "description": "The minimum nCount threshold for nCount filtering",
-                    "default": 10
+                    "default": 10.0
                 },
                 "max_nCount": {
                     "type": "number",
@@ -250,14 +250,50 @@
                 },
                 "selected_res": {
                     "type": "number",
-                    "description": "Use this to specify a single resolution to explore"
+                    "description": "Use this to specify a single resolution to explore",
+                    "default": -1.0
                 },
                 "selected_dim": {
                     "type": "number",
-                    "description": "Use this to specify a single dimension to explore"
+                    "description": "Use this to specify a single dimension to explore",
+                    "default": -1.0
                 }
             },
             "fa_icon": "fas fa-object-group"
+        },
+        "banksy_options": {
+            "title": "BANKSY options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "lambda_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of lambda values to pass to BANKSY"
+                },
+                "k_geom_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of k_grom values to pass to BANKSY"
+                },
+                "nPCs_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of nPCs to pass to BANKSY"
+                },
+                "res_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of resolutions to pass to BANKSY"
+                },
+                "use_agf_BANKSY": {
+                    "type": "boolean",
+                    "description": "Whether or not to use agf for BANKSY",
+                    "default": true
+                },
+                "max_iter_BANKSY": {
+                    "type": "integer",
+                    "description": "The maximum number of iterations to use for BANKSY",
+                    "default": 60
+                }
+            }
         }
     },
     "allOf": [
@@ -278,6 +314,9 @@
         },
         {
             "$ref": "#/$defs/integration_options"
+        },
+        {
+            "$ref": "#/$defs/banksy_options"
         }
     ]
 }
