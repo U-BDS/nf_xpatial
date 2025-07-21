@@ -32,12 +32,6 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+$"
-            },
-            "marker_genes": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^\\S+$"
             }
         },
         "required": ["sample", "xenium", "metadata"]

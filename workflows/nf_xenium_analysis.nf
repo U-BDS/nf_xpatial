@@ -40,7 +40,6 @@ workflow NF_XENIUM_ANALYSIS {
     ch_samplesheet // channel: samplesheet read in from --input
 
     main:
-
     ch_versions = Channel.empty()
 
     // Grab the header from the metadata sheet so we have values to group by in plots
@@ -62,7 +61,7 @@ workflow NF_XENIUM_ANALYSIS {
     CREATE_XENIUM_OBJ (
         ch_samplesheet
             .map{
-                meta, xenium_input, metadata, manual_annotation, gene_marker_list ->
+                meta, xenium_input, metadata, manual_annotation ->
                 [meta, xenium_input, metadata]
             }
     )
@@ -81,13 +80,12 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Generate qc plots for all marker gene pairings
     //
-    MARKER_GENE_PAIRS_QC (
-        ch_samplesheet.map { 
-            meta, xenium_input, metadata, manual_annotation, marker_gene_list ->
-            [meta, marker_gene_list]
-        }
-        .join(MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj, by: 0)
-    )
+    if (!params.marker_gene_list) {
+        MARKER_GENE_PAIRS_QC (
+            MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
+                .combine(params.marker_gene_list)
+        )
+    }
 
     //
     // SUBWORKFLOW: Generate qc plots for cell shapes

@@ -30,7 +30,7 @@ workflow MARKER_GENE_PAIRS_QC {
         // Cartesian product the xenium data with ALL gene pairings
         ch_xenium_data
             .map{
-                meta, gene_list, xenium_rds ->
+                meta, xenium_rds, gene_list ->
                     [meta, xenium_rds]
             }
             .combine (

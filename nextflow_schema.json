@@ -28,6 +28,13 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "marker_gene_list": {
+                    "type": "string",
+                    "description": "The list of marker genes to evaluat",
+                    "pattern": "^\\S+\\.csv$",
+                    "format": "file-path",
+                    "mimetype": "text/csv"
                 }
             }
         },
@@ -169,7 +176,7 @@
                 "min_nFeature": {
                     "type": "number",
                     "description": "The minimum nFeature threshold for nFeature filtering",
-                    "default": 10.0
+                    "default": 10
                 },
                 "max_nFeature": {
                     "type": "number",
@@ -182,7 +189,7 @@
                 "min_nCount": {
                     "type": "number",
                     "description": "The minimum nCount threshold for nCount filtering",
-                    "default": 10.0
+                    "default": 10
                 },
                 "max_nCount": {
                     "type": "number",
@@ -251,12 +258,12 @@
                 "selected_res": {
                     "type": "number",
                     "description": "Use this to specify a single resolution to explore",
-                    "default": -1.0
+                    "default": -1
                 },
                 "selected_dim": {
                     "type": "number",
                     "description": "Use this to specify a single dimension to explore",
-                    "default": -1.0
+                    "default": -1
                 }
             },
             "fa_icon": "fas fa-object-group"

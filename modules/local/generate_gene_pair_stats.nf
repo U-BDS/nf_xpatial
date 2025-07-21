@@ -11,7 +11,7 @@ process GENERATE_GENE_PAIR_STATS{
         }"
 
     input:
-    tuple val(meta), path(marker_gene_list), path(xenium_obj)
+    tuple val(meta), path(xenium_obj), path(marker_gene_list)
 
     output:
     tuple val(meta), path('*.csv'), emit: gene_pair_stats

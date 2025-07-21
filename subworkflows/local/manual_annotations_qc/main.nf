@@ -16,7 +16,7 @@ workflow MANUAL_ANNOTATIONS_QC {
         ch_sep_objects = ch_samplesheet
             .join(ch_xenium_obj)
             .map {
-                meta, xenium_input, metadata, manual_annotation, gene_marker_list, xenium_rds ->
+                meta, xenium_input, metadata, manual_annotation, xenium_rds ->
                     [meta, xenium_rds, manual_annotation]
             }
             .branch {
