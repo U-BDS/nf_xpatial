@@ -264,6 +264,10 @@
                     "type": "number",
                     "description": "Use this to specify a single dimension to explore",
                     "default": -1
+                },
+                "skip_tsne_plot": {
+                    "type": "boolean",
+                    "description": "Use this to specify to skip producing a tsne plot"
                 }
             },
             "fa_icon": "fas fa-object-group"

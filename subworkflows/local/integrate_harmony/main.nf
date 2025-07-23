@@ -19,6 +19,7 @@ workflow INTEGRATE_HARMONY {
         ch_comp_norm_xenium_obj // channel: compiled and normalized xenium objects
         dim_list                // list: list of dimensions to evaluate
         res_list                // list: list of resolutions to evaluate
+        skip_tsne_plot          // boolean: whether to skip TSNE plot generation
 
     main:
         ch_versions = Channel.empty()
@@ -43,14 +44,19 @@ workflow INTEGRATE_HARMONY {
             RUN_HARMONY.out.integrated_xenium_obj.combine( Channel.from(dim_list) )
         )
 
-        // MODULE: Generate TSNE for Harmony
-        RUN_TSNE (
-            RUN_UMAP.out.umap_xenium_obj
-        )
+        ch_umap_obj = RUN_UMAP.out.umap_xenium_obj
+
+        if (!skip_tsne_plot) {
+            // MODULE: Generate TSNE for Harmony
+            RUN_TSNE (
+                RUN_UMAP.out.umap_xenium_obj
+            )   
+            ch_umap_obj = RUN_TSNE.out.tsne_xenium_obj
+        }
 
         // MODULE: Find Neighbors for Harmony Integrated object
         FIND_NEIGHBORS (
-            RUN_TSNE.out.tsne_xenium_obj
+            ch_umap_obj
         )
 
         // MODULE: Find Clusters
@@ -72,12 +78,14 @@ workflow INTEGRATE_HARMONY {
             FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
-        //
-        // MODULE: Generate a dim plot with contours for TSNE
-        //
-        TSNE_DIM_PLOT (
-            FIND_CLUSTERS.out.find_clusters_xenium_obj
-        )
+        if (!skip_tsne_plot) {
+            //
+            // MODULE: Generate a dim plot with contours for TSNE
+            //
+            TSNE_DIM_PLOT (
+                FIND_CLUSTERS.out.find_clusters_xenium_obj
+            )
+        }
 
         //
         // MODULE: Generate violin plots
