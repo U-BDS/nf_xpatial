@@ -1,6 +1,6 @@
 process SCALE_DATA {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
