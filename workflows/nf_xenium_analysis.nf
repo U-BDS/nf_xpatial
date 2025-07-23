@@ -19,14 +19,12 @@ include { QC_VLN_PLOT as POST_FILTERING_VLN_PLOT   } from '../modules/local/qc_v
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
 //
-include { MANUAL_ANNOTATIONS_QC } from '../subworkflows/local/manual_annotations_qc/main'
-include { MARKER_GENE_PAIRS_QC  } from '../subworkflows/local/marker_gene_pairs_qc/main'
-include { CELL_SHAPE_QC         } from '../subworkflows/local/cell_shape_qc/main'
-include { GENERAL_QC            } from '../subworkflows/local/general_qc/main'
-include { CELL_AREA_QC          } from '../subworkflows/local/cell_area_qc/main'
-include { NORMALIZE_DATA        } from '../subworkflows/local/normalize_data/main'
-include { INTEGRATE_HARMONY     } from '../subworkflows/local/integrate_harmony/main'
-include { BANKSY                } from '../subworkflows/local/banksy/main'
+include { MANUAL_ANNOTATIONS_QC               } from '../subworkflows/local/manual_annotations_qc/main'
+include { SPATIAL_QC as SPATIAL_QC_PREFILTER  } from '../subworkflows/local/spatial_qc/main'
+include { SPATIAL_QC as SPATIAL_QC_POSTFILTER } from '../subworkflows/local/spatial_qc/main'
+include { NORMALIZE_DATA                      } from '../subworkflows/local/normalize_data/main'
+include { INTEGRATE_HARMONY                   } from '../subworkflows/local/integrate_harmony/main'
+include { BANKSY                              } from '../subworkflows/local/banksy/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,19 +39,6 @@ workflow NF_XENIUM_ANALYSIS {
 
     main:
     ch_versions = Channel.empty()
-
-    // Grab the header from the metadata sheet so we have values to group by in plots
-    /*ch_samplesheet
-        .map {
-            meta, xenium_input, metadata, manual_annotation ->
-                metadata_vals = metadata.text.readLines().first().split(',')
-                metadata_vals.collect { metadata_val -> [meta, metadata_val] }
-        }
-        .flatMap{
-            meta_metadata_val ->
-                meta_metadata_val
-        }
-        .set { ch_metadata_vals }*/
 
     //
     // MODULE: Read in xenium matrix and add metadata
@@ -78,27 +63,11 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // SUBWORKFLOW: Generate qc plots for all marker gene pairings
+    // SUBWORKFLOW: Generate spatial QC plots before filtering
     //
-    if (!params.marker_gene_list) {
-        MARKER_GENE_PAIRS_QC (
-            MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
-                .combine(params.marker_gene_list)
-        )
-    }
-
-    //
-    // SUBWORKFLOW: Generate qc plots for cell shapes
-    //
-    CELL_SHAPE_QC (
-        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
-    )
-
-    //
-    // SUBWORKFLOW: Generate basic QC plots for xenium objects
-    //
-    GENERAL_QC (
-        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
+    SPATIAL_QC_PREFILTER (
+        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
+        params.marker_gene_list
     )
 
     //
@@ -109,33 +78,11 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // SUBWORKFLOW: Generate QC plots for cell area
+    // SUBWORKFLOW: Generate spatial QC plots after filtering
     //
-    //TODO: Does this need to be run post-filtering?
-    CELL_AREA_QC (
-        FILTER_XENIUM_OBJ.out.filtered_xenium_obj
-    )
-
-    //
-    // MODULE: Post filtering Violin Plots
-    //
-    COMPILE_FILTERED_OBJS (
-        FILTER_XENIUM_OBJ.out.filtered_xenium_obj
-            .map{
-                meta, xenium_obj -> [xenium_obj]
-            }
-            .collect()
-            .map{
-                [ [ 'id': 'compiled_FILTERED' ], it ]
-            }
-    )
-
-    //
-    // MODULE: Post filtering Violin Plots
-    //
-
-    POST_FILTERING_VLN_PLOT (
-        COMPILE_FILTERED_OBJS.out.compiled_obj
+    SPATIAL_QC_POSTFILTER (
+        FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
+        params.marker_gene_list
     )
 
     //
