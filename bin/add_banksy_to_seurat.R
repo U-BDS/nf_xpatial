@@ -85,6 +85,12 @@ metadata_df <- metadata_df[common_cells, ]
 # Add the new metadata columns to the xenium object's metadata
 xenium_obj@meta.data <- cbind(xenium_metadata, metadata_df)
 
+# Connect the clusters
+xenium_obj_connected <- connectClusters(
+    as.SingleCellExperiment(xenium_obj)
+)
+
+xenium_obj@meta.data <- colData(xenium_obj_connected) %>% as.data.frame() %>% dplyr::select(!ident)
 
 #################
 ### SAVE DATA ###
