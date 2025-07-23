@@ -1,6 +1,6 @@
 process QC_BANKSY_PLOTS {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     //container "nf_xenium_analysis_0.0.1.sif"
     container "${ 

@@ -1,6 +1,6 @@
 process MERGE_CLUSTER_TSV {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&

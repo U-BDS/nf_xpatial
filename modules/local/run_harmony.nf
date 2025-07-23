@@ -1,6 +1,6 @@
 process RUN_HARMONY {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&

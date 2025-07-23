@@ -1,6 +1,6 @@
 process RUN_HARMONY_BANKSY {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_high'
 
     //container "nf_xenium_analysis_0.0.1.sif"
     container "${ 
