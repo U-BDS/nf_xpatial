@@ -269,6 +269,11 @@ xenium.obj <- AddMetaData(
 
 xenium.obj@meta.data$Cell_ID <- rownames(xenium.obj@meta.data)
 
+######################
+### ADD CELL COUNT ###
+######################
+Misc(xenium_obj, slot = "cell_count") <- sum(table(xenium_obj@meta.data$orig.ident))
+
 #################
 ### SAVE DATA ###
 #################
