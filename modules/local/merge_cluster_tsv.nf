@@ -60,6 +60,6 @@ process MERGE_CLUSTER_TSV {
     #)
 
     # Save the result to a CSV file if needed
-    write.csv(compiled_df, "${prefix}_compiled_clusts_results.csv")
+    write.csv(compiled_df, "${prefix}_compiled_clusts_results.csv", quote = FALSE, row.names = FALSE)
     """
 }

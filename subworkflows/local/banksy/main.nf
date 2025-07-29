@@ -1,22 +1,22 @@
 #!/usr/bin/env nextflow
 
-include { ADD_TISSUE_COORDS        } from '../../../modules/local/add_tissue_coords'
-include { COMPILE_OBJECTS          } from '../../../modules/local/compile_objects'
-include { MERGE_XENIUM_OBJECTS     } from '../../../modules/local/merge_xenium_objects'
-include { CONVERT_SEURAT_TO_SPE    } from '../../../modules/local/convert_seurat_to_spe'
-include { STAGGER_SPATIAL_COORDS   } from '../../../modules/local/stagger_spatial_coords'
-include { CLUSTER_BANKSY           } from '../../../modules/local/cluster_banksy'
-include { COMPUTE_BANKSY_MATRIX    } from '../../../modules/local/compute_banksy_matrix'
-include { COMPUTE_BANKSY_PCA       } from '../../../modules/local/compute_banksy_pca'
-include { RUN_HARMONY_BANKSY       } from '../../../modules/local/run_harmony_banksy'
-include { RUN_UMAP_BANKSY          } from '../../../modules/local/run_umap_banksy'
-include { EXTRACT_CLUSTER_METADATA } from '../../../modules/local/extract_cluster_metadata'
-include { EXTRACT_PARAMS           } from '../../../modules/local/extract_params'
-include { EXTRACT_XE_METADATA      } from '../../../modules/local/extract_xe_metadata'
-include { EXTRACT_REDUCED_DIMS     } from '../../../modules/local/extract_reduced_dims'
-include { MERGE_CLUSTER_TSV        } from '../../../modules/local/merge_cluster_tsv'
-include { ADD_BANKSY_TO_SEURAT     } from '../../../modules/local/add_banksy_to_seurat'
-include { QC_BANKSY_PLOTS          } from '../../../modules/local/qc_banksy_plots'
+include { ADD_TISSUE_COORDS               } from '../../../modules/local/add_tissue_coords'
+include { COMPILE_OBJECTS                 } from '../../../modules/local/compile_objects'
+include { MERGE_XENIUM_OBJECTS            } from '../../../modules/local/merge_xenium_objects'
+include { CONVERT_SEURAT_TO_SPE           } from '../../../modules/local/convert_seurat_to_spe'
+include { STAGGER_SPATIAL_COORDS          } from '../../../modules/local/stagger_spatial_coords'
+include { CLUSTER_BANKSY                  } from '../../../modules/local/cluster_banksy'
+include { COMPUTE_BANKSY_MATRIX           } from '../../../modules/local/compute_banksy_matrix'
+include { COMPUTE_BANKSY_PCA              } from '../../../modules/local/compute_banksy_pca'
+include { RUN_HARMONY_BANKSY              } from '../../../modules/local/run_harmony_banksy'
+include { RUN_UMAP_BANKSY                 } from '../../../modules/local/run_umap_banksy'
+include { EXTRACT_BANKSY_CLUSTER_METADATA } from '../../../modules/local/extract_banksy_cluster_metadata'
+include { EXTRACT_PARAMS                  } from '../../../modules/local/extract_params'
+include { EXTRACT_XE_METADATA             } from '../../../modules/local/extract_xe_metadata'
+include { EXTRACT_REDUCED_DIMS            } from '../../../modules/local/extract_reduced_dims'
+include { MERGE_CLUSTER_TSV               } from '../../../modules/local/merge_cluster_tsv'
+include { ADD_BANKSY_TO_SEURAT            } from '../../../modules/local/add_banksy_to_seurat'
+include { QC_BANKSY_PLOTS                 } from '../../../modules/local/qc_banksy_plots'
 
 workflow BANKSY {
     take:
@@ -71,7 +71,7 @@ workflow BANKSY {
         )
 
         // MODULE: Extract cluster metadata
-        EXTRACT_CLUSTER_METADATA (
+        EXTRACT_BANKSY_CLUSTER_METADATA (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
         )
 
@@ -104,7 +104,7 @@ workflow BANKSY {
 
         // MODULE: Merge cluster tsvs
         MERGE_CLUSTER_TSV (
-            EXTRACT_CLUSTER_METADATA.out.cluster_metadata
+            EXTRACT_BANKSY_CLUSTER_METADATA.out.cluster_metadata
                 .groupTuple()
         )
 

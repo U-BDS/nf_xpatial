@@ -284,7 +284,6 @@ generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, a
     # 7) Combine the first 8 dimension plots into a grid
     left_col <- wrap_plots(
         ImageDim_Plot,
-        nrow = 4,   # 4 rows
         ncol = 2    # 2 columns
     )
 

@@ -10,11 +10,11 @@ process FIND_CLUSTERS {
         }"
 
     input:
-    tuple val(meta), path(xenium_object), val(res)
+    tuple val(meta), path(xenium_object), val(dim), val(res)
 
     output:
-    tuple val(meta), path("*.rds"), emit: find_clusters_xenium_obj
-    path 'versions.yml'           , emit: versions
+    tuple val(meta), path("*.rds"), val(dim), val(res), emit: find_clusters_xenium_obj
+    path 'versions.yml'                               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

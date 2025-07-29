@@ -272,7 +272,7 @@ xenium.obj@meta.data$Cell_ID <- rownames(xenium.obj@meta.data)
 ######################
 ### ADD CELL COUNT ###
 ######################
-Misc(xenium_obj, slot = "cell_count") <- sum(table(xenium_obj@meta.data$orig.ident))
+Misc(xenium.obj, slot = "cell_count") <- sum(table(xenium.obj@meta.data$orig.ident))
 
 #################
 ### SAVE DATA ###

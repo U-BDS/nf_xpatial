@@ -1,18 +1,21 @@
 #!/usr/bin/env nextflow
 
-include { MERGE_XENIUM_OBJECTS                 } from '../../../modules/local/merge_xenium_objects'
-include { SCALE_DATA                           } from '../../../modules/local/scale_data'
-include { RUN_PCA                              } from '../../../modules/local/run_pca'
-include { QC_ELBOW_PLOT                        } from '../../../modules/local/qc_elbow_plot'
-include { RUN_HARMONY                          } from '../../../modules/local/run_harmony'
-include { RUN_UMAP                             } from '../../../modules/local/run_umap'
-include { RUN_TSNE                             } from '../../../modules/local/run_tsne'
-include { FIND_NEIGHBORS                       } from '../../../modules/local/find_neighbors'
-include { FIND_CLUSTERS                        } from '../../../modules/local/find_clusters'
+include { MERGE_XENIUM_OBJECTS                  } from '../../../modules/local/merge_xenium_objects'
+include { SCALE_DATA                            } from '../../../modules/local/scale_data'
+include { RUN_PCA                               } from '../../../modules/local/run_pca'
+include { QC_ELBOW_PLOT                         } from '../../../modules/local/qc_elbow_plot'
+include { RUN_HARMONY                           } from '../../../modules/local/run_harmony'
+include { RUN_UMAP                              } from '../../../modules/local/run_umap'
+include { RUN_TSNE                              } from '../../../modules/local/run_tsne'
+include { FIND_NEIGHBORS                        } from '../../../modules/local/find_neighbors'
+include { FIND_CLUSTERS                         } from '../../../modules/local/find_clusters'
 include { QC_DIM_PLOT_COUNTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
-include { QC_VLN_PLOT                          } from '../../../modules/local/qc_vln_plot'
-include { QC_IMAGE_DIM_PLOT                    } from '../../../modules/local/qc_image_dim_plot'
+include { QC_VLN_PLOT                           } from '../../../modules/local/qc_vln_plot'
+include { QC_IMAGE_DIM_PLOT                     } from '../../../modules/local/qc_image_dim_plot'
+include { EXTRACT_SEURAT_CLUSTER_METADATA       } from '../../../modules/local/extract_seurat_cluster_metadata'
+include { MERGE_CLUSTER_TSV                     } from '../../../modules/local/merge_cluster_tsv'
+include { ADD_BANKSY_TO_SEURAT                  } from '../../../modules/local/add_banksy_to_seurat'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -63,12 +66,6 @@ workflow INTEGRATE_HARMONY {
         FIND_CLUSTERS (
             FIND_NEIGHBORS.out.find_neighbors_xenium_obj
                 .combine( Channel.from(res_list) )
-                .map {
-                    meta, xenium_obj, dim, res ->
-                        meta.dim = dim
-                        meta.res = res
-                        [meta, xenium_obj, res]
-                }
         )
 
         //
@@ -92,7 +89,31 @@ workflow INTEGRATE_HARMONY {
         //
         QC_VLN_PLOT (
             FIND_CLUSTERS.out.find_clusters_xenium_obj
+                .map{ meta, file, dim, res -> [meta, file] }
         )
+
+        // //
+        // // MODULE: Extract cluster metadata for Seurat
+        // //
+        // EXTRACT_SEURAT_CLUSTER_METADATA (
+        //     FIND_CLUSTERS.out.find_clusters_xenium_obj
+        // )
+
+        // //
+        // // MODULE: Merge cluster tsvs
+        // //
+        // MERGE_CLUSTER_TSV (
+        //     EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
+        //         .groupTuple()
+        // )
+
+        // //
+        // // MODULE: Add BANKSY clusters to Seurat Object
+        // //
+        // ADD_BANKSY_TO_SEURAT (
+        //     MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
+        //         .join (MERGE_CLUSTER_TSV.out.merged_cluster_csv)
+        // )
 
     emit:
         versions = ch_versions

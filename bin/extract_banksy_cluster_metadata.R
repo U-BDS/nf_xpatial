@@ -59,7 +59,6 @@ clusts <- col_data[ grepl("^clust_BSKY", colnames(col_data)) ]
 clusts$Index <- rownames(clusts)
 clusts <- clusts[rev(colnames(clusts))]
 
-
 ###################
 ### WRITE TABLE ###
 ###################

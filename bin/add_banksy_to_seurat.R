@@ -10,6 +10,8 @@ set.seed(1234)
 library(dplyr)      # For data manipulation
 library(optparse)   # For parsing commandline arguments
 library(Seurat)     # Main analysis package
+library(Banksy)
+library(SummarizedExperiment) 
 
 # Set options
 options(future.globals.maxSize = 8192 * 1024^2)
@@ -31,6 +33,11 @@ params_list <- list(
         default=NULL,
         metavar="path",
         help="The BANKSY cluster information file"),
+    make_option(
+        c("-a", "--assay"),
+        type="character",
+        default=NULL,
+        help="The assay to keep during conversion"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -75,19 +82,22 @@ metadata_df$Index <- NULL
 ### ADD METADATA ###
 ####################
 
+DefaultAssay(xenium_obj) <- opt$assay
+
 # Ensure that the order of rownames matches between xenium metadata and new metadata
 common_cells <- intersect(rownames(xenium_obj@meta.data), rownames(metadata_df))
 
 # Subset both metadata to only include matching cells
 xenium_metadata <- xenium_obj@meta.data[common_cells, ]
 metadata_df <- metadata_df[common_cells, ]
+metadata_df
 
 # Add the new metadata columns to the xenium object's metadata
 xenium_obj@meta.data <- cbind(xenium_metadata, metadata_df)
 
 # Connect the clusters
 xenium_obj_connected <- connectClusters(
-    as.SingleCellExperiment(xenium_obj)
+    as.SingleCellExperiment(xenium_obj, assay = opt$assay)
 )
 
 xenium_obj@meta.data <- colData(xenium_obj_connected) %>% as.data.frame() %>% dplyr::select(!ident)

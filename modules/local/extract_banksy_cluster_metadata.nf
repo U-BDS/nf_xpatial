@@ -1,6 +1,6 @@
-process EXTRACT_CLUSTER_METADATA {
+process EXTRACT_BANKSY_CLUSTER_METADATA {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     //container "nf_xenium_analysis_0.0.1.sif"
     container "${ 
@@ -25,7 +25,7 @@ process EXTRACT_CLUSTER_METADATA {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    extract_cluster_metadata.R \\
+    extract_banksy_cluster_metadata.R \\
         $args \\
         $assay_flag \\
         --input "$spe_obj" \\
