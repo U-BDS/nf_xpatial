@@ -207,6 +207,10 @@
                 "max_cell_area": {
                     "type": "integer",
                     "description": "The maximum cell area for cell area filtering"
+                },
+                "filter_features": {
+                    "type": "string",
+                    "description": "A list of features to filter from samples"
                 }
             }
         },

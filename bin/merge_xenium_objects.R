@@ -20,7 +20,7 @@ library(Seurat)     # Main analysis package
 library(patchwork)  # For combining plots
 
 # Set options
-options(future.globals.maxSize = 16384 * 1024^2)
+options(future.globals.maxSize = 20000 * 1024^2)
 
 ###############################
 ### COMMAND-LINE PARAMETERS ###
