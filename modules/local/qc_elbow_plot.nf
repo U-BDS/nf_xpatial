@@ -23,12 +23,15 @@ process QC_ELBOW_PLOT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    qc_histogram_plot.R \\
+    qc_elbow_plot.R \\
         $args \\
+        $assay_flag \\
+        --reduction_name "pca_${meta.normalization}" \\
         --input "$xenium_obj" \\
-        --outfile ${prefix}_histogram_plot.png
+        --outfile ${prefix}_elbow_plot.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

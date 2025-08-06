@@ -35,6 +35,11 @@ params_list <- list(
         metavar="path",
         help="The output name for the seurat object"),
     make_option(
+        c("-a", "--assay"),
+        type="character",
+        default="Xenium",
+        help="The assay name"),
+    make_option(
         c("-r", "--reduction_name"),
         type="character",
         default="pca",
