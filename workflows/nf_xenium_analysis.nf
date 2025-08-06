@@ -99,11 +99,11 @@ workflow NF_XENIUM_ANALYSIS {
 
     // Use the user-provided start, stop, and range values to generate a list of dimensions and resolutions
     def dim_list = params.selected_dim < 0
-        ? (0..<( (params.dim_stop - params.dim_start) / params.dim_step )).collect {params.dim_start + it * params.dim_step}
+        ? (0..<( ((params.dim_stop + params.dim_step) - params.dim_start) / params.dim_step )).collect {params.dim_start + it * params.dim_step}
         : params.selected_dim
 
     def res_list = params.selected_res < 0
-        ? (0..<( (params.res_stop - params.res_start) / params.res_step )).collect { params.res_start + it * params.res_step }
+        ? (0..<( ((params.res_stop + params.res_step) - params.res_start) / params.res_step )).collect { params.res_start + it * params.res_step }
         : params.selected_res
 
     INTEGRATE_HARMONY (
