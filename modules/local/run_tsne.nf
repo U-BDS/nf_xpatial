@@ -25,6 +25,8 @@ process RUN_TSNE {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
+    echo "DIMS: $dim"
+
     run_tsne.R \\
         $args \\
         $assay_flag \\

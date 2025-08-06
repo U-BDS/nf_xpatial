@@ -25,6 +25,8 @@ process FIND_NEIGHBORS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
+    echo "DIMS: $dim"
+
     find_neighbors.R \\
         $args \\
         $assay_flag \\

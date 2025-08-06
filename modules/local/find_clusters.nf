@@ -25,6 +25,9 @@ process FIND_CLUSTERS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
+    echo "DIMS: $dim"
+    echo "RES: $res"
+
     find_clusters.R \\
         $args \\
         $assay_flag \\
