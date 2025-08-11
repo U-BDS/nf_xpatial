@@ -36,7 +36,7 @@ params_list <- list(
     make_option(
         c("-e", "--embedding"),
         type="character",
-        default=NULL,
+        default="umap",
         help="The embedding to use for the plot"),
     make_option(
         c("-p", "--pt_size"),
@@ -44,9 +44,9 @@ params_list <- list(
         default=0.1,
         help="The point size for the plot"),
     make_option(
-        c("-c", "--metatadat_col"),
+        c("-c", "--metadat_col"),
         type="character",
-        default="transparent",
+        default="seurat_clusters",
         help="The metadata column to use"),
     make_option(
         c("--width"),
@@ -155,7 +155,7 @@ xenium_obj <- readRDS(
 # Need to get all the groups and assign them a color
 
 # Output the plot
-dim_plot_countour <- Dimplot_contour_ggplot(
+dim_plot_contour <- Dimplot_contour_ggplot(
     xenium_obj,
     Embedding = opt$embedding,
     Metadat_column = opt$metadat_col,
@@ -168,7 +168,7 @@ png(
     height = opt$height
 )
 
-plot(dim_plot_countour)
+plot(dim_plot_contour)
 dev.off()
 
 ####################
