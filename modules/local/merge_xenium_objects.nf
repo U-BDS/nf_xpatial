@@ -1,6 +1,6 @@
 process MERGE_XENIUM_OBJECTS {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_high'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
