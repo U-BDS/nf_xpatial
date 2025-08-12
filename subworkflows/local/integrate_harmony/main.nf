@@ -12,10 +12,6 @@ include { FIND_CLUSTERS                         } from '../../../modules/local/f
 include { QC_DIM_PLOT_COUNTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_VLN_PLOT                           } from '../../../modules/local/qc_vln_plot'
-include { QC_IMAGE_DIM_PLOT                     } from '../../../modules/local/qc_image_dim_plot'
-include { EXTRACT_SEURAT_CLUSTER_METADATA       } from '../../../modules/local/extract_seurat_cluster_metadata'
-include { MERGE_CLUSTER_TSV                     } from '../../../modules/local/merge_cluster_tsv'
-include { ADD_BANKSY_TO_SEURAT                  } from '../../../modules/local/add_banksy_to_seurat'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -44,7 +40,8 @@ workflow INTEGRATE_HARMONY {
 
         // MODULE: Generate UMAPs for Harmony
         RUN_UMAP (
-            RUN_HARMONY.out.integrated_xenium_obj.combine( Channel.from(dim_list) )
+            RUN_HARMONY.out.integrated_xenium_obj
+                .combine( Channel.from(dim_list) )
         )
 
         ch_umap_obj = RUN_UMAP.out.umap_xenium_obj
@@ -75,6 +72,7 @@ workflow INTEGRATE_HARMONY {
             FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
+        ch_tsne_dim_plot = Channel.empty()
         if (!skip_tsne_plot) {
             //
             // MODULE: Generate a dim plot with contours for TSNE
@@ -82,6 +80,8 @@ workflow INTEGRATE_HARMONY {
             TSNE_DIM_PLOT (
                 FIND_CLUSTERS.out.find_clusters_xenium_obj
             )
+
+            ch_tsne_dim_plot = TSNE_DIM_PLOT.out.countour_dim_plot
         }
 
         //
@@ -92,33 +92,13 @@ workflow INTEGRATE_HARMONY {
                 .map{ meta, file, dim, res -> [meta, file] }
         )
 
-        // //
-        // // MODULE: Extract cluster metadata for Seurat
-        // //
-        // EXTRACT_SEURAT_CLUSTER_METADATA (
-        //     FIND_CLUSTERS.out.find_clusters_xenium_obj
-        // )
-
-        // //
-        // // MODULE: Merge cluster tsvs
-        // //
-        // MERGE_CLUSTER_TSV (
-        //     EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
-        //         .groupTuple()
-        // )
-
-        // //
-        // // MODULE: Add BANKSY clusters to Seurat Object
-        // //
-        // ADD_BANKSY_TO_SEURAT (
-        //     MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
-        //         .join (MERGE_CLUSTER_TSV.out.merged_cluster_csv)
-        // )
-
     emit:
         versions = ch_versions
 
-        ch_integrated_xenium_obj = Channel.empty()
+        integrated_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
+        umap_dim_plot         = UMAP_DIM_PLOT.out.countour_dim_plot
+        tsne_dim_plot         = ch_tsne_dim_plot
+        vln_plot              = QC_VLN_PLOT.out.vln_plot
 
 
 }
