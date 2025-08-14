@@ -15,13 +15,11 @@ workflow SPATIAL_QC {
         //
         // SUBWORKFLOW: Generate qc plots for all marker gene pairings
         //
-        if (!marker_gene_list) {
-            MARKER_GENE_PAIRS_QC (
-                ch_xenium_obj
-                    .combine(marker_gene_list)
-            )
-            ch_versions = ch_versions.mix(MARKER_GENE_PAIRS_QC.out.versions)
-        }
+        MARKER_GENE_PAIRS_QC (
+           ch_xenium_obj,
+           marker_gene_list
+        )
+        //ch_versions = ch_versions.mix(MARKER_GENE_PAIRS_QC.out.versions)
 
         //
         // SUBWORKFLOW: Generate qc plots for cell shapes

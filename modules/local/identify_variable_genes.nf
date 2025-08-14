@@ -1,8 +1,7 @@
-process GENERATE_GENE_PAIR_STATS{
+process IDENTIFY_VARIABLE_GENES {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
-    //container "nf_xenium_analysis_0.0.1.sif"
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
@@ -11,10 +10,10 @@ process GENERATE_GENE_PAIR_STATS{
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), path(gene_list)
+    tuple val(meta), path(xenium_object)
 
     output:
-    tuple val(meta), path('*.csv'), emit: gene_pair_stats
+    tuple val(meta), path("*.csv"), emit: variable_gene_list
     path 'versions.yml'           , emit: versions
 
     when:
@@ -25,11 +24,10 @@ process GENERATE_GENE_PAIR_STATS{
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    generate_gene_pair_stats.R \\
+    identify_variable_genes.R \\
         $args \\
-        --input "$xenium_obj" \\
-        --gene_list "$gene_list" \\
-        --outfile "${prefix}_gene_pair_stats.csv"
+        --input "$xenium_object" \\
+        --outfile ${prefix}_hvg_list.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

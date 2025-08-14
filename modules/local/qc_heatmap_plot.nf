@@ -1,6 +1,6 @@
-process GENERATE_GENE_PAIR_STATS{
+process QC_HEATMAP_PLOT {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
     //container "nf_xenium_analysis_0.0.1.sif"
     container "${ 
@@ -11,10 +11,10 @@ process GENERATE_GENE_PAIR_STATS{
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), path(gene_list)
+    tuple val(meta), path(xenium_obj), val(gene_pairs)
 
     output:
-    tuple val(meta), path('*.csv'), emit: gene_pair_stats
+    tuple val(meta), path("*.png"), emit: barnyard_plot, optional: true
     path 'versions.yml'           , emit: versions
 
     when:
@@ -25,11 +25,12 @@ process GENERATE_GENE_PAIR_STATS{
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    generate_gene_pair_stats.R \\
+    qc_heatmap_plot.R \\
         $args \\
         --input "$xenium_obj" \\
-        --gene_list "$gene_list" \\
-        --outfile "${prefix}_gene_pair_stats.csv"
+        --gene1 "${gene_pairs.gene1}" \\
+        --gene2 "${gene_pairs.gene2}" \\
+        --outfile ${prefix}_heatmap_plot.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

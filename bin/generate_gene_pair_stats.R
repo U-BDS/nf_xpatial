@@ -102,6 +102,7 @@ if (!is.null(marker_gene_list)){
 
 # Create output dataframe
 gene_pair_stats_df <- data.frame(
+    sample = character(),
     gene1 = character(),
     gene2 = character(),
     spearman_r = numeric(),
@@ -146,6 +147,7 @@ for (i in seq_along(eval_genes)){
 
             # Append result to dataframe
             gene_pair_stats_df <- gene_pair_stats_df %>% add_row(
+                sample = xenium_obj$Sample,
                 gene1 = gene1,
                 gene2 = gene2,
                 spearman_r = cor_test$estimate,
