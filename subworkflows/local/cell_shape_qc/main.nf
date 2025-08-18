@@ -36,7 +36,7 @@ workflow CELL_SHAPE_QC {
                 }
                 .collect()
                 .map{
-                    [ [ 'id': 'compiled_RAW' ], it ]
+                    [ [ 'id': 'compiled' ], it ]
                 }
         )
         //ch_versions = ch_versions.mix(COMPILE_OBJECTS.out.versions)

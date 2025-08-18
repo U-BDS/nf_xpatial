@@ -119,7 +119,7 @@ sample_metadata <- read.csv(opt$metadata)
 # TODO: Figure out what columns are needed
 # Validate metadata
 # Define required columns
-req_cols <- c("SampleID", "SlideID", "BiologicalGroup")
+req_cols <- c("SampleID")
 
 # Check for missing columns
 missing_cols <- setdiff(req_cols, colnames(sample_metadata))

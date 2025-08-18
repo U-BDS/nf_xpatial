@@ -23,7 +23,7 @@ workflow GENERAL_QC {
                 }
                 .collect()
                 .map{
-                    [ [ 'id': 'compiled_RAW' ], it ]
+                    [ [ 'id': 'compiled' ], it ]
                 }
         )
 

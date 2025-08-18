@@ -44,14 +44,14 @@ workflow BANKSY {
         // MODULE: Compute BANKSY matrix
         COMPUTE_BANKSY_MATRIX (
             STAGGER_SPATIAL_COORDS.out.coord_staggered_spe_object
-                .combine( Channel.from(k_geom_list) )
+                .combine( Channel.of(k_geom_list).flatten() )
         )
 
         // MODULE: Compute BANKSY PCAs
         COMPUTE_BANKSY_PCA (
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
-                .combine( Channel.from(lambda_list))
-                .combine( Channel.from(nPCs_list) )
+                .combine( Channel.of(lambda_list).flatten() )
+                .combine( Channel.of(nPCs_list).flatten() )
         )
 
         // MODULE: Run BANKSY Harmony
@@ -67,7 +67,7 @@ workflow BANKSY {
         // MODULE: CLUSTER BANKSY
         CLUSTER_BANKSY (
             RUN_UMAP_BANKSY.out.banksy_umap_spe_obj
-                .combine( Channel.from(res_list) )
+                .combine( Channel.of(res_list).flatten() )
         )
 
         // MODULE: Extract cluster metadata
