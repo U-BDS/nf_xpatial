@@ -28,7 +28,7 @@ process QC_IMAGE_DIM_PLOT {
     qc_image_dim_plot.R \\
         $args \\
         --input "$xenium_obj" \\
-        --outfile ${prefix}.png
+        --outfile ${prefix}_dim_plot.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

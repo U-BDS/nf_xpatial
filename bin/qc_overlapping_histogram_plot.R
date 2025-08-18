@@ -37,12 +37,12 @@ params_list <- list(
     make_option(
         c("--width"),
         type="integer",
-        default=1000,
+        default=3000,
         help="Width of the plot"),
     make_option(
         c("--height"),
         type="integer",
-        default=600,
+        default=3000,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
@@ -132,14 +132,13 @@ overlapping_histogram_plot <-
     )
 
 # Output the plot
-png(
+ggsave(
     opt$outfile,
+    plot = overlapping_histogram_plot,
     width = opt$width,
-    height = opt$height
+    height = opt$height,
+    units = "px"
 )
-
-plot(overlapping_histogram_plot)
-dev.off()
 
 ####################
 ### SESSION INFO ###

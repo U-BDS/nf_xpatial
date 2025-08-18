@@ -42,12 +42,12 @@ params_list <- list(
     make_option(
         c("--width"),
         type="integer",
-        default=500,
+        default=0,
         help="Width of the plot"),
     make_option(
         c("--height"),
         type="integer",
-        default=1000,
+        default=0,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
@@ -131,15 +131,44 @@ if ( typeof(xenium_objs) != "list" ) {
     vln_plot <- wrap_plots(fig_list, nrow = opt$nrows, ncol = opt$ncols)
 }
 
-# Output the plot
-png(
-    opt$outfile,
-    width = opt$width,
-    height = opt$height
-)
+###################
+### OUTPUT PLOT ###
+###################
 
-plot(vln_plot)
-dev.off()
+# Calcuate width if not provided
+indiv_plot_width <- 2500
+
+total_plot_width <- opt$width
+if ( opt$width <= 0 ) {
+    if (typeof(xenium_objs) != "list") {
+        total_plot_width <- indiv_plot_width
+    } else {
+        col_number <- ifelse(opt$ncols > length(xenium_objs), length(xenium_objs), opt$ncols)
+        total_plot_width <- indiv_plot_width * col_number
+    }
+}
+
+# Calculate height if not provided
+indiv_plot_height <- 1500
+
+total_plot_height <- opt$height
+if ( opt$height <= 0 ) {
+    if (typeof(xenium_objs) != "list") {
+        total_plot_height <- indiv_plot_height
+    } else {
+        total_plot_height <- indiv_plot_height * ceiling(length(xenium_objs) / opt$ncols)
+    }
+}
+
+# Output the plot
+ggsave(
+    opt$outfile,
+    plot = vln_plot,
+    width = total_plot_width,
+    height = total_plot_height,
+    units = "px",
+    limitsize = FALSE
+)
 
 ####################
 ### SESSION INFO ###

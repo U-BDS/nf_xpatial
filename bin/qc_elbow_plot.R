@@ -52,12 +52,12 @@ params_list <- list(
     make_option(
         c("--width"),
         type="integer",
-        default=800,
+        default=2000,
         help="Width of the plot"),
     make_option(
         c("--height"),
         type="integer",
-        default=480,
+        default=2000,
         help="Height of the plot")
     )
 
@@ -89,15 +89,13 @@ elbow_plot <-
         reduction = opt$reduction_name
     )
 
-# Output the plot
-png(
+ggsave(
     opt$outfile,
+    plot = elbow_plot,
     width = opt$width,
-    height = opt$height
+    height = opt$height,
+    units = "px"
 )
-
-plot(elbow_plot)
-dev.off()
 
 ####################
 ### SESSION INFO ###

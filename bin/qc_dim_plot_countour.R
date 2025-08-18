@@ -51,12 +51,12 @@ params_list <- list(
     make_option(
         c("--width"),
         type="integer",
-        default=2000,
+        default=10000,
         help="Width of the plot"),
     make_option(
         c("--height"),
         type="integer",
-        default=1500,
+        default=10000,
         help="Height of the plot"),
     make_option(
         c("--colors"),
@@ -76,7 +76,7 @@ if (is.null(opt$input)) {
 ##########################
 ### FUNCTION DEFITIONS ###
 ##########################
-Dimplot_contour_ggplot <- function(seurat_object, Embedding="umap", Rug=F, Metadat_column = NULL, Point_Size = 1){
+Dimplot_contour_ggplot <- function(seurat_object, Embedding="umap", Rug=F, Metadat_column = NULL, Point_Size = 0.01){
   
   # Extract embeddings (e.g., tSNE or UMAP) from the Seurat object
   embedding <- Embeddings(seurat_object, reduction = Embedding)  # Replace "umap" with "tsne" or the appropriate reduction
@@ -162,14 +162,18 @@ dim_plot_contour <- Dimplot_contour_ggplot(
     Point_Size = opt$pt_size
 )
 
-png(
-    opt$outfile,
-    width = opt$width,
-    height = opt$height
-)
+###################
+### OUTPUT PLOT ###
+###################
 
-plot(dim_plot_contour)
-dev.off()
+# Output the plot
+ggsave(
+    opt$outfile,
+    plot = dim_plot_contour,
+    width = opt$width,
+    height = opt$height,
+    units = "px"
+)
 
 ####################
 ### SESSION INFO ###

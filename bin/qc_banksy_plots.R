@@ -30,6 +30,12 @@ params_list <- list(
         metavar="path",
         help="R Object to be analyzed"),
     make_option(
+        c("-g", "--gene_list"),
+        type="character",
+        default=NULL,
+        metavar="path",
+        help="The marker gene list"),
+    make_option(
         c("-b", "--banksy_clust_info"),
         type="character",
         default=NULL,
@@ -179,7 +185,7 @@ plotCountsProportionsSingle <- function(input_obj,
     return(plot)
 }
 
-generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, assay_name, return_plot = FALSE) {
+generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, assay_name, gene_list, return_plot = FALSE) {
 
     # 1) Make the chosen column a factor & set as Idents
     colnames(seurat_object@meta.data)
@@ -200,7 +206,7 @@ generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, a
     # 3) Create a violin plot
     # Vln_Plot <- VlnPlot(
     #     seurat_object,
-    #     features = cell_type,  # or whichever features you want
+    #     features = as.character(unique(gene_list$Gene_ID))
     #     pt.size = 0,
     #     stack = TRUE,
     #     flip = FALSE,
@@ -343,7 +349,8 @@ for (cname in cnames) {
         clust_df = metadata_df,  # Named list of UMAP CSV files
         output_file = paste0(cname,".",opt$outfile),  # Directory to save plots
         return_plot = FALSE,  # Set to TRUE to return the combined plot
-        assay_name = opt$assay
+        assay_name = opt$assay,
+        gene_list = opt$gene_list
     )
 }
 

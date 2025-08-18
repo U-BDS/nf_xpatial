@@ -232,15 +232,43 @@ barnyard_plot <- plot_barnyard(
     annotate_plot = FALSE
 )
 
-# Output the plot
-png(
-    opt$outfile,
-    width = opt$width,
-    height = opt$height
-)
+###################
+### OUTPUT PLOT ###
+###################
 
-plot(barnyard_plot)
-dev.off()
+# Calcuate width if not provided
+indiv_plot_width <- 200
+
+total_plot_width <- opt$width
+if ( opt$width <= 0 ) {
+    if (typeof(xenium_objs) != "list") {
+        total_plot_width <- indiv_plot_width
+    } else {
+        col_number <- ifelse(opt$ncols > length(xenium_objs), length(xenium_objs), opt$ncols)
+        total_plot_width <- indiv_plot_width * col_number
+    }
+}
+
+# Calculate height if not provided
+indiv_plot_height <- 400
+
+total_plot_height <- opt$height
+if ( opt$height <= 0 ) {
+    if (typeof(xenium_objs) != "list") {
+        total_plot_height <- indiv_plot_height
+    } else {
+        total_plot_height <- indiv_plot_height * ceiling(length(xenium_objs) / opt$ncols)
+    }
+}
+
+# Output the plot
+ggsave(
+    opt$outfile,
+    plot = barnyard_plot,
+    width = total_plot_width,
+    height = total_plot_height,
+    units = "px"
+)
 
 ####################
 ### SESSION INFO ###
