@@ -10,6 +10,8 @@ set.seed(1234)
 library(optparse)   # Commandline arguments
 library(Seurat)     # Main analysis package
 library(stringr)
+library(tidyr)
+library(dplyr)
 
 # Plotting
 library(ggplot2)
@@ -27,22 +29,22 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="R Object to be analyzed"),
+        help="Gene Pair stats to be analyzed"),
     make_option(
         c("-o", "--outfile"),
         type="character",
         default="heatmap_plot.png",
         metavar="path",
-        help="The output name for the seurat object"),
+        help="The output name for the heatmap plot"),
     make_option(
         c("--width"),
         type="integer",
-        default=500,
+        default=2000,
         help="Width of the plot"),
     make_option(
         c("--height"),
         type="integer",
-        default=500,
+        default=2000,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
@@ -108,7 +110,7 @@ heatmap_data <- pair_counts %>%
 # Create the heatmap data frame
 heatmap_df <- heatmap_data %>%
     pivot_longer(cols = starts_with("count_"), names_to = "status", values_to = "count") %>%
-    mutate(status = ifelse(Status == "count_true", "True", "False"))
+    mutate(status = ifelse(status == "count_true", "True", "False"))
 
 # Plot heatmap using ggplot2
 ggplot(heatmap_df, aes(x = gene1, y = gene2, fill = color)) +

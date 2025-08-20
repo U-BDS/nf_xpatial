@@ -28,7 +28,7 @@ process CONCAT_CSV {
 
     out_file="${prefix}_merged.csv"
 
-    for csv_file in "${csv_list}"
+    for csv_file in ${csv_list}
     do
         # print header to file
         if [[ ! -f "\${out_file}" ]]; then

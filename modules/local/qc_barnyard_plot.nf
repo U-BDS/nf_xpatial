@@ -11,7 +11,7 @@ process QC_BARNYARD_PLOT {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(gene_pairs)
+    tuple val(meta), path(xenium_obj), path(gene_pair_stats)
 
     output:
     tuple val(meta), path("*.png"), emit: barnyard_plot, optional: true
@@ -28,8 +28,7 @@ process QC_BARNYARD_PLOT {
     qc_barnyard_plot.R \\
         $args \\
         --input "$xenium_obj" \\
-        --gene1 "${gene_pairs.gene1}" \\
-        --gene2 "${gene_pairs.gene2}" \\
+        --gene_pair_stats $gene_pair_stats \\
         --outfile ${prefix}_barnyard_plot.png
 
     cat <<-END_VERSIONS > versions.yml

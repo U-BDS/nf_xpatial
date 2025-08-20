@@ -147,7 +147,7 @@ for (i in seq_along(eval_genes)){
 
             # Append result to dataframe
             gene_pair_stats_df <- gene_pair_stats_df %>% add_row(
-                sample = xenium_obj$Sample,
+                sample = unique(xenium_obj$Sample),
                 gene1 = gene1,
                 gene2 = gene2,
                 spearman_r = cor_test$estimate,

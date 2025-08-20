@@ -11,10 +11,10 @@ process QC_HEATMAP_PLOT {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(gene_pairs)
+    tuple val(meta), path(gene_pair_stats_csv)
 
     output:
-    tuple val(meta), path("*.png"), emit: barnyard_plot, optional: true
+    tuple val(meta), path("*.png"), emit: heatmap_plot, optional: true
     path 'versions.yml'           , emit: versions
 
     when:
@@ -27,9 +27,7 @@ process QC_HEATMAP_PLOT {
     """
     qc_heatmap_plot.R \\
         $args \\
-        --input "$xenium_obj" \\
-        --gene1 "${gene_pairs.gene1}" \\
-        --gene2 "${gene_pairs.gene2}" \\
+        --input "$gene_pair_stats_csv" \\
         --outfile ${prefix}_heatmap_plot.png
 
     cat <<-END_VERSIONS > versions.yml

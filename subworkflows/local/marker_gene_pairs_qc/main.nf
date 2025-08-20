@@ -49,7 +49,7 @@ workflow MARKER_GENE_PAIRS_QC {
         // MODULE: Determine mutually exclusive gene pairs
         //
         DETERMINE_MUTEX_GENE_PAIRS (
-            GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+           GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
         )
         ch_versions = ch_versions.mix ( DETERMINE_MUTEX_GENE_PAIRS.out.versions )
 
@@ -57,52 +57,35 @@ workflow MARKER_GENE_PAIRS_QC {
         // MODULE: Generate Barnyard Plot
         //
 
-        // Cartesian product the xenium data with ALL gene pairings
-        ch_xenium_data
-            .combine (
-                GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-                    .flatMap{
-                        meta, gene_pair_stats ->
-                            gene_pair_stats.splitCsv(header: true)
-                    }
-                    .map{ row -> [row['gene1'], row['gene2']] }
-                    .unique()
-            )
-            .map {
-                meta, xenium_rds, gene1, gene2 ->
-                    [meta, xenium_rds, ['gene1': gene1, 'gene2': gene2]]
-            }
-            .set { ch_xenium_gene_pairs }
-
         QC_BARNYARD_PLOT (
-            ch_xenium_gene_pairs
+           ch_xenium_data.join ( GENERATE_GENE_PAIR_STATS.out.gene_pair_stats )
         )
 
         //
         // MODULE: Concatenate CSVs
         //
         CONCAT_CSV (
-            GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-                .map{
-                    meta, gene_stat_csv -> [gene_stat_csv]
-                }
-                .collect()
-                .map{
-                    [ [ 'id': 'compiled'], it ]
-                }
+           GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+               .map{
+                   meta, gene_stat_csv -> [gene_stat_csv]
+               }
+               .collect()
+               .map{
+                   [ [ 'id': 'compiled'], it ]
+               }
         )
 
         //
         // MODULE: Generate Heatmap Plot
         //
         QC_HEATMAP_PLOT (
-            CONCAT_CSV.out.concat_csv
+           CONCAT_CSV.out.concat_csv
         )
 
     emit:
         gene_pair_stats = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-        exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
-        barnyard_plot = QC_BARNYARD_PLOT.out.barnyard_plot
+        //exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
+        //barnyard_plot = QC_BARNYARD_PLOT.out.barnyard_plot
         heatmap_plot = null
         versions = ch_versions
 

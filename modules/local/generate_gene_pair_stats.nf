@@ -1,4 +1,4 @@
-process GENERATE_GENE_PAIR_STATS{
+process GENERATE_GENE_PAIR_STATS {
     tag "$meta.id"
     label 'process_medium'
 

@@ -142,24 +142,20 @@ params_list <- list(
         metavar="path",
         help="The output name for the seurat object"),
     make_option(
-        c("--gene1"),
+        c("--gene_pair_stats"),
         type="character",
         default=NULL,
-        help="The first gene to plot."),
-    make_option(
-        c("--gene2"),
-        type="character",
-        default=NULL,
-        help="The second gene to plot."),
+        metavar="path",
+        help="R Object to be analyzed"),
     make_option(
         c("--width"),
         type="integer",
-        default=500,
+        default=2000,
         help="Width of the plot"),
     make_option(
         c("--height"),
         type="integer",
-        default=500,
+        default=2000,
         help="Height of the plot"),
     make_option(
         c("--nrows"),
@@ -205,6 +201,9 @@ xenium_objs <- readRDS(
     file = opt$input
 )
 
+# Read in gene pair stats if provided
+gene_pair_stats_df <- read.csv(opt$gene_pair_stats, sep = ",")
+
 #####################
 ### BARNYARD PLOT ###
 #####################
@@ -212,63 +211,31 @@ xenium_objs <- readRDS(
 # TODO: How to do colors
 # Need to get all the groups and assign them a color
 
-# Check if genes of interest are in object
-if (!all(c(opt$gene1, opt$gene2) %in% rownames(xenium_objs))) {
-    print("Genes of interest not found in the object.")
-    quit()
-}
+apply(gene_pair_stats_df, 1, function(gene_pair_stat) {
+    gene1 <- gene_pair_stat[['gene1']]
+    gene2 <- gene_pair_stat[['gene2']]
 
-# Check if the input was a list of objects or a single object
-barnyard_plot <- plot_barnyard(
-    xenium_object = xenium_objs,
-    genes_of_interest = c(opt$gene1, opt$gene2),
-    x_lab = opt$gene1,
-    y_lab = opt$gene2,
-    colors = c("black", "blue", "red", "purple"),
-    ignore_none = TRUE,
-    legend = FALSE,
-    plot_types = "density",
-    layer = "counts",
-    annotate_plot = FALSE
-)
+    barnyard_plot <- plot_barnyard(
+        xenium_object = xenium_objs,
+        genes_of_interest = c(gene1, gene2),
+        x_lab = gene1,
+        y_lab = gene2,
+        colors = c("black", "blue", "red", "purple"),
+        ignore_none = TRUE,
+        legend = FALSE,
+        plot_types = "density",
+        layer = "counts",
+        annotate_plot = FALSE
+    )
 
-###################
-### OUTPUT PLOT ###
-###################
-
-# Calcuate width if not provided
-indiv_plot_width <- 200
-
-total_plot_width <- opt$width
-if ( opt$width <= 0 ) {
-    if (typeof(xenium_objs) != "list") {
-        total_plot_width <- indiv_plot_width
-    } else {
-        col_number <- ifelse(opt$ncols > length(xenium_objs), length(xenium_objs), opt$ncols)
-        total_plot_width <- indiv_plot_width * col_number
-    }
-}
-
-# Calculate height if not provided
-indiv_plot_height <- 400
-
-total_plot_height <- opt$height
-if ( opt$height <= 0 ) {
-    if (typeof(xenium_objs) != "list") {
-        total_plot_height <- indiv_plot_height
-    } else {
-        total_plot_height <- indiv_plot_height * ceiling(length(xenium_objs) / opt$ncols)
-    }
-}
-
-# Output the plot
-ggsave(
-    opt$outfile,
-    plot = barnyard_plot,
-    width = total_plot_width,
-    height = total_plot_height,
-    units = "px"
-)
+    ggsave(
+        paste0(gene1, "_", gene2, ".", opt$outfile),
+        plot = barnyard_plot,
+        width = opt$width,
+        height = opt$height,
+        units = "px"
+    )
+})
 
 ####################
 ### SESSION INFO ###
