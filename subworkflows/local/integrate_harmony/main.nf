@@ -11,7 +11,7 @@ include { FIND_NEIGHBORS                        } from '../../../modules/local/f
 include { FIND_CLUSTERS                         } from '../../../modules/local/find_clusters'
 include { QC_DIM_PLOT_COUNTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
-include { QC_VLN_PLOT                           } from '../../../modules/local/qc_vln_plot'
+include { QC_HARMONY_PLOTS                      } from '../../../modules/local/qc_harmony_plots'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -19,6 +19,7 @@ workflow INTEGRATE_HARMONY {
         dim_list                // list: list of dimensions to evaluate
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
+        marker_gene_list        // file: marker gene list
 
     main:
         ch_versions = Channel.empty()
@@ -87,18 +88,18 @@ workflow INTEGRATE_HARMONY {
         //
         // MODULE: Generate violin plots
         //
-        QC_VLN_PLOT (
-            FIND_CLUSTERS.out.find_clusters_xenium_obj
-                .map{ meta, file, dim, res -> [meta, file] }
-        )
+
+        if (marker_gene_list) {
+            QC_HARMONY_PLOTS (
+                FIND_CLUSTERS.out.find_clusters_xenium_obj
+                    .combine( Channel.from(marker_gene_list) )
+            )
+        }
 
     emit:
-        versions = ch_versions
-
+        versions              = ch_versions
         integrated_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
         umap_dim_plot         = UMAP_DIM_PLOT.out.countour_dim_plot
         tsne_dim_plot         = ch_tsne_dim_plot
-        vln_plot              = QC_VLN_PLOT.out.vln_plot
-
 
 }
