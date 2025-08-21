@@ -48,10 +48,17 @@ workflow BANKSY {
         )
 
         // MODULE: Compute BANKSY PCAs
+
+        // This is to fix a race condition that occurs randomly on resumes
+        ch_lambda_npc = Channel.of(lambda_list)
+            .flatten()
+            .combine(
+                Channel.of(nPCs_list).flatten()
+            )
+
         COMPUTE_BANKSY_PCA (
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
-                .combine( Channel.of(lambda_list).flatten() )
-                .combine( Channel.of(nPCs_list).flatten() )
+                .combine( ch_lambda_npc )
         )
 
         // MODULE: Run BANKSY Harmony

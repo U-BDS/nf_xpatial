@@ -26,12 +26,20 @@ workflow GENERAL_QC {
                     [ [ 'id': 'compiled' ], it ]
                 }
         )
+        ch_compiled_obj = COMPILE_OBJECTS.out.compiled_obj
+
+        // Create individual channels for each process to avoid race condition error on resums
+        ch_dim_plot_in     = ch_compiled_obj
+        ch_vln_plot_in     = ch_compiled_obj
+        ch_scatter_plot_in = ch_compiled_obj
+        ch_ifp_nfeature_in = ch_compiled_obj
+        ch_ifp_ncount_in   = ch_compiled_obj
 
         //
         // MODULE: Create an initial Image Dim Plot
         //
         QC_IMAGE_DIM_PLOT (
-            COMPILE_OBJECTS.out.compiled_obj
+            ch_dim_plot_in
         )
         ch_versions = ch_versions.mix(QC_IMAGE_DIM_PLOT.out.versions)
 
@@ -39,7 +47,7 @@ workflow GENERAL_QC {
         // MODULE: Create a violin plot for nFeature and nCount
         //
         QC_VLN_PLOT (
-            COMPILE_OBJECTS.out.compiled_obj
+            ch_vln_plot_in
         )
         ch_versions = ch_versions.mix(QC_VLN_PLOT.out.versions)
 
@@ -47,7 +55,7 @@ workflow GENERAL_QC {
         // MODULE: Create a feature scatter plot for nCount and nFeature
         //
         QC_FEATURE_SCATTER_PLOT (
-            COMPILE_OBJECTS.out.compiled_obj
+            ch_scatter_plot_in
         )
         ch_versions = ch_versions.mix(QC_FEATURE_SCATTER_PLOT.out.versions)
 
@@ -55,7 +63,7 @@ workflow GENERAL_QC {
         // MODULE: Create an image feature plot for nFeature
         //
         QC_IFP_NFEATURE(
-            COMPILE_OBJECTS.out.compiled_obj
+            ch_ifp_nfeature_in
         )
         ch_versions = ch_versions.mix(QC_IFP_NFEATURE.out.versions)
 
@@ -63,7 +71,7 @@ workflow GENERAL_QC {
         // MODULE: Create an image feature plot for nCount
         //
         QC_IFP_NCOUNT(
-            COMPILE_OBJECTS.out.compiled_obj
+            ch_ifp_ncount_in
         )
         ch_versions = ch_versions.mix(QC_IFP_NCOUNT.out.versions)
 
