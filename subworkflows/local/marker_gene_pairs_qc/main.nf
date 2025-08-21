@@ -10,14 +10,14 @@ include { QC_HEATMAP_PLOT            } from '../../../modules/local/qc_heatmap_p
 
 workflow MARKER_GENE_PAIRS_QC {
     take:
-        ch_xenium_data   // channel: annotated xenium data with associated marker genes
+        ch_xenium_data   // channel: annotated xenium data
         marker_gene_list // file: marker gene list
 
     main:
         ch_versions = Channel.empty()
 
         // If no marker gene list is provided, identify variable genes to use as the gene list
-        gene_list = Channel.from(marker_gene_list)
+        ch_gene_list = Channel.empty()
         if (!marker_gene_list) {
             IDENTIFY_VARIABLE_GENES (
                 ch_xenium_data
@@ -34,14 +34,16 @@ workflow MARKER_GENE_PAIRS_QC {
                     }
             )
 
-            gene_list = COMPILE_LISTS.out.compiled_list.map { meta, gene_list -> [gene_list] }
+            ch_gene_list = COMPILE_LISTS.out.compiled_list.map { meta, gene_list -> [gene_list] }
+        } else {
+            ch_gene_list = Channel.from(marker_gene_list)
         }
 
         //
         // MODULE: Generate Gini Score and Spearman Correlation for each gene pair
         //
         GENERATE_GENE_PAIR_STATS (
-            ch_xenium_data.combine ( gene_list )
+            ch_xenium_data.combine ( ch_gene_list )
         )
         ch_versions = ch_versions.mix ( GENERATE_GENE_PAIR_STATS.out.versions )
 
@@ -83,11 +85,12 @@ workflow MARKER_GENE_PAIRS_QC {
         )
 
     emit:
-        gene_pair_stats = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-        //exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
-        //barnyard_plot = QC_BARNYARD_PLOT.out.barnyard_plot
-        heatmap_plot = null
-        versions = ch_versions
+        gene_pair_stats           = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+        exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
+        barnyard_plot             = QC_BARNYARD_PLOT.out.barnyard_plot
+        heatmap_plot              = QC_HEATMAP_PLOT.out.heatmap_plot
+        gene_list                 = ch_gene_list
+        versions                  = ch_versions
 
 
 }

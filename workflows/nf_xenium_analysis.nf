@@ -110,7 +110,8 @@ workflow NF_XENIUM_ANALYSIS {
         NORMALIZE_DATA.out.compiled_norm_objects,
         dim_list,
         res_list,
-        params.skip_tsne_plot
+        params.skip_tsne_plot,
+        params.marker_gene_list
     )
 
     //
