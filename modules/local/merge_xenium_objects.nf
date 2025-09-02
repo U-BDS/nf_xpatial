@@ -23,13 +23,15 @@ process MERGE_XENIUM_OBJECTS {
     def args       = task.ext.args ?: ""
     def prefix     = task.ext.prefix ?: "${meta.id}"
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def memory_flag = 
 
     """
     merge_xenium_objects.R \\
         $args \\
         $assay_flag \\
         --input "$xenium_object" \\
-        --outfile ${prefix}_merged.rds
+        --outfile ${prefix}_merged.rds \\
+        --memory ${task.memory.toMega()}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

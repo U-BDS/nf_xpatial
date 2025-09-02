@@ -19,9 +19,6 @@ library(Seurat)     # Main analysis package
 # Plotting
 library(patchwork)  # For combining plots
 
-# Set options
-options(future.globals.maxSize = 20000 * 1024^2)
-
 ###############################
 ### COMMAND-LINE PARAMETERS ###
 ###############################
@@ -43,11 +40,20 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default="Xenium",
-        help="The assay name to be merged")
+        help="The assay name to be merged"),
+    make_option(
+        c("-m", "--memory"),
+        type="integer",
+        help="Maximum memory to use in Bytes")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
 opt <- parse_args(opt_parser)
+
+print(opt$memory)
+
+# Set options
+options(future.globals.maxSize = opt$memory * 1024^2)
 
 if (is.null(opt$input)) {
     print_help(opt_parser)

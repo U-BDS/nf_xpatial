@@ -123,13 +123,18 @@ if ( typeof(xenium_objs) != "list" ) {
 
     fig_list = list()
 
+    # Determine how many colors are needed
+    all_features <- unlist(lapply(xenium_objs, function(obj) unique(obj[[opt$group_by]])))
+
+    num_features <- length(unique(all_features))
+
     for (i in 1:length(xenium_objs)){
         fig_list[[i]] <- ImageDimPlot(
                 xenium_objs[[i]],
                 dark.background = opt$dark_background,
                 group.by = opt$group_by,
                 fov = opt$fov,
-                cols = brewer.pal(3,"Set1")
+                cols = brewer.pal(num_features,"Set1")
             ) + 
             ggtitle(xenium_objs[[i]]@project.name) +
             coord_fixed() +

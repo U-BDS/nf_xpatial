@@ -167,7 +167,8 @@ ggsave(
     plot = img_feature_plot,
     width = total_plot_width,
     height = total_plot_height,
-    units = "px"
+    units = "px",
+    limitsize = FALSE
 )
 
 ####################

@@ -112,11 +112,14 @@ workflow NORMALIZE_DATA {
             ch_compiled_norm_objects = ch_compiled_norm_objects.mix(COMPILE_AREA_OBJECTS.out.compiled_obj)
         }
 
+        ch_ifp_nfeature_in = ch_compiled_norm_objects
+        ch_ifp_ncount_in = ch_compiled_norm_objects
+
         //
         // MODULE: nCount Feature Plot
         //
         QC_IFP_NORM_NFEATURE(
-            ch_compiled_norm_objects
+            ch_ifp_nfeature_in
         )
         ch_versions = ch_versions.mix(QC_IFP_NORM_NFEATURE.out.versions)
 
@@ -125,7 +128,7 @@ workflow NORMALIZE_DATA {
         // MODULE: nFeature Feature Plot
         //
         QC_IFP_NORM_NCOUNT(
-            ch_compiled_norm_objects
+            ch_ifp_ncount_in
         )
         ch_versions = ch_versions.mix(QC_IFP_NORM_NCOUNT.out.versions)
 
