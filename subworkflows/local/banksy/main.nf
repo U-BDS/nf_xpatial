@@ -42,9 +42,12 @@ workflow BANKSY {
         STAGGER_SPATIAL_COORDS ( CONVERT_SEURAT_TO_SPE.out.spe_object )
 
         // MODULE: Compute BANKSY matrix
+        // This is to fix a race condition that occurs randomly on resumes
+        ch_geom_list = Channel.of(k_geom_list).flatten()
+
         COMPUTE_BANKSY_MATRIX (
             STAGGER_SPATIAL_COORDS.out.coord_staggered_spe_object
-                .combine( Channel.of(k_geom_list).flatten() )
+                .combine( ch_geom_list )
         )
 
         // MODULE: Compute BANKSY PCAs
