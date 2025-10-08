@@ -67,6 +67,4 @@ workflow CELL_SHAPE_QC {
         cell_shape_plot       = CELL_SHAPE_PLOT.out.proportion_plot
         cell_segm_plot        = CELL_SEGM_PLOT.out.proportion_plot
         versions              = ch_versions
-
-
 }

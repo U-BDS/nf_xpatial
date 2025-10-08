@@ -1,4 +1,4 @@
-process FILTER_XENIUM_OBJ{
+process FILTER_XENIUM_OBJ {
     tag "$meta.id"
     label 'process_low'
 

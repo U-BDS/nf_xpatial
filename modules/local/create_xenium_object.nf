@@ -1,4 +1,4 @@
-process CREATE_XENIUM_OBJ{
+process CREATE_XENIUM_OBJ {
     stageInMode 'copy'
     tag "$meta.id"
     label 'process_low'

@@ -87,6 +87,7 @@ params_list <- list(
         c("-s", "--sample"),
         type="character",
         default=NULL,
+        metavar="string",
         help="The name of the sample")
     )
 
@@ -129,7 +130,7 @@ if (length(missing_cols) > 0) {
 
 # Check if "flip.xy" is missing, if it is issue a warning and set it to NA
 if (!"flip.xy" %in% colnames(sample_metadata)) {
-    warning("'flip.xy' column is missing from metatdata. 'flip.xy' is set to default \n")
+    warning("'flip.xy' column is missing from metadata. 'flip.xy' is set to default \n")
     sample_metadata$flip.xy <- NA
 }
 
@@ -218,9 +219,10 @@ if (is.null(xenium.obj@misc)) {
 }
 xenium.obj@misc$panel_metadata <- gene_panel$metadata
 
+message("--- Printing misc information ---")
 print(xenium.obj@misc)
 
-# Process teh features csv
+# Process the features csv
 print("Reading in features file")
 df_features <- read.csv(
     file.path(paste(opt$input, "/cell_feature_matrix/features.tsv.gz", sep="")),

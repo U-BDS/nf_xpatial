@@ -1,4 +1,4 @@
-process ADD_MANUAL_ANNOTATIONS{
+process ADD_MANUAL_ANNOTATIONS {
     tag "$meta.id"
     label 'process_low'
 

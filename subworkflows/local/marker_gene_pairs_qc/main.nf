@@ -91,6 +91,4 @@ workflow MARKER_GENE_PAIRS_QC {
         heatmap_plot              = QC_HEATMAP_PLOT.out.heatmap_plot
         gene_list                 = ch_gene_list
         versions                  = ch_versions
-
-
 }

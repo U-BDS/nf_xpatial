@@ -24,7 +24,7 @@ library(Polychrome)
 # From ubdsR
 plot_barnyard <- function(
     xenium_object, genes_of_interest, x_lab, y_lab, 
-    colors = c("black", "blue", "red", "purple"), 
+    colors = c("#000000", "#0072B2", "#D55E00", "#CC79A7"), 
     ignore_none = TRUE, legend = TRUE, 
     plot_types = "density", layer = "data", 
     annotate_plot = FALSE) {
@@ -146,7 +146,7 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="R Object to be analyzed"),
+        help="Gene pair CSV to be analyzed"),
     make_option(
         c("--width"),
         type="integer",
@@ -220,7 +220,7 @@ apply(gene_pair_stats_df, 1, function(gene_pair_stat) {
         genes_of_interest = c(gene1, gene2),
         x_lab = gene1,
         y_lab = gene2,
-        colors = c("black", "blue", "red", "purple"),
+        colors = c("#000000", "#0072B2", "#D55E00", "#CC79A7"), # color blind friendly choices
         ignore_none = TRUE,
         legend = FALSE,
         plot_types = "density",

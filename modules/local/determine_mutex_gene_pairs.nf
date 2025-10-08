@@ -1,4 +1,4 @@
-process DETERMINE_MUTEX_GENE_PAIRS{
+process DETERMINE_MUTEX_GENE_PAIRS {
     tag "$meta.id"
     label 'process_low'
 
