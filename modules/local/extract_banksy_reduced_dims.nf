@@ -1,4 +1,4 @@
-process EXTRACT_REDUCED_DIMS {
+process EXTRACT_BANKSY_REDUCED_DIMS {
     tag "$meta.id"
     label 'process_low'
 
@@ -26,7 +26,7 @@ process EXTRACT_REDUCED_DIMS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    extract_reduced_dims.R \\
+    extract_banksy_reduced_dims.R \\
         $args \\
         $assay_flag \\
         --input "$spe_obj" \\

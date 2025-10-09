@@ -1,4 +1,4 @@
-process MERGE_CLUSTER_TSV {
+process MERGE_CSV {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,7 +10,7 @@ process MERGE_CLUSTER_TSV {
         }"
 
     input:
-    tuple val(meta), path(cluster_tsv)
+    tuple val(meta), path(cluster_csv)
 
     output:
     tuple val(meta), path("*.csv"), emit: merged_cluster_csv
@@ -21,27 +21,19 @@ process MERGE_CLUSTER_TSV {
     script:
     def args       = task.ext.args ?: ""
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
     #!/usr/bin/env Rscript
     library(stringr)
     library(dplyr)
 
-    tsv_file_list <- str_split_1("${cluster_tsv}", "\\\\s")
+    csv_file_list <- str_split_1("${cluster_csv}", "\\\\s")
 
     dfs <- list()
 
-    for (tsv_file in tsv_file_list) {
+    for (csv_file in csv_file_list) {
         # Read the file
-        df <- read.table(file = tsv_file, sep = '\\t', header = TRUE)
-
-        # Use a unique identifier from the file path for the column name
-        # path_parts <- strsplit(tsv_file, "/")[[1]]
-        # unique_id <- path_parts[length(path_parts) - 1]  # Adjust based on the path structure
-
-        # Rename the second column with the unique identifier
-        # colnames(df)[2] <- unique_id
+        df <- read.table(file = csv_file, sep = ',', header = TRUE)
 
         # Append to the list of DataFrames
         dfs <- append(dfs, list(df))
@@ -53,13 +45,7 @@ process MERGE_CLUSTER_TSV {
     # Merge all DataFrames on the 'Index' column
     compiled_df <- Reduce(function(x, y) full_join(x, y, by = "Index"), dfs)
 
-    #compiled_df <- compiled_df %>%
-    #rename_with(
-    #    ~ paste0("clust_", .),
-    #    matches("^(AreaNorm|Xenium|spe)_BSKY_")
-    #)
-
     # Save the result to a CSV file if needed
-    write.csv(compiled_df, "${prefix}_compiled_clusts_results.csv", quote = FALSE, row.names = FALSE)
+    write.csv(compiled_df, "${prefix}_merged_results.csv", quote = FALSE, row.names = FALSE)
     """
 }

@@ -13,8 +13,8 @@ include { RUN_UMAP_BANKSY                 } from '../../../modules/local/run_uma
 include { EXTRACT_BANKSY_CLUSTER_METADATA } from '../../../modules/local/extract_banksy_cluster_metadata'
 include { EXTRACT_PARAMS                  } from '../../../modules/local/extract_params'
 include { EXTRACT_XE_METADATA             } from '../../../modules/local/extract_xe_metadata'
-include { EXTRACT_REDUCED_DIMS            } from '../../../modules/local/extract_reduced_dims'
-include { MERGE_CLUSTER_TSV               } from '../../../modules/local/merge_cluster_tsv'
+include { EXTRACT_BANKSY_REDUCED_DIMS     } from '../../../modules/local/extract_banksy_reduced_dims'
+include { MERGE_CSV                       } from '../../../modules/local/merge_csv'
 include { ADD_BANKSY_TO_SEURAT            } from '../../../modules/local/add_banksy_to_seurat'
 include { QC_BANKSY_PLOTS                 } from '../../../modules/local/qc_banksy_plots'
 
@@ -104,7 +104,7 @@ workflow BANKSY {
         )
 
         // MODULE: Extract Reduced Dims
-        EXTRACT_REDUCED_DIMS (
+        EXTRACT_BANKSY_REDUCED_DIMS (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
                 .map {
                     meta, csv, k_geom, lambda, nPCs, res ->
@@ -113,7 +113,7 @@ workflow BANKSY {
         )
 
         // MODULE: Merge cluster tsvs
-        MERGE_CLUSTER_TSV (
+        MERGE_CSV (
             EXTRACT_BANKSY_CLUSTER_METADATA.out.cluster_metadata
                 .groupTuple()
         )
@@ -122,7 +122,7 @@ workflow BANKSY {
         ADD_BANKSY_TO_SEURAT (
             MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
                 .join (
-                    MERGE_CLUSTER_TSV.out.merged_cluster_csv
+                    MERGE_CSV.out.merged_cluster_csv
                         .map {
                             meta, csv ->
                                 keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
@@ -135,7 +135,7 @@ workflow BANKSY {
         QC_BANKSY_PLOTS (
             ADD_BANKSY_TO_SEURAT.out.banksy_xenium_obj
                 .combine (
-                    EXTRACT_REDUCED_DIMS.out.banksy_umap_csv
+                    EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
                             .map {
                                 meta, csv ->
                                     keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
