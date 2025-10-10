@@ -12,6 +12,8 @@ include { FIND_CLUSTERS                         } from '../../../modules/local/f
 include { QC_DIM_PLOT_COUNTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 include { QC_HARMONY_PLOTS                      } from '../../../modules/local/qc_harmony_plots'
+include { EXTRACT_SEURAT_CLUSTER_METADATA       } from '../../../modules/local/extract_seurat_cluster_metadata'
+include { EXTRACT_SEURAT_REDUCED_DIMS           } from '../../../modules/local/extract_seurat_reduced_dims'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -95,6 +97,20 @@ workflow INTEGRATE_HARMONY {
                     .combine( Channel.from(marker_gene_list) )
             )
         }
+
+        //
+        // MODULE: Extract cluster metadata
+        //
+        EXTRACT_SEURAT_CLUSTER_METADATA (
+            FIND_CLUSTERS.out.find_clusters_xenium_obj
+        )
+
+        //
+        // MODULE: Extract reduced dims
+        //
+        EXTRACT_SEURAT_REDUCED_DIMS(
+            FIND_CLUSTERS.out.find_clusters_xenium_obj
+        )
 
     emit:
         versions              = ch_versions

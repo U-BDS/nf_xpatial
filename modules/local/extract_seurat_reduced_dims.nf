@@ -1,4 +1,4 @@
-process EXTRACT_SEURAT_CLUSTER_METADATA {
+process EXTRACT_SEURAT_REDUCED_DIMS {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,10 +10,12 @@ process EXTRACT_SEURAT_CLUSTER_METADATA {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(dim), val(res)
+    tuple val(meta), path(xenium_obj), val(dim), val(res)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: cluster_metadata
+    tuple val(meta), path("*embeddings*.csv") , emit: embeddings_csv
+    tuple val(meta), path("*loadings*.csv")   , emit: loadings_csv
+    tuple val(meta), path("*stdev*.csv")      , emit: stdev_csv
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,12 +26,12 @@ process EXTRACT_SEURAT_CLUSTER_METADATA {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    extract_seurat_cluster_metadata.R \\
+    extract_seurat_reduced_dims.R \\
         $args \\
         $assay_flag \\
-        --input "$spe_obj" \\
-        --dim $dim \\
-        --res $res \\
-        --outfile "${prefix}_clusts.tsv"
+        --input "$xenium_obj" \\
+        --dim "$dim" \\
+        --res "$res" \\
+        --outfile "${prefix}_reduced_dims.csv"
     """
 }
