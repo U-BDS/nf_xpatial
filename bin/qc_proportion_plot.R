@@ -102,14 +102,16 @@ combined_metadata <- do.call(rbind, lapply(1:length(xenium_objs), function(i) {
 
 # Plot the data
 plot <- ggplot(combined_metadata, aes_string(x = opt$x_col, fill = opt$fill_col)) +
-    geom_bar(position = "fill", stat = "count") + # Stacked bar plot with proportions
-    labs(title = paste(tools::toTitleCase(gsub("_", " ", opt$fill_col)), "Distribution Across Samples"),
-        x = "Sample",
-        y = "Proportion",
-        fill = tools::toTitleCase(gsub("_", " ", opt$fill_col))) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    scale_y_continuous(labels = scales::percent) +
-    theme_minimal()
+  geom_bar(position = "fill", stat = "count") + # Stacked bar plot with proportions
+  labs(title = paste(tools::toTitleCase(gsub("_", " ", opt$fill_col)), "Distribution Across Samples"),
+       x = "Sample",
+       y = "Proportion",
+       fill = tools::toTitleCase(gsub("_", " ", opt$fill_col))) +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom",
+        legend.direction = "vertical") +
+  scale_y_continuous(labels = scales::percent)
 
 # Save the plot
 ggsave(
