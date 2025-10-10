@@ -105,13 +105,13 @@ xenium_obj <- readRDS(file = opt$input)
 ###########################
 
 cell_ids <- colnames(xenium_obj)
-shape_classification <- vector("character", length(cell_ids))
 
-# TODO: Convert to lapply
 # Iterate through each cell and classify its shape
-for (i in seq_along(cell_ids)) {
-    shape_classification[i] <- classify_polygon_shape(xenium_obj, cell_id = cell_ids[i])
-}
+shape_classification <- sapply(X = seq_along(cell_ids), FUN = function(x) {
+  
+  classify_polygon_shape(xenium_obj, cell_id = cell_ids[x])
+  
+})
 
 cell_classification <- data.frame(
     cell_id = cell_ids,

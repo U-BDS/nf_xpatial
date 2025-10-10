@@ -29,7 +29,7 @@ workflow CELL_SHAPE_QC {
         // MODULE: Compile the cell shape dataframes into a single object
         //
         // TODO: Change this to use dataframes instead of objects
-        COMPILE_OBJECTS(
+        COMPILE_OBJECTS (
             CLASSIFY_CELL_SHAPE.out.cell_shape_xenium_obj
                 .map{
                     meta, xenium_obj -> [xenium_obj]
