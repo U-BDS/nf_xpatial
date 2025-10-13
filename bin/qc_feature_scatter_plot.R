@@ -92,8 +92,13 @@ xenium_objs <- readRDS(
 #### FEATURE_SCATTER PLOT ###
 #############################
 
-# TODO: How to do colors
-# Need to get all the groups and assign them a color
+# adjust ncols based on sample number if ncols <=1 (default)
+# otherwise leave as user-selected number
+if (opt$ncols <= 1) {
+  if (length(xenium_objs) > 4) {
+    opt$ncols <- ceiling(length(xenium_objs)/4) # round up beyond 4 samples
+  }
+}
 
 # Check if the input was a list of objects or a single object
 feature_scatter_plot <- NULL

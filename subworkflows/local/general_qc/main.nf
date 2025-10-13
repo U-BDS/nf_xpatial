@@ -83,5 +83,4 @@ workflow GENERAL_QC {
         image_feature_plot_nfeature = QC_IFP_NFEATURE.out.image_feature_plot
         versions                    = ch_versions
 
-
 }

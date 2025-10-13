@@ -40,6 +40,11 @@ params_list <- list(
         default=NULL,
         help="The assay to use for plotting (if applicable)"),
     make_option(
+      c("--dark_background"),
+      type="character",
+      default="F",
+      help="Whether the plot has a dark background"),
+    make_option(
         c("--width"),
         type="integer",
         default=0,
@@ -90,8 +95,20 @@ features <- str_split_1(opt$features, ",")
 #### IMAGE FEATURE PLOT ###
 ###########################
 
-# TODO: How to do colors
-# Need to get all the groups and assign them a color
+# adjust ncols based on sample number if ncols <=1 (default)
+# otherwise leave as user-selected number
+if (opt$ncols <= 1) {
+  if (length(xenium_objs) > 4) {
+    opt$ncols <- ceiling(length(xenium_objs)/4) # round up beyond 4 samples
+  }
+}
+
+# color based on background
+if (opt$dark_background) {
+  cols <- c("#000000","#FF0000")
+} else {
+  cols <- c("#e0e0e0","#FF0000")
+}
 
 # Check if the input was a list of objects or a single object
 img_feature_plot <- NULL
@@ -104,7 +121,8 @@ if ( typeof(xenium_objs) != "list" ) {
         ImageFeaturePlot(
             xenium_objs,
             features = features,
-            cols = c("#000000","#FF0000")
+            cols = cols,
+            dark.background = opt$dark_background
         ) + 
         ggtitle(xenium_objs@project.name) +
         coord_fixed() +
@@ -122,7 +140,8 @@ if ( typeof(xenium_objs) != "list" ) {
         fig_list[[i]] <- ImageFeaturePlot(
             xenium_objs[[i]],
             features = features,
-            cols = c("#000000","#FF0000")
+            cols = cols,
+            dark.background = opt$dark_background
         ) + 
         ggtitle(xenium_objs[[i]]@project.name) +
         coord_fixed() +

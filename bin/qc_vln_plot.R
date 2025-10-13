@@ -67,12 +67,12 @@ params_list <- list(
     make_option(
         c("--pt_size"),
         type="double",
-        default=0.1,
+        default=0.05,
         help="Size of the points"),
     make_option(
         c("--alpha"),
         type="double",
-        default=0.5,
+        default=0.1,
         help="Alpha value for the points")
     )
 
@@ -100,8 +100,13 @@ features <- str_split_1(opt$features, ",")
 #### VLN PLOT ###
 #################
 
-# TODO: How to do colors
-# Need to get all the groups and assign them a color
+# adjust ncols based on sample number if ncols <=1 (default)
+# otherwise leave as user-selected number
+if (opt$ncols <= 1) {
+  if (length(xenium_objs) > 4) {
+    opt$ncols <- ceiling(length(xenium_objs)/4) # round up beyond 4 samples
+  }
+}
 
 # Check if the input was a list of objects or a single object
 vln_plot <- NULL
