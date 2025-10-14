@@ -68,7 +68,7 @@ if (length(Reductions(xenium_obj)) == 0) {
 # Save each sample-specific data frame to a csv file
 for (reduc in Reductions(xenium_obj)) {
     
-    file_prefix <- paste(reduc, "_d", opt$dim, "_r", opt$resolution)
+    file_prefix <- paste0(reduc, "_d", opt$dim, "_r", opt$res)
 
     # Extract embeddings
     extracted_embeddings <- Embeddings(xenium_obj, reduction = reduc)
