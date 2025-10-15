@@ -158,16 +158,16 @@
                 },
                 "skip_percentile_filtering": {
                     "type": "boolean",
-                    "description": "Skip the percentile based filtering",
+                    "description": "Skip the percentile based filtering where cells are filtered based on nFeature percentiles instead of absolute nFeature value",
                     "default": true
                 },
                 "min_percentile": {
                     "type": "number",
-                    "description": "The minimum percentile threshold for percentile based filtering"
+                    "description": "The minimum percentile threshold for nFeature percentile based filtering"
                 },
                 "max_percentile": {
                     "type": "number",
-                    "description": "The maximum percentile threshold for percentile based filtering"
+                    "description": "The maximum percentile threshold for nFeature percentile based filtering"
                 },
                 "skip_nFeature_filtering": {
                     "type": "boolean",

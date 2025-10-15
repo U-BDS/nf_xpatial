@@ -15,7 +15,7 @@ library(optparse)   # For parsing commandline arguments
 library(progressr)  # For progress bars
 library(purrr)      # Functional programming tools
 library(Seurat)     # Main analysis package
-library(stringr)   # For string manipulation
+library(stringr)    # For string manipulation
 
 # Set options
 #options(future.globals.maxSize = 8192 * 1024^2)
@@ -56,7 +56,7 @@ params_list <- list(
         c("--skip_percentile_filter"),
         action="store_true",
         default=FALSE,
-        help="Skip filtering data by percentile"),
+        help="Skip filtering data by percentile of nFeature"),
     make_option(
         c("--min_percentile"),
         type="integer",
@@ -151,7 +151,6 @@ if (!opt$skip_col_removal){
     }
 }
 
-# Remove control assays
 
 # Remove features
 if (!is.null(opt$filter_features)){
@@ -232,26 +231,38 @@ if (!opt$skip_cell_area_filter){
 if (!opt$skip_nCount_filter){
     # Save prefiltering count
     pre_nCount_filter_count <- sum(table(xenium_obj@meta.data$orig.ident))
+    
+    # Calculate median and mean nCount pre-filtering
+    pre_nCount_median <- median(xenium_obj@meta.data$nCount_Xenium)
+    pre_nCount_mean <- mean(xenium_obj@meta.data$nCount_Xenium)
 
-    # Filter by minimum nFeature
+    # Filter by minimum nCount
     if (!is.null(opt$min_nCount)){
         xenium_obj <- subset(xenium_obj, nCount_Xenium >= opt$min_nCount)
     }
 
-    # Filter by maximum nFeature
+    # Filter by maximum nCount
     if (!is.null(opt$max_nCount)){
         xenium_obj <- subset(xenium_obj, nCount_Xenium <= opt$max_nCount)
     }
-
+    
     # Calculate cells removed
     post_nCount_filter_count <- sum(table(xenium_obj@meta.data$orig.ident))
     nCount_filtered <- pre_nCount_filter_count - post_nCount_filter_count
+    
+    # Calculate median and mean nCount post-filtering
+    post_nCount_median <- median(xenium_obj@meta.data$nCount_Xenium)
+    post_nCount_mean <- mean(xenium_obj@meta.data$nCount_Xenium)
 }
 
 # filter by nFeature
 if (!opt$skip_nFeature_filter){
     # Save prefiltering count
     pre_nFeature_filter_count <- sum(table(xenium_obj@meta.data$orig.ident))
+    
+    # Calculate median and mean nFeature pre-filtering
+    pre_nFeature_median <- median(xenium_obj@meta.data$nFeature_Xenium)
+    pre_nFeature_mean <- mean(xenium_obj@meta.data$nFeature_Xenium)
 
     # Filter by minimum nFeature
     if (!is.null(opt$min_nFeature)){
@@ -266,6 +277,10 @@ if (!opt$skip_nFeature_filter){
     # Calculate cells removed
     post_nFeature_filter_count <- sum(table(xenium_obj@meta.data$orig.ident))
     nFeature_filtered <- pre_nFeature_filter_count - post_nFeature_filter_count
+    
+    # Calculate median and mean nFeature post-filtering
+    post_nFeature_median <- median(xenium_obj@meta.data$nFeature_Xenium)
+    post_nFeature_mean <- mean(xenium_obj@meta.data$nFeature_Xenium)
 }
 
 #################
@@ -287,14 +302,23 @@ cell_numbers <- data.frame(
     cells_filtered_percentile = percentile_filtered,
     cells_filtered_cell_area = cell_area_filtered,
     cells_filtered_nFeature = nFeature_filtered,
-    cells_filtered_nCount = nCount_filtered
+    cells_filtered_nCount = nCount_filtered,
+    median_pre_nFeature = pre_nFeature_median,
+    median_post_nFeature = post_nFeature_median,
+    mean_pre_nFeature = pre_nFeature_mean,
+    mean_post_nFeature = post_nFeature_mean,
+    median_pre_nCount = pre_nCount_median,
+    median_post_nCount = post_nCount_median,
+    mean_pre_nCount = pre_nCount_mean,
+    mean_post_nCount = post_nCount_mean
 )
 
+# filtering stats
 write.csv(
     cell_numbers,
     file = paste0(
         gsub(".rds", "", opt$outfile),
-        "_filtering_stats.csv"
+        ".csv"
     ),
     row.names = FALSE,
     quote = FALSE
