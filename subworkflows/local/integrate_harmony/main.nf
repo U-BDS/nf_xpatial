@@ -14,6 +14,7 @@ include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/q
 include { QC_HARMONY_PLOTS                      } from '../../../modules/local/qc_harmony_plots'
 include { EXTRACT_SEURAT_CLUSTER_METADATA       } from '../../../modules/local/extract_seurat_cluster_metadata'
 include { EXTRACT_SEURAT_REDUCED_DIMS           } from '../../../modules/local/extract_seurat_reduced_dims'
+include { ADD_HARMONY_CLUSTER_TO_SEURAT         } from '../../../modules/local/add_harmony_cluster_to_seurat'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -110,6 +111,33 @@ workflow INTEGRATE_HARMONY {
         //
         EXTRACT_SEURAT_REDUCED_DIMS(
             FIND_CLUSTERS.out.find_clusters_xenium_obj
+        )
+
+        //
+        // MODULE: Add Harmony cluster info to Seurat object
+        //
+        ADD_HARMONY_CLUSTER_TO_SEURAT (
+            RUN_PCA.out.pca_xenium_obj
+                .join (
+                    EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
+                    .groupTuple()
+                    .map{ meta, cm_file_list -> [meta, cm_file_list.flatten()]}
+                )
+                .join (
+                    EXTRACT_SEURAT_REDUCED_DIMS.out.embeddings_csv
+                        .groupTuple()
+                        .map{ meta, e_file_list -> [meta, e_file_list.flatten()]}
+                )
+                .join (
+                    EXTRACT_SEURAT_REDUCED_DIMS.out.loadings_csv
+                        .groupTuple()
+                        .map{ meta, l_file_list -> [meta, l_file_list.flatten()]}
+                )
+                .join (
+                    EXTRACT_SEURAT_REDUCED_DIMS.out.stdev_csv
+                        .groupTuple()
+                        .map{ meta, s_file_list -> [meta, s_file_list.flatten()]}
+                    )
         )
 
     emit:

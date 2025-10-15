@@ -68,7 +68,7 @@ if (length(Reductions(xenium_obj)) == 0) {
 # Save each sample-specific data frame to a csv file
 for (reduc in Reductions(xenium_obj)) {
     
-    file_prefix <- paste0(reduc, "_d", opt$dim, "_r", opt$res)
+    file_prefix <- paste0(gsub("_","-",reduc), "_d", opt$dim, "_r", opt$res)
 
     # Extract embeddings
     extracted_embeddings <- Embeddings(xenium_obj, reduction = reduc)
@@ -81,7 +81,7 @@ for (reduc in Reductions(xenium_obj)) {
 
     write.csv(
         embeddings_df,
-        file = paste0(file_prefix, "_embeddings.", opt$outfile),
+        file = paste0(file_prefix, "_embeddings_", opt$outfile),
         row.names = FALSE
     )
 
@@ -96,7 +96,7 @@ for (reduc in Reductions(xenium_obj)) {
 
     write.csv(
         loadings_df,
-        file = paste0(file_prefix, "_loadings.", opt$outfile),
+        file = paste0(file_prefix, "_loadings_", opt$outfile),
         row.names = FALSE
     )
 
@@ -109,7 +109,7 @@ for (reduc in Reductions(xenium_obj)) {
     )
     write.csv(
         stdev_df,
-        file = paste0(file_prefix, "_stdev.", opt$outfile),
+        file = paste0(file_prefix, "_stdev_", opt$outfile),
         row.names = FALSE
     )
 }
