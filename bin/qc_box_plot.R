@@ -33,7 +33,7 @@ params_list <- list(
         type="character",
         default="box_plot.png",
         metavar="path",
-        help="The output name for the seurat object"),
+        help="The output name for the image"),
     make_option(
         c("--width"),
         type="integer",
@@ -45,35 +45,10 @@ params_list <- list(
         default=2000,
         help="Height of the plot"),
     make_option(
-        c("--nrows"),
-        type="integer",
-        default=NULL,
-        help="Number of rows for the plot"),
-    make_option(
-        c("--ncols"),
-        type="integer",
-        default=1,
-        help="Number of cols for the plot (if there are multiple samples)"),
-    make_option(
         c("--alpha"),
         type="double",
         default=0.7,
-        help="Alpha value for the points"),
-    make_option(
-        c("--fill"),
-        type="character",
-        default="skyblue",
-        help="Fill color"),
-    make_option(
-        c("--color"),
-        type="character",
-        default="black",
-        help="Color for the histogram"),
-    make_option(
-        c("--binwidth"),
-        type="integer",
-        default=1,
-        help="Number of cols for the plot (if there are multiple samples)")
+        help="Alpha value for the boxplot")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -92,7 +67,8 @@ if (is.null(opt$input)) {
 
 box_plot_df <- read.csv(
     file = opt$input,
-    header = TRUE
+    header = TRUE,
+    row.names = 1
 )
 
 #################
@@ -119,7 +95,8 @@ box_plot <-
             x = "Sample",
             y = "Area") +
     theme_minimal() +
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Output the plot
 ggsave(
