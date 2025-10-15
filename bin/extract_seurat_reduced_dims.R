@@ -82,7 +82,8 @@ for (reduc in Reductions(xenium_obj)) {
     write.csv(
         embeddings_df,
         file = paste0(file_prefix, "_embeddings_", opt$outfile),
-        row.names = FALSE
+        row.names = FALSE,
+        quote = FALSE
     )
 
     # Extract Loadings
@@ -97,7 +98,8 @@ for (reduc in Reductions(xenium_obj)) {
     write.csv(
         loadings_df,
         file = paste0(file_prefix, "_loadings_", opt$outfile),
-        row.names = FALSE
+        row.names = FALSE,
+        quote = FALSE
     )
 
     # Extract Stdev
@@ -107,10 +109,12 @@ for (reduc in Reductions(xenium_obj)) {
         extracted_stdev,
         stringsAsFactors = FALSE
     )
+
     write.csv(
         stdev_df,
         file = paste0(file_prefix, "_stdev_", opt$outfile),
-        row.names = FALSE
+        row.names = FALSE,
+        quote = FALSE
     )
 }
 

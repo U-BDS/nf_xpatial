@@ -144,13 +144,12 @@ for (reduc_dim_res in reduc_dim_res_list) {
     if (length(loadings_file) > 1) {
         stop(paste0("More than one loadings file found for ", reduc_dim_res))
 
-    } else if (length(loadings_file) == 0) {
-        next
+    } else if (length(loadings_file) == 1) {
 
-    } else {
-        if (file.info(loadings_file[1])$size == 0) {
+        print(loadings_file[1])
+        print(file.info(loadings_file[1])$size)
+        if (file.info(loadings_file[1])$size <= 1) {
             print(paste0("Loadings file is empty for  ",reduc_dim_res))
-            next
 
         } else {
             print(paste0("Adding loadings for  ",reduc_dim_res))
