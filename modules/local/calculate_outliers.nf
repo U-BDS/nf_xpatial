@@ -1,4 +1,4 @@
-process CALCULATE_OUTLIERS{
+process CALCULATE_OUTLIERS {
     tag "$meta.id"
     label 'process_low'
 
