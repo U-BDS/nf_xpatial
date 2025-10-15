@@ -223,8 +223,8 @@
             "properties": {
                 "normalization_method": {
                     "type": "string",
-                    "pattern": "^(sctransform|area|log)(,(sctransform|area|log))*$",
-                    "description": "Choose the normalization method to use (log, sctransform, and/or area). Multiple options can be chosen in a comma delimited list",
+                    "pattern": "^(area|log)(,(area|log))*$",
+                    "description": "Choose the normalization method to use (log, and/or area). Multiple options can be chosen in a comma delimited list",
                     "default": "log"
                 }
             }

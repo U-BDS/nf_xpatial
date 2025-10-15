@@ -2,8 +2,8 @@
 
 include { NORMALIZE_LOG                                 } from '../../../modules/local/normalize_log'
 include { COMPILE_OBJECTS as COMPILE_LOG_OBJECTS        } from '../../../modules/local/compile_objects'
-include { NORMALIZE_SCTRANSFORM                         } from '../../../modules/local/normalize_sctransform'
-include { COMPILE_OBJECTS as COMPILE_SCT_OBJECTS        } from '../../../modules/local/compile_objects'
+//include { NORMALIZE_SCTRANSFORM                         } from '../../../modules/local/normalize_sctransform'
+//include { COMPILE_OBJECTS as COMPILE_SCT_OBJECTS        } from '../../../modules/local/compile_objects'
 include { NORMALIZE_AREA                                } from '../../../modules/local/normalize_area'
 include { COMPILE_OBJECTS as COMPILE_AREA_OBJECTS       } from '../../../modules/local/compile_objects'
 include { QC_IMAGE_FEATURE_PLOT as QC_IFP_NORM_NCOUNT   } from '../../../modules/local/qc_image_feature_plot'
@@ -51,7 +51,7 @@ workflow NORMALIZE_DATA {
         }
 
         //
-        // MODULE: SCTransform Normaliation
+        // MODULE: SCTransform Normalization
         //
         //if ('sctransform' in normalization_methods) {
         //    NORMALIZE_SCTRANSFORM (
