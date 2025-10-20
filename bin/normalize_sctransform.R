@@ -49,6 +49,16 @@ params_list <- list(
         default="glmGamPoi",
         help="The method to use"),
     make_option(
+        c("-r", "--vars_to_regress"),
+        type="character",
+        default=NULL,
+        help="The variables to regress out"),
+    make_option(
+        c("-g", "--return_var_genes"),
+        type="logical",
+        default=FALSE, ## TODO re-evaluate default in the future here (Seurat default is TRUE)
+        help="Return only variable genes"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
         default="normalized_xenium_obj.rds",
@@ -77,9 +87,10 @@ xenium_obj <- readRDS(file = opt$input)
 xenium_obj <- SCTransform(
     xenium_obj,
     assay = opt$assay,
-    return.only.var.genes = FALSE,
+    return.only.var.genes = opt$return_var_genes,
     verbose = TRUE,
-    vst.flavor = opt$vst_flavor
+    vst.flavor = opt$vst_flavor,
+    vars.to.regress = opt$vars_to_regress
     )
 
 #################

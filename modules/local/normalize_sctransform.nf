@@ -1,4 +1,4 @@
-process NORMALIZE_SCTRANSFORM{
+process NORMALIZE_SCTRANSFORM {
     tag "$meta.id"
     label 'process_low'
 
