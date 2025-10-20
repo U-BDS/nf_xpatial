@@ -27,48 +27,48 @@ options(future.globals.maxSize = 8192 * 1024^2)
 ###############################
 
 params_list <- list(
-    make_option(
-        c("-i", "--input"),
-        type="character",
-        default=NULL,
-        metavar="path",
-        help="The xenium results to be analyzed"),
-    make_option(
-      c("-a", "--assay"),
-      type="character",
-      default="Xenium",
-      help="The assay to operate on"),
-    make_option(
-        c("-l", "--counts_layer"),
-        type="character",
-        default="counts",
-        help="The layer in the assay with raw counts"),
-    make_option(
-        c("-c", "--cell_area_col"),
-        type="character",
-        default="Cell_Area",
-        help="The name of the column in the metadata containing the cell areas"),
-    make_option(
-        c("-a", "--cell_area_norm_assay"),
-        type="character",
-        default="AreaNorm",
-        help="The name of the assay in the metadata that will contain the cell area norm information."),
-    make_option(
-        c("-r", "--vars_to_regress"),
-        type="character",
-        default=NULL,
-        help="The variables to regress out during scaling"),
-    make_option(
-        c("-f", "--nfeatures"),
-        type="integer",
-        default=2000,
-        help="Number of features to select as top variable features"),    
-    make_option(
-        c("-o", "--outfile"),
-        type="character",
-        default="normalized_xenium_obj.rds",
-        metavar="path",
-        help="The output name for the seurat object"))
+  make_option(
+    c("-i", "--input"),
+    type="character",
+    default=NULL,
+    metavar="path",
+    help="The xenium results to be analyzed"),
+  make_option(
+    c("-a", "--assay"),
+    type="character",
+    default="Xenium",
+    help="The assay to operate on"),
+  make_option(
+    c("-l", "--counts_layer"),
+    type="character",
+    default="counts",
+    help="The layer in the assay with raw counts"),
+  make_option(
+    c("-c", "--cell_area_col"),
+    type="character",
+    default="Cell_Area",
+    help="The name of the column in the metadata containing the cell areas"),
+  make_option(
+    c("-a", "--cell_area_norm_assay"),
+    type="character",
+    default="AreaNorm",
+    help="The name of the assay in the metadata that will contain the cell area norm information."),
+  make_option(
+    c("-r", "--vars_to_regress"),
+    type="character",
+    default=NULL,
+    help="The variables to regress out during scaling"),
+  make_option(
+    c("-f", "--nfeatures"),
+    type="integer",
+    default=2000,
+    help="Number of features to select as top variable features"),    
+  make_option(
+    c("-o", "--outfile"),
+    type="character",
+    default="normalized_xenium_obj.rds",
+    metavar="path",
+    help="The output name for the seurat object"))
 
 opt_parser <- OptionParser(option_list=params_list)
 opt <- parse_args(opt_parser)
