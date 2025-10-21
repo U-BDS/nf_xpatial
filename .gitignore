@@ -1,11 +1,12 @@
 .nextflow*
 work/
 data/
-results*
+*results*
 .DS_Store
 testing/
 testing*
 *.pyc
 null/
 params.yml
+test_data
 *results*

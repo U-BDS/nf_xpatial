@@ -3,7 +3,9 @@
 include { ADD_TISSUE_COORDS               } from '../../../modules/local/add_tissue_coords'
 include { COMPILE_OBJECTS                 } from '../../../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS            } from '../../../modules/local/merge_xenium_objects'
+include { FIND_VARIABLE_FEATURES          } from '../../../modules/local/find_variable_features'
 include { CONVERT_SEURAT_TO_SPE           } from '../../../modules/local/convert_seurat_to_spe'
+include { SUBSET_VARIABLE_FEATURES        } from '../../../modules/local/subset_variable_features'
 include { STAGGER_SPATIAL_COORDS          } from '../../../modules/local/stagger_spatial_coords'
 include { CLUSTER_BANKSY                  } from '../../../modules/local/cluster_banksy'
 include { COMPUTE_BANKSY_MATRIX           } from '../../../modules/local/compute_banksy_matrix'
@@ -13,8 +15,8 @@ include { RUN_UMAP_BANKSY                 } from '../../../modules/local/run_uma
 include { EXTRACT_BANKSY_CLUSTER_METADATA } from '../../../modules/local/extract_banksy_cluster_metadata'
 include { EXTRACT_PARAMS                  } from '../../../modules/local/extract_params'
 include { EXTRACT_XE_METADATA             } from '../../../modules/local/extract_xe_metadata'
-include { EXTRACT_REDUCED_DIMS            } from '../../../modules/local/extract_reduced_dims'
-include { MERGE_CLUSTER_TSV               } from '../../../modules/local/merge_cluster_tsv'
+include { EXTRACT_BANKSY_REDUCED_DIMS     } from '../../../modules/local/extract_banksy_reduced_dims'
+include { MERGE_CSV                       } from '../../../modules/local/merge_csv'
 include { ADD_BANKSY_TO_SEURAT            } from '../../../modules/local/add_banksy_to_seurat'
 include { QC_BANKSY_PLOTS                 } from '../../../modules/local/qc_banksy_plots'
 
@@ -25,6 +27,9 @@ workflow BANKSY {
         k_geom_list             // list: list of k_geom values to evaluate
         nPCs_list               // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
+        skip_banksy_vf_filter   // boolean: whether to skip filtering to variable features
+        vf_nfeatures            // integer: number of variable features to select
+
 
     main:
         ch_versions = Channel.empty()
@@ -35,8 +40,27 @@ workflow BANKSY {
         // MODULE: Merge xenium objects
         MERGE_XENIUM_OBJECTS ( ADD_TISSUE_COORDS.out.tissue_coords_xenium_obj )
 
+        ch_merged_xenium_obj = Channel.empty()
+        if (!skip_banksy_vf_filter) {
+            // MODULE: Find Variable Features
+            FIND_VARIABLE_FEATURES ( 
+                MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+                vf_nfeatures 
+            )
+
+            // MODULE: Subset to Variable Features
+            SUBSET_VARIABLE_FEATURES (
+                FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
+            )
+
+            ch_merged_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
+
+        } else {
+            ch_merged_xenium_obj = MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
+        }
+
         // MODULE: Convert seurat object to spatial experiment object
-        CONVERT_SEURAT_TO_SPE ( MERGE_XENIUM_OBJECTS.out.merged_xenium_obj )
+        CONVERT_SEURAT_TO_SPE ( ch_merged_xenium_obj )
 
         // MODULE: Stagger spatial coordinates
         STAGGER_SPATIAL_COORDS ( CONVERT_SEURAT_TO_SPE.out.spe_object )
@@ -104,7 +128,7 @@ workflow BANKSY {
         )
 
         // MODULE: Extract Reduced Dims
-        EXTRACT_REDUCED_DIMS (
+        EXTRACT_BANKSY_REDUCED_DIMS (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
                 .map {
                     meta, csv, k_geom, lambda, nPCs, res ->
@@ -113,7 +137,7 @@ workflow BANKSY {
         )
 
         // MODULE: Merge cluster tsvs
-        MERGE_CLUSTER_TSV (
+        MERGE_CSV (
             EXTRACT_BANKSY_CLUSTER_METADATA.out.cluster_metadata
                 .groupTuple()
         )
@@ -122,7 +146,7 @@ workflow BANKSY {
         ADD_BANKSY_TO_SEURAT (
             MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
                 .join (
-                    MERGE_CLUSTER_TSV.out.merged_cluster_csv
+                    MERGE_CSV.out.merged_cluster_csv
                         .map {
                             meta, csv ->
                                 keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
@@ -135,7 +159,7 @@ workflow BANKSY {
         QC_BANKSY_PLOTS (
             ADD_BANKSY_TO_SEURAT.out.banksy_xenium_obj
                 .combine (
-                    EXTRACT_REDUCED_DIMS.out.banksy_umap_csv
+                    EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
                             .map {
                                 meta, csv ->
                                     keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']

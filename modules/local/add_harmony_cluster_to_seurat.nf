@@ -1,4 +1,4 @@
-process QC_VLN_PLOT {
+process ADD_HARMONY_CLUSTER_TO_SEURAT{
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,10 +10,10 @@ process QC_VLN_PLOT {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj)
+    tuple val(meta), path(xenium_object), val(cluster_metadata_csv), val(embeddings_csv), val(loadings_csv), val(stdev_csv)
 
     output:
-    tuple val(meta), path("*.png"), emit: vln_plot
+    tuple val(meta), path("*.rds"), emit: harmony_cluster_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
@@ -22,12 +22,18 @@ process QC_VLN_PLOT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    qc_vln_plot.R \\
+    add_harmony_cluster_to_seurat.R \\
         $args \\
-        --input "$xenium_obj" \\
-        --outfile ${prefix}_vln_plot.png
+        $assay_flag \\
+        --input "$xenium_object" \\
+        --clusters "${cluster_metadata_csv.join(',')}" \\
+        --embeddings "${embeddings_csv.join(',')}" \\
+        --loadings "${loadings_csv.join(',')}" \\
+        --stdev "${stdev_csv.join(',')}" \\
+        --outfile ${prefix}_harmony_cluster.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

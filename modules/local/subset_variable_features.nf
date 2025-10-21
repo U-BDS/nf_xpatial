@@ -1,4 +1,4 @@
-process QC_VLN_PLOT {
+process SUBSET_VARIABLE_FEATURES {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,24 +10,26 @@ process QC_VLN_PLOT {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj)
+    tuple val(meta), path(xenium_object)
 
     output:
-    tuple val(meta), path("*.png"), emit: vln_plot
+    tuple val(meta), path("*.rds"), emit: vf_subset_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args   = task.ext.args ?: ""
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args       = task.ext.args ?: ""
+    def prefix     = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    qc_vln_plot.R \\
+    subset_variable_features.R \\
         $args \\
-        --input "$xenium_obj" \\
-        --outfile ${prefix}_vln_plot.png
+        $assay_flag \\
+        --input "$xenium_object" \\
+        --outfile ${prefix}_vf_subset.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

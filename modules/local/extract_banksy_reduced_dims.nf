@@ -1,13 +1,12 @@
-process EXTRACT_REDUCED_DIMS {
+process EXTRACT_BANKSY_REDUCED_DIMS {
     tag "$meta.id"
     label 'process_low'
 
-    //container "nf_xenium_analysis_0.0.1.sif"
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.1' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.1' 
+            'docker://uabbds/nf_xenium_analysis:0.0.2' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
         }"
 
     input:
@@ -27,7 +26,7 @@ process EXTRACT_REDUCED_DIMS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    extract_reduced_dims.R \\
+    extract_banksy_reduced_dims.R \\
         $args \\
         $assay_flag \\
         --input "$spe_obj" \\

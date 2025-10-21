@@ -67,7 +67,7 @@ clusts <- clusts[rev(colnames(clusts))]
 write.table(
     clusts,
     file = opt$outfile,
-    sep = "\t",
+    sep = ",",
     quote = FALSE,
     row.names = FALSE
 )

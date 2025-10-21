@@ -29,11 +29,21 @@ params_list <- list(
         default=NULL,
         help="The assay to keep during conversion"),
     make_option(
+        c("-r", "--res"),
+        type="double",
+        help="The resolution used for clustering"
+    ),
+    make_option(
+        c("-d", "--dim"),
+        type="integer",
+        help="The number of dimentsions used for clustering"
+    ),
+    make_option(
         c("-o", "--outfile"),
         type="character",
-        default="filtered_xenium_obj.rds",
+        default="cluster_metadata.csv",
         metavar="path",
-        help="The filtered xenium object")
+        help="The csv containing seurat cluster metadata")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -56,6 +66,15 @@ DefaultAssay(xenium_obj) <- opt$assay
 # Extract cluster data
 clusts <- xenium_obj@meta.data[ grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
 
+# Add dim and res to column name
+colnames(clusts) <- paste0(
+    colnames(clusts),
+    ".dim",
+    opt$dim,
+    "_res",
+    opt$resolution
+)
+
 # Create a column for the cell ids
 clusts$Index <- rownames(clusts)
 rownames(clusts) <- NULL
@@ -71,7 +90,7 @@ clusts <- clusts[, c(2,1)]
 write.table(
     clusts,
     file = opt$outfile,
-    sep = "\t",
+    sep = ",",
     quote = FALSE,
     row.names = FALSE
 )
