@@ -48,7 +48,12 @@ workflow BANKSY {
                 vf_nfeatures 
             )
 
-            ch_merged_xenium_obj = FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
+            // MODULE: Subset to Variable Features
+            SUBSET_VARIABLE_FEATURES (
+                FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
+            )
+
+            ch_merged_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
 
         } else {
             ch_merged_xenium_obj = MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
@@ -57,19 +62,8 @@ workflow BANKSY {
         // MODULE: Convert seurat object to spatial experiment object
         CONVERT_SEURAT_TO_SPE ( ch_merged_xenium_obj )
 
-        ch_spatial_exp = Channel.empty()
-        if (!skip_banksy_vf_filter) {
-            // MODULE: Subset to Variable Features
-            SUBSET_VARIABLE_FEATURES ( CONVERT_SEURAT_TO_SPE.out.spe_object )
-          
-            ch_spatial_exp = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
-
-        } else {
-            ch_spatial_exp = CONVERT_SEURAT_TO_SPE.out.spe_object
-        }
-
         // MODULE: Stagger spatial coordinates
-        STAGGER_SPATIAL_COORDS ( ch_spatial_exp )
+        STAGGER_SPATIAL_COORDS ( CONVERT_SEURAT_TO_SPE.out.spe_object )
 
         // MODULE: Compute BANKSY matrix
         // This is to fix a race condition that occurs randomly on resumes

@@ -33,7 +33,7 @@ params_list <- list(
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="merged_xenium_obj.rds",
+        default="xenium_obj_vf_subset.rds",
         metavar="path",
         help="The output name for the xenium object"),
     make_option(
@@ -56,23 +56,23 @@ if (is.null(opt$input)) {
 ###################
 
 # Read in xenium_obj
-spe_xenium_obj <- readRDS(file = opt$input)
+xenium_obj <- readRDS(file = opt$input)
 
-# Set the default assay on the spatial experiment object
-mainExpName(spe_xenium_obj) <- opt$assay
+# Set the default assay on the xeniumx object
+DefaultAssay(xenium_obj) <- opt$assay
 
 ################################
 ### SUBSET VARIABLE FEATURES ###
 ################################
 
-spe_xenium_obj <- subset(spe_xenium_obj, features = VariableFeatures(spe_xenium_obj))
+xenium_obj <- subset(xenium_obj, features = VariableFeatures(xenium_obj))
 
 #################
 ### SAVE DATA ###
 #################
 
 saveRDS(
-    object = spe_xenium_obj,
+    object = xenium_obj,
     file = opt$outfile 
 )
 
