@@ -28,7 +28,7 @@ workflow GENERAL_QC {
         )
         ch_compiled_obj = COMPILE_OBJECTS.out.compiled_obj
 
-        // Create individual channels for each process to avoid race condition error on resums
+        // Create individual channels for each process to avoid race condition error on resume
         ch_dim_plot_in     = ch_compiled_obj
         ch_vln_plot_in     = ch_compiled_obj
         ch_scatter_plot_in = ch_compiled_obj
@@ -82,6 +82,5 @@ workflow GENERAL_QC {
         image_feature_plot_ncount   = QC_IFP_NCOUNT.out.image_feature_plot
         image_feature_plot_nfeature = QC_IFP_NFEATURE.out.image_feature_plot
         versions                    = ch_versions
-
 
 }

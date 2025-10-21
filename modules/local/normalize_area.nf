@@ -27,7 +27,7 @@ process NORMALIZE_AREA {
     normalize_area.R \\
         $args \\
         --input "$xenium_object" \\
-        --outfile ${prefix}_norm_sct.rds
+        --outfile ${prefix}_norm_area.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

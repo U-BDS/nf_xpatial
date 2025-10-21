@@ -39,10 +39,20 @@ params_list <- list(
         default="Xenium",
         help="The assay to operate on"),
     make_option(
-        c("-f", "--scale_factor"),
+        c("-s", "--scale_factor"),
         type="integer",
         default=10000,
         help="The scale factor to use"),
+      make_option(
+        c("-r", "--vars_to_regress"),
+        type="character",
+        default=NULL,
+        help="The variables to regress out during scaling"),
+      make_option(
+        c("-f", "--nfeatures"),
+        type="integer",
+        default=2000,
+        help="Number of features to select as top variable features"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -76,9 +86,26 @@ xenium_obj <- NormalizeData(
     scale.factor = opt$scale_factor
     )
 
-# TODO: Should these be moved to separate scripts?
-xenium_obj <- FindVariableFeatures(xenium_obj)
-xenium_obj <- ScaleData(xenium_obj)
+# warning when nfeatures >= than total number of features available
+
+if (opt$nfeatures >= nrow(xenium_obj[[opt$assay]]$counts)) {
+  warning(paste0(
+    "The number of total feautures available in the current assay (",
+    nrow(xenium_obj[[opt$assay]]$counts),
+    ") is less than ", 
+    opt$nfeatures,
+    "\nFindVariableFeatures will results in using all available feaures."
+    )
+  )
+}
+
+xenium_obj <- FindVariableFeatures(xenium_obj,
+                                   nfeatures = opt$nfeatures)
+
+xenium_obj <- ScaleData(
+    xenium_obj,
+    vars.to.regress = opt$vars_to_regress
+    )
 
 #################
 ### SAVE DATA ###

@@ -91,7 +91,7 @@ gene_pair_stat_info <- read.csv(
 )
 
 #####################
-### BARNYARD PLOT ###
+### HEATMAP PLOT ###
 #####################
 
 # Count occurrences of Gene pairs and FilterPass
@@ -105,7 +105,7 @@ pair_counts <- gene_pair_stat_info %>%
 heatmap_data <- pair_counts %>%
     pivot_wider(names_from = filter_pass, values_from = count, values_fill = 0) %>%
     rename(count_true = `TRUE`, count_false = `FALSE`) %>%
-    mutate(color = ifelse(count_true > count_false, "red", "blue"))
+    mutate(color = ifelse(count_true > count_false, "#D55E00", "#0072B2"))
 
 # Create the heatmap data frame
 heatmap_df <- heatmap_data %>%
@@ -114,10 +114,19 @@ heatmap_df <- heatmap_data %>%
 
 # Plot heatmap using ggplot2
 ggplot(heatmap_df, aes(x = gene1, y = gene2, fill = color)) +
-    geom_tile() +
-    scale_fill_identity() +
-    theme_minimal() +
-    labs(title = "Gene Pair Heatmap", x = "Gene1", y = "Gene2")
+  geom_tile() +
+  scale_fill_identity() +
+  theme_minimal() +
+  labs(title = "Gene Pair Heatmap", x = "Gene1", y = "Gene2") +
+  scale_fill_identity(name = "Mutually Exclusive Status",
+                      breaks = c("#D55E00", "#0072B2"),
+                      labels = c("count_true > count_false", "count_true <= count_false"),
+                      guide = "legend") +
+  guides(fill = guide_legend(keywidth = 0.6,
+                             keyheight = 0.6,
+                             direction = "horizontal")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "bottom")
 
 ggsave(filename = opt$outfile, width = opt$width, height = opt$height, units = "px", dpi = 300)
 

@@ -53,7 +53,7 @@ params_list <- list(
     make_option(
         c("--max_spearman_p"),
         type="double",
-        default=0.01,
+        default=0.05,
         help="The maximum spearman p value"),
     make_option(
         c("--max_spearman_r"),
@@ -63,7 +63,7 @@ params_list <- list(
     make_option(
         c("--min_gini"),
         type="double",
-        default=0.6,
+        default=0.7,
         help="The minimum gini index")
     )
 
@@ -140,6 +140,7 @@ for (i in seq_along(eval_genes)){
             gini_gene2 <- calculate_gini_score(expr_data[[gene2]])
 
             # Determine if the gene pairs passes the cutoffs
+            # Any pairs that do (with stringent cutoffs) may be cell-type specific
             filter_pass <- cor_test$p.value < opt$max_spearman_p &&
                 cor_test$estimate < opt$max_spearman_r &&
                 gini_gene1 > opt$min_gini &&

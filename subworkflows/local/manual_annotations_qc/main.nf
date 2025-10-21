@@ -36,12 +36,12 @@ workflow MANUAL_ANNOTATIONS_QC {
 
         // Merge the xenium objects back together, removing the manual annotations from the channel
         ch_annotated_xenium_obj = ADD_MANUAL_ANNOTATIONS.out.annotated_xenium_obj
-        .mix (ch_sep_objects.no_annotation
-            .map{
-                meta, xenium_rds, manual_annotation ->
-                    [meta, xenium_rds]
-            }
-        )
+            .mix (ch_sep_objects.no_annotation
+                .map{
+                    meta, xenium_rds, manual_annotation ->
+                        [meta, xenium_rds]
+                }
+            )
 
         //
         // MODULE: Merge the manual_annotations

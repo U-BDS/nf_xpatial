@@ -29,7 +29,7 @@ workflow CELL_SHAPE_QC {
         // MODULE: Compile the cell shape dataframes into a single object
         //
         // TODO: Change this to use dataframes instead of objects
-        COMPILE_OBJECTS(
+        COMPILE_OBJECTS (
             CLASSIFY_CELL_SHAPE.out.cell_shape_xenium_obj
                 .map{
                     meta, xenium_obj -> [xenium_obj]
@@ -67,6 +67,4 @@ workflow CELL_SHAPE_QC {
         cell_shape_plot       = CELL_SHAPE_PLOT.out.proportion_plot
         cell_segm_plot        = CELL_SEGM_PLOT.out.proportion_plot
         versions              = ch_versions
-
-
 }

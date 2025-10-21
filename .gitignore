@@ -9,3 +9,4 @@ testing*
 null/
 params.yml
 test_data
+*results*

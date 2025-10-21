@@ -22,7 +22,7 @@ workflow CELL_AREA_QC {
         //
         // MODULE: Compile objects
         //
-        COMPILE_OBJECTS(
+        COMPILE_OBJECTS (
             ch_xenium_data
                 .map{
                     meta, xenium_obj -> [xenium_obj]

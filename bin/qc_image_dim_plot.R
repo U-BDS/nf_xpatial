@@ -100,55 +100,88 @@ xenium_objs <- readRDS(
 #### DIM PLOT ###
 #################
 
-# TODO: How to do colors
-# Need to get all the groups and assign them a color
+# adjust ncols based on sample number if ncols <=1 (default)
+# otherwise leave as user-selected number
+if (opt$ncols <= 1) {
+  if (length(xenium_objs) > 4) {
+    opt$ncols <- ceiling(length(xenium_objs)/4) # round up beyond 4 samples
+  }
+}
 
 # Check if the input was a list of objects or a single object
 img_dim_plot <- NULL
 if ( typeof(xenium_objs) != "list" ) {
-
-    img_dim_plot <- 
-        ImageDimPlot(
-            xenium_objs,
-            dark.background = opt$dark_background,
-            group.by = opt$group_by,
-            fov = opt$fov,
-            cols = brewer.pal(1,"Set1")
-        ) + 
-        ggtitle(xenium_objs@project.name) +
-        coord_fixed() +
-        scale_x_reverse()    
-
+  
+  img_dim_plot <- 
+    ImageDimPlot(
+      xenium_objs,
+      dark.background = opt$dark_background,
+      group.by = opt$group_by,
+      fov = opt$fov,
+      cols = brewer.pal(1,"Set1")
+    ) + 
+    ggtitle(xenium_objs@project.name) +
+    coord_fixed() +
+    scale_x_reverse()    
+  
 } else {
-
-    fig_list = list()
-
+  
+  fig_list = list()
+  
+  # Map palette to groups if group_by is specified
+  if (!is.null(opt$group_by)) {
     # Determine how many colors are needed
     all_features <- unlist(lapply(xenium_objs, function(obj) unique(obj[[opt$group_by]])))
-
-    num_features <- length(unique(all_features))
-
-    for (i in 1:length(xenium_objs)){
-        fig_list[[i]] <- ImageDimPlot(
-                xenium_objs[[i]],
-                dark.background = opt$dark_background,
-                group.by = opt$group_by,
-                fov = opt$fov,
-                cols = brewer.pal(num_features,"Set1")
-            ) + 
-            ggtitle(xenium_objs[[i]]@project.name) +
-            coord_fixed() +
-            scale_x_reverse()
+    unique_features <- unique(all_features)
+    num_features <- length(unique_features)
+    
+    # Expand palette if needed
+    palette <- colorRampPalette(brewer.pal(min(num_features, 9), "Set1"))(num_features)
+    
+    # Create a named color vector for consistent mapping 
+    # (to ensure cols are mapped to group_by instead of always choosing first color)
+    named_cols <- data.frame(
+      feature = unique_features,
+      color = palette,
+      stringsAsFactors = FALSE
+    )
+  }
+  
+  for (i in 1:length(xenium_objs)) {
+    
+    if (!is.null(opt$group_by)) {
+      # Get current object features, coerced to character
+      obj_features <- as.character(unlist(xenium_objs[[i]][[opt$group_by]]))
+      obj_features <- unique(na.omit(obj_features))
+      
+      # Join to get the correct subset of colors for this object
+      cols_for_obj <- named_cols[named_cols$feature %in% obj_features, "color"]
+      names(cols_for_obj) <- named_cols[named_cols$feature %in% obj_features, "feature"]
+      
+    } else {
+      cols_for_obj <- brewer.pal(1,"Set1") # set to just one color across all
     }
-
-    img_dim_plot <- wrap_plots(fig_list, nrow = opt$nrows, ncol = opt$ncols) + plot_layout(guides = "collect")
+    
+    fig_list[[i]] <- ImageDimPlot(
+      xenium_objs[[i]],
+      dark.background = opt$dark_background,
+      group.by = opt$group_by,
+      fov = opt$fov,
+      cols = cols_for_obj
+    ) + 
+      ggtitle(xenium_objs[[i]]@project.name) +
+      coord_fixed() +
+      scale_x_reverse()
+  }
+  
+  img_dim_plot <- wrap_plots(fig_list, nrow = opt$nrows, ncol = opt$ncols)
 }
 
 ###################
 ### OUTPUT PLOT ###
 ###################
 
-# Calcuate width if not provided
+# Calculate width if not provided
 indiv_plot_width <- 1000
 
 total_plot_width <- opt$width

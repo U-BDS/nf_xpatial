@@ -1,4 +1,4 @@
-process FILTER_XENIUM_OBJ{
+process FILTER_XENIUM_OBJ {
     tag "$meta.id"
     label 'process_low'
 
@@ -28,7 +28,7 @@ process FILTER_XENIUM_OBJ{
     filter_xenium_object.R \\
         $args \\
         --input "$xenium_obj" \\
-        --outfile ${prefix}_filtered.rds
+        --outfile ${prefix}.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

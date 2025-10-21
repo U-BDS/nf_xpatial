@@ -34,7 +34,8 @@ process COMPILE_DATAFRAMES {
     for (i in 1:length(file_list)) {
         df_list[[i]] <- read.csv(
             file = file_list[[i]],
-            header = TRUE
+            header = TRUE,
+            row.names = 1
         )
     }
 
@@ -43,7 +44,7 @@ process COMPILE_DATAFRAMES {
     write.csv(
         combined_df,
         file = "${prefix}_compiled.csv",
-        row.names = FALSE
+        row.names = TRUE
     )
 
     """

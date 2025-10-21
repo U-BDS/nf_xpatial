@@ -63,7 +63,7 @@ params_list <- list(
         c("--fill"),
         type="character",
         default="skyblue",
-        help="Fill color"),
+        help="Fill color within binwidth of a histogram"),
     make_option(
         c("--color"),
         type="character",
@@ -73,7 +73,7 @@ params_list <- list(
         c("--binwidth"),
         type="integer",
         default=1,
-        help="Number of cols for the plot (if there are multiple samples)")
+        help="binwidth of histogram")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -97,6 +97,13 @@ xenium_objs <- readRDS(
 #### HISTOGRAM PLOT ###
 #######################
 
+# adjust ncols based on sample number if ncols <=1 (default)
+# otherwise leave as user-selected number
+if (opt$ncols <= 1) {
+  if (length(xenium_objs) > 4) {
+    opt$ncols <- ceiling(length(xenium_objs)/4) # round up beyond 4 samples
+  }
+}
 
 # Check if the input was a list of objects or a single object
 histogram_plot <- NULL
