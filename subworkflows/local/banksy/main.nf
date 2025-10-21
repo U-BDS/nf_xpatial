@@ -3,7 +3,9 @@
 include { ADD_TISSUE_COORDS               } from '../../../modules/local/add_tissue_coords'
 include { COMPILE_OBJECTS                 } from '../../../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS            } from '../../../modules/local/merge_xenium_objects'
+include { FIND_VARIABLE_FEATURES          } from '../../../modules/local/find_variable_features'
 include { CONVERT_SEURAT_TO_SPE           } from '../../../modules/local/convert_seurat_to_spe'
+include { SUBSET_VARIABLE_FEATURES        } from '../../../modules/local/subset_variable_features'
 include { STAGGER_SPATIAL_COORDS          } from '../../../modules/local/stagger_spatial_coords'
 include { CLUSTER_BANKSY                  } from '../../../modules/local/cluster_banksy'
 include { COMPUTE_BANKSY_MATRIX           } from '../../../modules/local/compute_banksy_matrix'
@@ -25,6 +27,9 @@ workflow BANKSY {
         k_geom_list             // list: list of k_geom values to evaluate
         nPCs_list               // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
+        skip_banksy_vf_filter   // boolean: whether to skip filtering to variable features
+        vf_nfeatures            // integer: number of variable features to select
+
 
     main:
         ch_versions = Channel.empty()
@@ -35,8 +40,27 @@ workflow BANKSY {
         // MODULE: Merge xenium objects
         MERGE_XENIUM_OBJECTS ( ADD_TISSUE_COORDS.out.tissue_coords_xenium_obj )
 
+        ch_merged_xenium_obj = Channel.empty()
+        if (!skip_banksy_vf_filter) {
+            // MODULE: Find Variable Features
+            FIND_VARIABLE_FEATURES ( 
+                MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+                vf_nfeatures 
+            )
+
+            // MODULE: Subset to Variable Features
+            SUBSET_VARIABLE_FEATURES (
+                FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
+            )
+
+            ch_merged_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
+
+        } else {
+            ch_merged_xenium_obj = MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
+        }
+
         // MODULE: Convert seurat object to spatial experiment object
-        CONVERT_SEURAT_TO_SPE ( MERGE_XENIUM_OBJECTS.out.merged_xenium_obj )
+        CONVERT_SEURAT_TO_SPE ( ch_merged_xenium_obj )
 
         // MODULE: Stagger spatial coordinates
         STAGGER_SPATIAL_COORDS ( CONVERT_SEURAT_TO_SPE.out.spe_object )

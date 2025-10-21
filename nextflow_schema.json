@@ -176,7 +176,7 @@
                 "min_nFeature": {
                     "type": "number",
                     "description": "The minimum nFeature threshold for nFeature filtering",
-                    "default": 10
+                    "default": 10.0
                 },
                 "max_nFeature": {
                     "type": "number",
@@ -189,7 +189,7 @@
                 "min_nCount": {
                     "type": "number",
                     "description": "The minimum nCount threshold for nCount filtering",
-                    "default": 10
+                    "default": 10.0
                 },
                 "max_nCount": {
                     "type": "number",
@@ -262,12 +262,12 @@
                 "selected_res": {
                     "type": "number",
                     "description": "Use this to specify a single resolution to explore",
-                    "default": -1
+                    "default": -1.0
                 },
                 "selected_dim": {
                     "type": "number",
                     "description": "Use this to specify a single dimension to explore",
-                    "default": -1
+                    "default": -1.0
                 },
                 "skip_tsne_plot": {
                     "type": "boolean",
@@ -282,6 +282,16 @@
             "description": "",
             "default": "",
             "properties": {
+                "skip_banksy_vf_filter": {
+                    "type": "boolean",
+                    "description": "This will skip subsetting the xenium object by highly variable genes before going into BANKSY",
+                    "default": true
+                },
+                "vf_nfeatures": {
+                    "type": "number",
+                    "description": "The number of variable features to keep if filtering by variable feature is enabled",
+                    "default": 2000.0
+                },
                 "lambda_BANKSY": {
                     "type": "string",
                     "description": "The comma-delimited list of lambda values to pass to BANKSY"
@@ -301,7 +311,7 @@
                 "use_agf_BANKSY": {
                     "type": "boolean",
                     "description": "Whether or not to use agf for BANKSY",
-                    "default": true
+                    "default": false
                 },
                 "max_iter_BANKSY": {
                     "type": "integer",
