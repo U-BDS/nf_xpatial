@@ -1,7 +1,6 @@
-process CREATE_XENIUM_OBJ{
-    stageInMode 'copy'
+process FIND_VARIABLE_FEATURES {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
@@ -11,26 +10,28 @@ process CREATE_XENIUM_OBJ{
         }"
 
     input:
-    tuple val(meta), path(xenium_input), path(xenium_metadata)
+    tuple val(meta), path(xenium_object)
+    val variable_feature_nfeatures
 
     output:
-    tuple val(meta), path("*.rds"), emit: xenium_obj
+    tuple val(meta), path("*.rds"), emit: variable_features_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args   = task.ext.args ?: ""
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args       = task.ext.args ?: ""
+    def prefix     = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    create_xenium_object.R \\
+    find_variable_features.R \\
         $args \\
-        --input "$xenium_input" \\
-        --metadata $xenium_metadata \\
-        --sample ${prefix} \\
-        --outfile ${prefix}_raw.rds
+        $assay_flag \\
+        --input "$xenium_object" \\
+        --nfeatures ${variable_feature_nfeatures} \\
+        --outfile ${prefix}_variable_features.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

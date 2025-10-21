@@ -1,7 +1,6 @@
-process CREATE_XENIUM_OBJ{
-    stageInMode 'copy'
+process ADD_HARMONY_CLUSTER_TO_SEURAT{
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
@@ -11,10 +10,10 @@ process CREATE_XENIUM_OBJ{
         }"
 
     input:
-    tuple val(meta), path(xenium_input), path(xenium_metadata)
+    tuple val(meta), path(xenium_object), val(cluster_metadata_csv), val(embeddings_csv), val(loadings_csv), val(stdev_csv)
 
     output:
-    tuple val(meta), path("*.rds"), emit: xenium_obj
+    tuple val(meta), path("*.rds"), emit: harmony_cluster_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
@@ -23,14 +22,18 @@ process CREATE_XENIUM_OBJ{
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    create_xenium_object.R \\
+    add_harmony_cluster_to_seurat.R \\
         $args \\
-        --input "$xenium_input" \\
-        --metadata $xenium_metadata \\
-        --sample ${prefix} \\
-        --outfile ${prefix}_raw.rds
+        $assay_flag \\
+        --input "$xenium_object" \\
+        --clusters "${cluster_metadata_csv.join(',')}" \\
+        --embeddings "${embeddings_csv.join(',')}" \\
+        --loadings "${loadings_csv.join(',')}" \\
+        --stdev "${stdev_csv.join(',')}" \\
+        --outfile ${prefix}_harmony_cluster.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
