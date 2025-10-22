@@ -122,10 +122,10 @@ DefaultAssay(xenium_obj) <- opt$cell_area_norm_assay
 
 # warning when nfeatures >= than total number of features available
 
-if (opt$nfeatures >= nrow(xenium_obj[[opt$cell_area_norm_assay]]$counts)) {
+if (opt$nfeatures >= nrow(slot(xenium_obj[[opt$cell_area_norm_assay]], opt$counts_layer))) {
   warning(paste0(
     "The number of total feautures available in the current assay (",
-    nrow(xenium_obj[[opt$cell_area_norm_assay]]$counts),
+    nrow(slot(xenium_obj[[opt$cell_area_norm_assay]], opt$counts_layer)),
     ") is less than ", 
     opt$nfeatures,
     "\nFindVariableFeatures will results in using all available feaures."
