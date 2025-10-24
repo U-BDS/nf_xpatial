@@ -80,12 +80,20 @@ xenium_obj <- readRDS(file = opt$input)
 ###############
 
 DefaultAssay(xenium_obj) <- opt$assay
+
+if (length(VariableFeatures(xenium_obj)) == 0) {
+  warning("Variable features not found. The PCA will be computed across all features")
+  features_input <- rownames(xenium_obj[[opt$assay]]$counts)
+} else {
+  features_input <- VariableFeatures(xenium_obj) 
+}
+
 xenium_obj <- RunPCA(
     xenium_obj,
     npcs = opt$npcs,
     assay = opt$assay,
     reduction.name = opt$reduction_name,
-    features = rownames(xenium_obj)
+    features = features_input
 )
 
 #################
