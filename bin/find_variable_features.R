@@ -79,24 +79,27 @@ DefaultAssay(xenium_obj) <- opt$assay
 ### FIND VARIABLE FEATURES ###
 ##############################
 
-if (length(Features(xenium_obj)) < opt$nfeatures) {
-    warning(
-        paste0(
-            "The number of features in the dataset (",
-            length(Features(xenium_obj)),
-            ") is less than the number of variable features requested (",
-            opt$nfeatures,
-            "). Skipping detection of variable features."
+num_features <- opt$nfeatures
+
+if (opt$nfeatures > nrow(xenium_obj[[opt$assay]]$counts)) {
+    warning(paste0(
+        "The number of total features available in the current assay (",
+        nrow(xenium_obj[[opt$assay]]$counts),
+        ") is less than ", 
+        opt$nfeatures,
+        "\nFindVariableFeatures will result in using all available features."
         )
     )
-} else {
-    xenium_obj <- FindVariableFeatures(
-        object = xenium_obj,
-        assay = opt$assay,
-        selection.method = opt$selection_method,
-        nfeatures = opt$nfeatures
-    )
+
+    num_features <- nrow(xenium_obj[[opt$assay]]$counts)
 }
+
+xenium_obj <- FindVariableFeatures(
+    object = xenium_obj,
+    assay = opt$assay,
+    selection.method = opt$selection_method,
+    nfeatures = num_features
+)
 
 #################
 ### SAVE DATA ###

@@ -111,7 +111,8 @@ workflow NF_XENIUM_ANALYSIS {
         dim_list,
         res_list,
         params.skip_tsne_plot,
-        params.marker_gene_list
+        params.marker_gene_list,
+        params.vf_nfeatures
     )
 
     //

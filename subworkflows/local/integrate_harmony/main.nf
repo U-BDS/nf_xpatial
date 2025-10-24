@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 include { MERGE_XENIUM_OBJECTS                  } from '../../../modules/local/merge_xenium_objects'
+include { FIND_VARIABLE_FEATURES                } from '../../../modules/local/find_variable_features'
 include { SCALE_DATA                            } from '../../../modules/local/scale_data'
 include { RUN_PCA                               } from '../../../modules/local/run_pca'
 include { QC_ELBOW_PLOT                         } from '../../../modules/local/qc_elbow_plot'
@@ -23,6 +24,7 @@ workflow INTEGRATE_HARMONY {
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
         marker_gene_list        // file: marker gene list
+        vf_nfeatures            // integer: number of variable features to select
 
     main:
         ch_versions = Channel.empty()
@@ -30,8 +32,13 @@ workflow INTEGRATE_HARMONY {
         // MODULE: Merge xenium objects
         MERGE_XENIUM_OBJECTS ( ch_comp_norm_xenium_obj )
 
+        FIND_VARIABLE_FEATURES ( 
+            MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+            vf_nfeatures 
+        )
+        
         // MODULE: Scale the merged xenium object
-        SCALE_DATA ( MERGE_XENIUM_OBJECTS.out.merged_xenium_obj )
+        SCALE_DATA ( FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj )
 
         // MODULE: Run PCA for the xenium objects
         RUN_PCA ( SCALE_DATA.out.scaled_xenium_obj )
