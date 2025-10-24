@@ -42,7 +42,7 @@ params_list <- list(
         c("-r", "--reduction"),
         type="character",
         default="harmony",
-        help="The reduction  to evaluate on the xenium object"),
+        help="The reduction to evaluate on the xenium object"),
     make_option(
         c("-d", "--dim"),
         type="integer",
@@ -85,7 +85,7 @@ xenium_obj <- readRDS(file = opt$input)
 ######################
 
 DefaultAssay(xenium_obj) <- opt$assay
-xenium_obj <- FindNeighbors (
+xenium_obj <- FindNeighbors(
     xenium_obj,
     reduction = opt$reduction,
     dims = 1:opt$dim,

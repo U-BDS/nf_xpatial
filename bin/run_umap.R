@@ -42,7 +42,7 @@ params_list <- list(
         c("-r", "--reduction"),
         type="character",
         default="harmony",
-        help="The reduction  to evaluate on the xenium object"),
+        help="The reduction to evaluate on the xenium object"),
     make_option(
         c("-d", "--dim"),
         type="integer",

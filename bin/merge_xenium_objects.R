@@ -90,6 +90,8 @@ if (typeof(xenium_obj) == "list") {
 
 DefaultAssay(merged_xenium_obj) <- opt$assay
 
+# Note: as of now, JoinLayers is only needed for Xenium assay
+# as AreaNorm is not split across sample-specific layers
 if (opt$assay == "Xenium") {
     merged_xenium_obj <- JoinLayers(merged_xenium_obj)
 }
