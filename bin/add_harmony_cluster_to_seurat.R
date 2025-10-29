@@ -192,21 +192,38 @@ for (reduc_dim_res in reduc_dim_res_list) {
 ### ADD CLUSTER METADATA ###
 ############################
 
+### TODO: see issue #21 for further evaluation on handling the cases where metadata may have missing cells
+
 print("Adding cluster metadata...")
 for (cluster_file in cluster_file_list) {
 
     if (file.exists(cluster_file)) {
-        clusters_df <- read.csv(cluster_file)
+        clusters_df <- read.csv(cluster_file, row.names = 1)
+        
+        # set clusters to be a sorted factor
+        clusters_df[[1]] <- factor(clusters_df[[1]],
+                                   levels = sort(unique(clusters_df[[1]])))
 
         # Ensure that the order of rownames matches between xenium metadata and new metadata
         common_cells <- intersect(rownames(xenium_obj@meta.data), rownames(clusters_df))
-
-        # Subset both metadata to only include matching cells
-        xenium_metadata <- xenium_obj@meta.data[common_cells, ]
-        clusters_df <- clusters_df[common_cells, ]
-
+        
+        # add warning in case common_cells are not matching all cells present in obj
+        
+        if (all(common_cells %in% rownames(xenium_obj@meta.data))) {
+          print("Cell names between object and clustering metadata match")
+          
+        } else {
+          warning("Cell names between object and clustering metadata DO NOT match. Skipping addition of cell cluster information!")
+          
+          # Subset both metadata to only include matching cells (see issue #21)
+          #xenium_metadata <- xenium_obj@meta.data[common_cells, ]
+          #clusters_df <- clusters_df[common_cells, ]
+        }
+    
         # Add the new metadata columns to the xenium object's metadata
-        xenium_obj@meta.data <- cbind(xenium_metadata, clusters_df)
+        xenium_obj <- AddMetaData(object = xenium_obj,
+                                  metadata = clusters_df)
+        
     } else {
         print(paste0("File does not exist: ", cluster_file))
     }
