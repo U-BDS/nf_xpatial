@@ -1,4 +1,4 @@
-process ADD_HARMONY_CLUSTER_TO_SEURAT{
+process ADD_HARMONY_CLUSTER_TO_SEURAT {
     tag "$meta.id"
     label 'process_medium'
 

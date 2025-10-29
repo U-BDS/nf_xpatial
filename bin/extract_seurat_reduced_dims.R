@@ -65,7 +65,7 @@ if (length(Reductions(xenium_obj)) == 0) {
     stop("No reductions found in xenium object.")
 }
 
-# Save each sample-specific data frame to a csv file
+# Save each reduction-specific data frame to a csv file
 for (reduc in Reductions(xenium_obj)) {
     
     file_prefix <- paste0(gsub("_","-",reduc), "_d", opt$dim, "_r", opt$res)

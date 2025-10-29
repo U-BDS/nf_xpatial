@@ -64,7 +64,7 @@ xenium_obj <- readRDS(file = opt$input)
 DefaultAssay(xenium_obj) <- opt$assay
 
 # Extract cluster data
-clusts <- xenium_obj@meta.data[ grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
+clusts <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
 
 # Add dim and res to column name
 colnames(clusts) <- paste0(
@@ -72,7 +72,7 @@ colnames(clusts) <- paste0(
     ".dim",
     opt$dim,
     "_res",
-    opt$resolution
+    opt$res
 )
 
 # Create a column for the cell ids

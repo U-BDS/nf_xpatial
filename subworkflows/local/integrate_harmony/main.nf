@@ -116,7 +116,7 @@ workflow INTEGRATE_HARMONY {
         //
         // MODULE: Extract reduced dims
         //
-        EXTRACT_SEURAT_REDUCED_DIMS(
+        EXTRACT_SEURAT_REDUCED_DIMS (
             FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
