@@ -49,7 +49,7 @@ params_list <- list(
     default="Cell_Area",
     help="The name of the column in the metadata containing the cell areas"),
   make_option(
-    c("-a", "--cell_area_norm_assay"),
+    c("-n", "--cell_area_norm_assay"),
     type="character",
     default="AreaNorm",
     help="The name of the assay in the metadata that will contain the cell area norm information."),
@@ -121,20 +121,23 @@ LayerData(xenium_obj, assay = opt$cell_area_norm_assay, layer = "data") <- log_n
 DefaultAssay(xenium_obj) <- opt$cell_area_norm_assay
 
 # warning when nfeatures >= than total number of features available
+num_features <- opt$nfeatures
 
-if (opt$nfeatures >= nrow(xenium_obj[[opt$cell_area_norm_assay]]$counts)) {
-  warning(paste0(
-    "The number of total feautures available in the current assay (",
-    nrow(xenium_obj[[opt$cell_area_norm_assay]]$counts),
-    ") is less than ", 
-    opt$nfeatures,
-    "\nFindVariableFeatures will results in using all available feaures."
+if (opt$nfeatures > nrow(xenium_obj[[opt$assay]]$counts)) {
+    warning(paste0(
+        "The number of total features available in the current assay (",
+        nrow(xenium_obj[[opt$assay]]$counts),
+        ") is less than ", 
+        opt$nfeatures,
+        "\nFindVariableFeatures will results in using all available feaures."
+        )
     )
-  )
+
+    num_features <- nrow(xenium_obj[[opt$assay]]$counts)
 }
 
 xenium_obj <- FindVariableFeatures(xenium_obj,
-                                   nfeatures = opt$nfeatures)
+                                   nfeatures = num_features)
 
 xenium_obj <- ScaleData(
   xenium_obj,
