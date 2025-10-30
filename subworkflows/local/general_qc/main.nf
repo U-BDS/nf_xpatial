@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
-include { COMPILE_OBJECTS                          } from '../../../modules/local/compile_objects'
+include { COMPILE_ORDERED_OBJECTS } from '../../../subworkflows/local/compile_ordered_objects'
+
 include { QC_IMAGE_DIM_PLOT                        } from '../../../modules/local/qc_image_dim_plot'
 include { QC_VLN_PLOT                              } from '../../../modules/local/qc_vln_plot'
 include { QC_FEATURE_SCATTER_PLOT                  } from '../../../modules/local/qc_feature_scatter_plot'
@@ -12,21 +13,17 @@ workflow GENERAL_QC {
 
     main:
         ch_versions = Channel.empty()
+        //
+        // SUBWORKFLOW: Compile ordered objects
+        //
 
         //
         // MODULE: Compile objects into a list
         //
-        COMPILE_OBJECTS (
+        COMPILE_ORDERED_OBJECTS (
             ch_xenium_obj
-                .map{
-                    meta, xenium_obj -> [xenium_obj]
-                }
-                .collect()
-                .map{
-                    [ [ 'id': 'compiled' ], it ]
-                }
         )
-        ch_compiled_obj = COMPILE_OBJECTS.out.compiled_obj
+        ch_compiled_obj = COMPILE_ORDERED_OBJECTS.out.compiled_obj
 
         // Create individual channels for each process to avoid race condition error on resume
         ch_dim_plot_in     = ch_compiled_obj
