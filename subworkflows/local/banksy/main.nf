@@ -40,14 +40,16 @@ workflow BANKSY {
         // MODULE: Merge xenium objects
         MERGE_XENIUM_OBJECTS ( ADD_TISSUE_COORDS.out.tissue_coords_xenium_obj )
 
+        // TODO: along with merging and adding tissue coords, also move 
+        // FIND_VARIABLE_FEATURES out of subworkflows prior to harmony/BANKSY workflows
+        // MODULE: Find Variable Features
+        FIND_VARIABLE_FEATURES ( 
+            MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+            vf_nfeatures 
+        )
+
         ch_merged_xenium_obj = Channel.empty()
         if (!skip_banksy_vf_filter) {
-            // MODULE: Find Variable Features
-            FIND_VARIABLE_FEATURES ( 
-                MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
-                vf_nfeatures 
-            )
-
             // MODULE: Subset to Variable Features
             SUBSET_VARIABLE_FEATURES (
                 FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
@@ -56,7 +58,7 @@ workflow BANKSY {
             ch_merged_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
 
         } else {
-            ch_merged_xenium_obj = MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
+            ch_merged_xenium_obj = FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
         }
 
         // MODULE: Convert seurat object to spatial experiment object
