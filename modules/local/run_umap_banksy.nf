@@ -29,6 +29,5 @@ process RUN_UMAP_BANKSY {
         $assay_flag \\
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_umap_spe.rds"
-
     """
 }

@@ -32,6 +32,5 @@ process CLUSTER_BANKSY {
         --lambda $lambda \\
         --nPCs $nPCs \\
         --res $res
-
     """
 }

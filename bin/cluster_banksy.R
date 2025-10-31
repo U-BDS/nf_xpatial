@@ -93,7 +93,6 @@ colData(spe_xenium_obj)[[paste0("clust_", opt$param_str)]] <- colData(spe_xenium
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spe_xenium_obj,
     file = opt$outfile 

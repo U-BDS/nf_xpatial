@@ -85,7 +85,6 @@ reducedDimNames(spe_xenium_obj) <- "BANKSY_pca"
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spe_xenium_obj,
     file = opt$outfile 

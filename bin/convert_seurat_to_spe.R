@@ -106,7 +106,6 @@ mainExpName(spatial_exp) <- opt$assay
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spatial_exp,
     file = opt$outfile 
