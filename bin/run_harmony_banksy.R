@@ -40,11 +40,11 @@ params_list <- list(
         type="integer",
         default=1,
         help="Number of cores to use for Harmony"),
-   make_option(
-        c("--nPCs"),
-        type="integer",
-        default=NULL,
-        help="nPCs values for Banksy clustering"),
+    make_option(
+        c("-g", "--group_vars"),
+        type="character",
+        default="orig.ident",
+        help="The variables to harmony's vars_use"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -72,9 +72,9 @@ mainExpName(spe_xenium_obj) <- opt$assay
 
 # Compute banksy matrix
 harmony_embedding <- RunHarmony(
-    data_mat = reducedDim(spe_xenium_obj, "BANKSY_pca")[, 1:opt$nPCs],
+    data_mat = reducedDim(spe_xenium_obj, "BANKSY_pca"),
     meta_data = colData(spe_xenium_obj),
-    vars_use = c("orig.ident"),
+    vars_use = opt$group_vars,
     plot_convergence = FALSE,
     max_iter = opt$max_iter,
     verbose = TRUE,
@@ -87,7 +87,6 @@ reducedDim(spe_xenium_obj, "BANKSY_harmony") <- harmony_embedding
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spe_xenium_obj,
     file = opt$outfile 
