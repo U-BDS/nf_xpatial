@@ -210,7 +210,11 @@ for (cluster_file in cluster_file_list) {
         # add warning in case common_cells are not matching all cells present in obj
         
         if (all(common_cells %in% rownames(xenium_obj@meta.data))) {
-          print("Cell names between object and clustering metadata match")
+          print("Cell names between object and clustering metadata match. Adding cell cluster information")
+          
+          # Add the new metadata columns to the xenium object's metadata
+          xenium_obj <- AddMetaData(object = xenium_obj,
+                                    metadata = clusters_df)
           
         } else {
           warning("Cell names between object and clustering metadata DO NOT match. Skipping addition of cell cluster information!")
@@ -219,11 +223,7 @@ for (cluster_file in cluster_file_list) {
           #xenium_metadata <- xenium_obj@meta.data[common_cells, ]
           #clusters_df <- clusters_df[common_cells, ]
         }
-    
-        # Add the new metadata columns to the xenium object's metadata
-        xenium_obj <- AddMetaData(object = xenium_obj,
-                                  metadata = clusters_df)
-        
+      
     } else {
         print(paste0("File does not exist: ", cluster_file))
     }

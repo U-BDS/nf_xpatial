@@ -1,4 +1,4 @@
-process ADD_BANKSY_TO_SEURAT{
+process ADD_BANKSY_TO_SEURAT {
     tag "$meta.id"
     label 'process_medium'
 

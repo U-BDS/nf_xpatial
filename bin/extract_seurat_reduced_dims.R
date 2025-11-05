@@ -21,12 +21,12 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="The xenium object to be filtered"),
+        help="The xenium object"),
     make_option(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        help="The assay to keep during conversion"),
+        help="The assay to use"),
     make_option(
         c("-r", "--res"),
         type="double",
