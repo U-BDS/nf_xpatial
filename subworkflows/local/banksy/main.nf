@@ -120,7 +120,7 @@ workflow BANKSY {
                 }
         )
 
-        // MODULE: Extract Xenium Explorer metadata
+        // MODULE: Extract Banksy metadata for Xenium Explorer
         EXTRACT_XE_METADATA (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
                 .map {
@@ -130,6 +130,7 @@ workflow BANKSY {
         )
 
         // MODULE: Extract Reduced Dims
+        // TODO this step is redudant across resolutions (see issue #22)
         EXTRACT_BANKSY_REDUCED_DIMS (
             CLUSTER_BANKSY.out.banksy_cluster_spe_obj
                 .map {
@@ -145,6 +146,7 @@ workflow BANKSY {
         )
 
         // MODULE: Add BANKSY clusters to Xenium Object
+        // TODO: we likely now need the outputs of Find Variable Features instead of just merged data
         ADD_BANKSY_TO_SEURAT (
             MERGE_XENIUM_OBJECTS.out.merged_xenium_obj
                 .join (

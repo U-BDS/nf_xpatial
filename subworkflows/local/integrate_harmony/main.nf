@@ -116,6 +116,7 @@ workflow INTEGRATE_HARMONY {
         //
         // MODULE: Extract reduced dims
         //
+        //TODO (see issue #22): check outputs for multiple resolutions (is the redudancy also happening here?)
         EXTRACT_SEURAT_REDUCED_DIMS (
             FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
