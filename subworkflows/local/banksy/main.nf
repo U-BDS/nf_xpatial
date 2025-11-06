@@ -30,9 +30,6 @@ workflow BANKSY {
         ch_versions = Channel.empty()
 
         if (!skip_banksy_vf_filter) {
-
-        ch_merged_xenium_obj = Channel.empty()
-        if (!skip_banksy_vf_filter) {
             // MODULE: Subset to Variable Features
             SUBSET_VARIABLE_FEATURES (
                 ch_merged_xenium_obj
