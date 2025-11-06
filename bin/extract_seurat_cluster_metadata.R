@@ -22,12 +22,12 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="The xenium object to be filtered"),
+        help="The xenium object"),
     make_option(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        help="The assay to keep during conversion"),
+        help="The assay to use"),
     make_option(
         c("-r", "--res"),
         type="double",
@@ -36,7 +36,7 @@ params_list <- list(
     make_option(
         c("-d", "--dim"),
         type="integer",
-        help="The number of dimentsions used for clustering"
+        help="The number of dimensions used for clustering"
     ),
     make_option(
         c("-o", "--outfile"),
@@ -64,7 +64,7 @@ xenium_obj <- readRDS(file = opt$input)
 DefaultAssay(xenium_obj) <- opt$assay
 
 # Extract cluster data
-clusts <- xenium_obj@meta.data[ grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
+clusts <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
 
 # Add dim and res to column name
 colnames(clusts) <- paste0(
@@ -72,7 +72,7 @@ colnames(clusts) <- paste0(
     ".dim",
     opt$dim,
     "_res",
-    opt$resolution
+    opt$res
 )
 
 # Create a column for the cell ids

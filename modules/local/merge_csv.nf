@@ -32,6 +32,9 @@ process MERGE_CSV {
     dfs <- list()
 
     for (csv_file in csv_file_list) {
+        # Print file name
+        print(csv_file)
+
         # Read the file
         df <- read.table(file = csv_file, sep = ',', header = TRUE)
 
@@ -45,7 +48,7 @@ process MERGE_CSV {
     # Merge all DataFrames on the 'Index' column
     compiled_df <- Reduce(function(x, y) full_join(x, y, by = "Index"), dfs)
 
-    # Save the result to a CSV file if needed
+    # Save the result to a CSV file
     write.csv(compiled_df, "${prefix}_merged_results.csv", quote = FALSE, row.names = FALSE)
     """
 }

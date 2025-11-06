@@ -44,6 +44,26 @@ params_list <- list(
         default=0.1,
         help="The point size for the plot"),
     make_option(
+        c("-s", "--cluster_label_size"),
+        type="numeric",
+        default=12,
+        help="The size of the cluster label for the plot"),
+    make_option(
+        c("-a", "--axis_label_size"),
+        type="numeric",
+        default=30,
+        help="The size of the axis label for the plot"),
+    make_option(
+        c("-l", "--legend_label_size"),
+        type="numeric",
+        default=30,
+        help="The size of the legend label for the plot"),
+    make_option(
+        c("-g", "--element_guide_size"),
+        type="numeric",
+        default=15,
+        help="The size of the legend element for the plot"),    
+    make_option(
         c("-c", "--metadat_col"),
         type="character",
         default="seurat_clusters",
@@ -99,43 +119,54 @@ Dimplot_contour_ggplot <- function(seurat_object, Embedding="umap", Rug=F, Metad
     # Calculate the center of each cluster for labeling
     label_data <- aggregate(cbind(umap_1, umap_2) ~ cluster, data = plot_data, FUN = mean)
     Plot <- ggplot(plot_data, aes(x = umap_1, y = umap_2, color = cluster)) +  # Replace UMAP_1 and UMAP_2 with appropriate column names
-      geom_point() + geom_density_2d(color = "black", size = 0.5, alpha=.5) + 
+      geom_point() + geom_density_2d(color = "black", linewidth = 0.5, alpha=.5) + 
       geom_text(data = aggregate(cbind(umap_1, umap_2) ~ cluster, data = plot_data, mean),
                 aes(label = cluster), 
                 size = Point_Size, 
                 color = "black", 
                 hjust = 0.5, 
-                vjust = 0.5,
-                box.padding = 0.3, 
-                point.padding = 0.3) + 
-      geom_label(data = label_data, aes(label = cluster), color = "black", fill = "white", size = 5, label.padding = unit(0.2, "lines")) # Add labels in boxes
-    # stat_ellipse(aes(group = cluster), type = "norm", linetype = 1, size = 0.5, color = "red") +  # Add irregular ellipses
+                vjust = 0.5) + 
+      geom_label(data = label_data, aes(label = cluster), color = "black", fill = "white", size = opt$cluster_label_size, label.padding = unit(0.2, "lines")) # Add labels in boxes
+      # stat_ellipse(aes(group = cluster), type = "norm", linetype = 1, size = 0.5, color = "red") +  # Add irregular ellipses
   } 
   if(Embedding=="tsne"){
     message("t-SNE")
     # Calculate the center of each cluster for labeling
     label_data <- aggregate(cbind(tSNE_1, tSNE_2) ~ cluster, data = plot_data, FUN = mean)
     Plot <- ggplot(plot_data, aes(x = tSNE_1, y = tSNE_2, color = cluster)) +  # Replace UMAP_1 and UMAP_2 with appropriate column names
-      geom_point() + geom_density_2d(color = "black", size = 0.5, alpha=.5) +
+      geom_point() + geom_density_2d(color = "black", linewidth = 0.5, alpha=.5) +
       geom_text(data = aggregate(cbind(tSNE_1, tSNE_2) ~ cluster, data = plot_data, mean),
                 aes(label = cluster), 
                 size = 5, 
                 color = "black", 
                 hjust = 0.5, 
-                vjust = 0.5,
-                box.padding = 0.3, 
-                point.padding = 0.3) +
-      geom_label(data = label_data, aes(label = cluster), color = "black", fill = "white", size = 5, label.padding = unit(0.2, "lines")) # Add labels in boxes
+                vjust = 0.5) +
+      geom_label(data = label_data, aes(label = cluster), color = "black", fill = "white", size = opt$cluster_label_size, label.padding = unit(0.2, "lines")) # Add labels in boxes
     
     # stat_ellipse(aes(group = cluster), type = "norm", linetype = 1, size = 0.5, color = "red") +  # Add irregular ellipses
   }
   
   
   if(Rug==TRUE){
-    return(Plot + geom_rug() + theme_bw())
+    return(Plot + 
+             geom_rug() + 
+             theme_bw() +
+             theme(legend.title = element_text(size = opt$legend_label_size),
+                   legend.text = element_text(size = opt$legend_label_size),
+                   axis.title = element_text(size = opt$axis_label_size),
+                   axis.text = element_text(size = opt$axis_label_size)) +
+             guides(color = guide_legend(override.aes = list(size = opt$element_guide_size)))
+           ) 
   }
   
-  return(Plot+theme_bw())
+  return(Plot +
+           theme_bw() +
+           theme(legend.title = element_text(size = opt$legend_label_size),
+                 legend.text = element_text(size = opt$legend_label_size),
+                 axis.title = element_text(size = opt$axis_label_size),
+                 axis.text = element_text(size = opt$axis_label_size)) +
+           guides(color = guide_legend(override.aes = list(size = opt$element_guide_size)))
+         )
   
 }
 

@@ -12,6 +12,7 @@ library(Seurat)            # For handling Seurat objects
 library(SpatialExperiment) # For handling SpatialExperiment objects
 library(stringr)           # For string manipulation
 library(data.table)        # For data table manipulation
+library(ggplot2)           # For plotting
 
 ###############################
 ### COMMAND-LINE PARAMETERS ###
@@ -34,7 +35,23 @@ params_list <- list(
         type="character",
         default="filtered_xenium_obj.rds",
         metavar="path",
-        help="The filtered xenium object")
+        help="The filtered xenium object"),
+    make_option(
+        c("-s", "--staggered_plot"),
+        type="character",
+        default="staggered_plot.png",
+        metavar="path",
+        help="The output name for the image"),
+    make_option(
+        c("--width"),
+        type="integer",
+        default=3500,
+        help="Width of the plot"),
+    make_option(
+        c("--height"),
+        type="integer",
+        default=2000,
+        help="Height of the plot")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -70,12 +87,34 @@ locs <- as.matrix(locs_dt[, 1:2])
 rownames(locs) <- colnames(spe_xenium_obj)
 spatialCoords(spe_xenium_obj) <- locs
 
+######################
+### STAGGERED PLOT ###
+######################
+
+# a good sanity check
+metadata_staggered <- merge(colData(spe_xenium_obj),
+                            spatialCoords(spe_xenium_obj),
+                            by = 0)
+
+staggered_plot <- ggplot(metadata_staggered,
+                         aes(orig.ident, sdimx)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle(opt$assay)
+
+# Output the plot
+ggsave(
+  opt$staggered_plot,
+  plot = staggered_plot,
+  width = opt$width,
+  height = opt$height,
+  units = "px"
+)
 
 #################
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spe_xenium_obj,
     file = opt$outfile 

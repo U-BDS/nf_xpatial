@@ -13,7 +13,7 @@ process QC_BANKSY_PLOTS {
     tuple val(meta), path(xenium_obj), path(banksy_cluster_info)
 
     output:
-    tuple val(meta), path("*.png"), emit: vln_plot
+    tuple val(meta), path("*.png"), emit: compiled_plot
     path 'versions.yml'           , emit: versions
 
     when:

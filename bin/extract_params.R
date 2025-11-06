@@ -22,18 +22,18 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="The xenium object to be filtered"),
+        help="The xenium object"),
     make_option(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        help="The assay to keep during conversion"),
+        help="The assay to use"),
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="filtered_xenium_obj.rds",
+        default="params.tsv",
         metavar="path",
-        help="The filtered xenium object")
+        help="The extracted params")
     )
 
 opt_parser <- OptionParser(option_list=params_list)

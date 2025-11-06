@@ -21,12 +21,12 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="The xenium object to be filtered"),
+        help="The xenium object"),
     make_option(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        help="The assay to keep during conversion"),
+        help="The assay to use"),
     make_option(
         c("-r", "--res"),
         type="double",
@@ -65,7 +65,7 @@ if (length(Reductions(xenium_obj)) == 0) {
     stop("No reductions found in xenium object.")
 }
 
-# Save each sample-specific data frame to a csv file
+# Save each reduction-specific data frame to a csv file
 for (reduc in Reductions(xenium_obj)) {
     
     file_prefix <- paste0(gsub("_","-",reduc), "_d", opt$dim, "_r", opt$res)

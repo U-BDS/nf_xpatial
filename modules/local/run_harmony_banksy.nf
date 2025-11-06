@@ -31,6 +31,5 @@ process RUN_HARMONY_BANKSY {
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_harmony_spe.rds" \\
         --nPCs $nPCs
-
     """
 }

@@ -36,11 +36,26 @@ params_list <- list(
         default=FALSE,
         help="Whether to use harmony for UMAP creation"),
     make_option(
+        c("--lambda"),
+        type="double",
+        default=NULL,
+        help="lambda values for Banksy"),
+    make_option(
+        c("--nPCs"),
+        type="integer",
+        default=NULL,
+        help="nPCs values for Banksy"),
+    make_option(
+        c("--agf"),
+        action="store_true",
+        default=FALSE,
+        help="Whether to use the adaptive Gaussian filter (AGF) in Banksy"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
-        default="filtered_xenium_obj.rds",
+        default="umap_xenium_obj.rds",
         metavar="path",
-        help="The filtered xenium object")
+        help="The xenium object with Banksy UMAP")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -60,18 +75,25 @@ spe_xenium_obj <- readRDS(file = opt$input)
 # Set the default assay on the spatial experiment object
 mainExpName(spe_xenium_obj) <- opt$assay
 
-# Compute banksy matrix
+# Compute UMAP based on harmony Banksy matrix
 if (opt$use_harmony) {
-    spe_xenium_obj <- runBanksyUMAP (
+    spe_xenium_obj <- runBanksyUMAP(
         spe_xenium_obj,
         seed = 1234,
-        dimred = "BANKSY_harmony"
+        dimred = "BANKSY_harmony",
+        use_agf = opt$agf,
+        lambda = opt$lambda,
+        ndims = opt$nPCs
     )
 } else {
-    spe_xenium_obj <- runBanksyUMAP (
+    spe_xenium_obj <- runBanksyUMAP(
         spe_xenium_obj,
         use_pcs = FALSE,
-        seed = 1234
+        seed = 1234,
+        dimred = "BANKSY_pca",
+        use_agf = opt$agf,
+        lambda = opt$lambda,
+        ndims = opt$nPCs
     )
 }
 
@@ -79,7 +101,6 @@ if (opt$use_harmony) {
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spe_xenium_obj,
     file = opt$outfile 

@@ -37,7 +37,7 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        help="The assay to keep during conversion"),
+        help="The assay to use"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -64,7 +64,8 @@ if (is.null(opt$banksy_clust_info)) {
 ###################
 
 # Read in xenium_obj
-xenium_obj <- readRDS(file = opt$input)
+# Note this is a temporary object as input for connectClusters
+xenium_obj_tmp <- readRDS(file = opt$input)
 
 # Read in the banksy cluster info
 metadata_df <- as.data.frame(read.table(
@@ -78,29 +79,74 @@ rownames(metadata_df) <- metadata_df$Index
 
 metadata_df$Index <- NULL
 
-####################
-### ADD METADATA ###
-####################
+##################################
+### ADD PRE-CONNECTED METADATA ###
+##################################
 
-DefaultAssay(xenium_obj) <- opt$assay
+DefaultAssay(xenium_obj_tmp) <- opt$assay
+
+## TODO: see issue #21 for further evaluation on handling cases where metadata has missing cells
 
 # Ensure that the order of rownames matches between xenium metadata and new metadata
-common_cells <- intersect(rownames(xenium_obj@meta.data), rownames(metadata_df))
+common_cells <- intersect(rownames(xenium_obj_tmp@meta.data), rownames(metadata_df))
 
-# Subset both metadata to only include matching cells
-xenium_metadata <- xenium_obj@meta.data[common_cells, ]
-metadata_df <- metadata_df[common_cells, ]
-metadata_df
+## create a tmp Seurat object as input to 
 
-# Add the new metadata columns to the xenium object's metadata
-xenium_obj@meta.data <- cbind(xenium_metadata, metadata_df)
+if (all(common_cells %in% rownames(xenium_obj_tmp@meta.data))) {
+  print("Cell names between object and clustering metadata match. Adding cell cluster information")
+  
+  # Add the new metadata columns to the xenium object's metadata
+  xenium_obj_tmp <- AddMetaData(object = xenium_obj_tmp,
+                                metadata = metadata_df)
+  
+  head(xenium_obj_tmp@meta.data)
+  
+} else {
+  warning("Cell names between object and clustering metadata DO NOT match. Skipping addition of cell cluster information!")
+  
+  # Subset both metadata to only include matching cells (see issue #21)
+  # xenium_metadata <- xenium_obj@meta.data[common_cells, ]
+  # metadata_df <- metadata_df[common_cells, ]
+  # metadata_df
+}
+
+###############################
+### CONNECT BANKSY CLUSTERS ###
+###############################
 
 # Connect the clusters
 xenium_obj_connected <- connectClusters(
-    as.SingleCellExperiment(xenium_obj, assay = opt$assay)
+    as.SingleCellExperiment(xenium_obj_tmp, assay = opt$assay)
 )
 
-xenium_obj@meta.data <- colData(xenium_obj_connected) %>% as.data.frame() %>% dplyr::select(!ident)
+# remove tmp data
+rm(xenium_obj_tmp)
+gc()
+
+metadata_connected <- colData(xenium_obj_connected) %>% as.data.frame() %>% dplyr::select(!ident)
+
+print("Head of post-connected metadata")
+head(metadata_connected)
+
+###################################
+### ADD POST-CONNECTED METADATA ###
+###################################
+
+# re-read xenium object to add final metadata
+### NOTE: this may create un-needed tmp memory ###
+### If large, we should split and addition of final meta as separate processed ###
+xenium_obj <- readRDS(file = opt$input)
+
+DefaultAssay(xenium_obj) <- opt$assay
+
+# Again, see issue #21 (for now if not equal, this step should crash)
+# If filtering is needed, at we can leverage the cell names from xenium_obj_connected
+stopifnot(
+  all(rownames(xenium_obj@meta.data) == rownames(metadata_connected))
+)
+
+xenium_obj <- AddMetaData(object = xenium_obj,
+                          metadata = metadata_connected)
 
 #################
 ### SAVE DATA ###

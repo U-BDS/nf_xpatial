@@ -22,6 +22,7 @@ workflow INTEGRATE_HARMONY {
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
         marker_gene_list        // file: marker gene list
+        vf_nfeatures            // integer: number of variable features to select
 
     main:
         ch_versions = Channel.empty()
@@ -105,7 +106,8 @@ workflow INTEGRATE_HARMONY {
         //
         // MODULE: Extract reduced dims
         //
-        EXTRACT_SEURAT_REDUCED_DIMS(
+        //TODO (see issue #22): check outputs for multiple resolutions (is the redudancy also happening here?)
+        EXTRACT_SEURAT_REDUCED_DIMS (
             FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 

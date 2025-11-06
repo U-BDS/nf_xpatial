@@ -81,7 +81,6 @@ spe_xenium_obj <- computeBanksy(
 ### SAVE DATA ###
 #################
 
-# Save the filtered xenium object
 saveRDS(
     object = spe_xenium_obj,
     file = opt$outfile 

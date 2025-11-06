@@ -31,6 +31,5 @@ process COMPUTE_BANKSY_PCA {
         --outfile "${prefix}_banksy_pca_spe.rds" \\
         --lambda $lambda \\
         --nPCs $nPCs
-
     """
 }

@@ -49,7 +49,7 @@ params_list <- list(
     default="Cell_Area",
     help="The name of the column in the metadata containing the cell areas"),
   make_option(
-    c("-n", "--cell_area_norm_assay"),
+    c("-a", "--cell_area_norm_assay"),
     type="character",
     default="AreaNorm",
     help="The name of the assay in the metadata that will contain the cell area norm information."),

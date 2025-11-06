@@ -28,7 +28,8 @@ process RUN_UMAP_BANKSY {
         $args \\
         $assay_flag \\
         --input "$spe_obj" \\
-        --outfile "${prefix}_banksy_umap_spe.rds"
-
+        --outfile "${prefix}_banksy_umap_spe.rds" \\
+        --lambda $lambda \\
+        --nPCs $nPCs
     """
 }
