@@ -1,6 +1,5 @@
 #!/usr/bin/env nextflow
 
-include { MERGE_XENIUM_OBJECTS                  } from '../../../modules/local/merge_xenium_objects'
 include { SCALE_DATA                            } from '../../../modules/local/scale_data'
 include { RUN_PCA                               } from '../../../modules/local/run_pca'
 include { QC_ELBOW_PLOT                         } from '../../../modules/local/qc_elbow_plot'
@@ -18,7 +17,7 @@ include { ADD_HARMONY_CLUSTER_TO_SEURAT         } from '../../../modules/local/a
 
 workflow INTEGRATE_HARMONY {
     take:
-        ch_comp_norm_xenium_obj // channel: compiled and normalized xenium objects
+        ch_merged_xenium_obj    // channel: merged xenium objects
         dim_list                // list: list of dimensions to evaluate
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
@@ -27,11 +26,8 @@ workflow INTEGRATE_HARMONY {
     main:
         ch_versions = Channel.empty()
 
-        // MODULE: Merge xenium objects
-        MERGE_XENIUM_OBJECTS ( ch_comp_norm_xenium_obj )
-
         // MODULE: Scale the merged xenium object
-        SCALE_DATA ( MERGE_XENIUM_OBJECTS.out.merged_xenium_obj )
+        SCALE_DATA ( ch_merged_xenium_obj )
 
         // MODULE: Run PCA for the xenium objects
         RUN_PCA ( SCALE_DATA.out.scaled_xenium_obj )

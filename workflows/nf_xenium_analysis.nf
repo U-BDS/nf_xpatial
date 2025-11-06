@@ -15,6 +15,10 @@ include { CREATE_XENIUM_OBJ                        } from '../modules/local/crea
 include { FILTER_XENIUM_OBJ                        } from '../modules/local/filter_xenium_object'
 include { COMPILE_OBJECTS as COMPILE_FILTERED_OBJS } from '../modules/local/compile_objects'
 include { QC_VLN_PLOT as POST_FILTERING_VLN_PLOT   } from '../modules/local/qc_vln_plot'
+include { ADD_TISSUE_COORDS                        } from '../modules/local/add_tissue_coords'
+include { COMPILE_OBJECTS                          } from '../modules/local/compile_objects'
+include { MERGE_XENIUM_OBJECTS                     } from '../modules/local/merge_xenium_objects'
+include { FIND_VARIABLE_FEATURES                   } from '../modules/local/find_variable_features'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -93,6 +97,18 @@ workflow NF_XENIUM_ANALYSIS {
         params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : []
     )
 
+    // MODULE: Add tissue coordiates to metadata
+    ADD_TISSUE_COORDS ( NORMALIZE_DATA.out.compiled_norm_objects )
+
+    // MODULE: Merge xenium objects
+    MERGE_XENIUM_OBJECTS ( ADD_TISSUE_COORDS.out.tissue_coords_xenium_obj )
+
+    // MODULE: Find Variable Features
+    FIND_VARIABLE_FEATURES ( 
+        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+        params.vf_nfeatures 
+    )
+
     //
     // SUBWORKFLOW: Perform harmony integration on xenium objects
     //
@@ -107,7 +123,7 @@ workflow NF_XENIUM_ANALYSIS {
         : params.selected_res
 
     INTEGRATE_HARMONY (
-        NORMALIZE_DATA.out.compiled_norm_objects,
+        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         dim_list,
         res_list,
         params.skip_tsne_plot,
@@ -118,15 +134,13 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
     //
 
-    // Generate the list of banksy values from user-provided lists
     BANKSY (
-        NORMALIZE_DATA.out.compiled_norm_objects,
+        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         params.lambda_BANKSY.split(',').collect { it as Float },
         params.k_geom_BANKSY.split(',').collect { it as Integer },
         params.nPCs_BANKSY.split(',').collect { it as Integer },
         params.res_BANKSY.split(',').collect { it as Float },
-        params.skip_banksy_vf_filter,
-        params.vf_nfeatures
+        params.skip_banksy_vf_filter
     )
 
     //
