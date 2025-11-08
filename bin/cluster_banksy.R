@@ -31,6 +31,11 @@ params_list <- list(
         default=NULL,
         help="The assay to use"),
     make_option(
+        c("--use_harmony"),
+        action="store_true",
+        default=FALSE,
+        help="Whether to use harmony for clustering"),
+    make_option(
         c("--param_str"),
         type="character",
         default=NULL,

@@ -29,7 +29,6 @@ process RUN_HARMONY_BANKSY {
         $assay_flag \\
         --ncores ${task.cpus} \\
         --input "$spe_obj" \\
-        --outfile "${prefix}_banksy_harmony_spe.rds" \\
-        --nPCs $nPCs
+        --outfile "${prefix}_banksy_harmony_spe.rds"
     """
 }
