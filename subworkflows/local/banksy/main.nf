@@ -124,7 +124,6 @@ workflow BANKSY {
         )
 
         // MODULE: Add BANKSY clusters to Xenium Object
-        // TODO: we likely now need the outputs of Find Variable Features instead of just merged data
         ADD_BANKSY_TO_SEURAT (
             ch_merged_xenium_obj
                 .join (
@@ -138,22 +137,27 @@ workflow BANKSY {
         )
 
         // MODULE: Generate QC plots for BANKSY clusters
-        QC_BANKSY_PLOTS (
-            ADD_BANKSY_TO_SEURAT.out.banksy_xenium_obj
-                .combine (
-                    EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
-                            .map {
-                                meta, csv ->
-                                    keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
-                                    [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
-                            }
-                , by: 0)
-        )
+        // QC_BANKSY_PLOTS (
+        //     CLUSTER_BANKSY.out.banksy_cluster_spe_obj
+        //         .map {
+        //             meta, csv, k_geom, lambda, nPCs, res ->
+        //                 [meta,  csv]
+        //         }
+        //         .join (
+        //             EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
+        //                     .map {
+        //                         meta, csv ->
+        //                             keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
+        //                             [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
+        //                     }
+        //         , by: 0)
+        // )
 
     emit:
         versions = ch_versions
 
-        ch_integrated_xenium_obj = Channel.empty()
-
+        merged_cluster_metadata = MERGE_CSV.out.merged_cluster_csv
+        banksy_cluster_metadata = EXTRACT_BANKSY_CLUSTER_METADATA.out.cluster_metadata
+        banksy_reduced_dims     = EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
 
 }

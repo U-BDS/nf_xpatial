@@ -13,7 +13,6 @@ include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/q
 include { QC_HARMONY_PLOTS                      } from '../../../modules/local/qc_harmony_plots'
 include { EXTRACT_SEURAT_CLUSTER_METADATA       } from '../../../modules/local/extract_seurat_cluster_metadata'
 include { EXTRACT_SEURAT_REDUCED_DIMS           } from '../../../modules/local/extract_seurat_reduced_dims'
-include { ADD_HARMONY_CLUSTER_TO_SEURAT         } from '../../../modules/local/add_harmony_cluster_to_seurat'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -22,7 +21,6 @@ workflow INTEGRATE_HARMONY {
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
         marker_gene_list        // file: marker gene list
-        vf_nfeatures            // integer: number of variable features to select
 
     main:
         ch_versions = Channel.empty()
@@ -111,37 +109,16 @@ workflow INTEGRATE_HARMONY {
             FIND_CLUSTERS.out.find_clusters_xenium_obj
         )
 
-        //
-        // MODULE: Add Harmony cluster info to Seurat object
-        //
-        ADD_HARMONY_CLUSTER_TO_SEURAT (
-            RUN_PCA.out.pca_xenium_obj
-                .join (
-                    EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
-                    .groupTuple()
-                    .map{ meta, cm_file_list -> [meta, cm_file_list.flatten()]}
-                )
-                .join (
-                    EXTRACT_SEURAT_REDUCED_DIMS.out.embeddings_csv
-                        .groupTuple()
-                        .map{ meta, e_file_list -> [meta, e_file_list.flatten()]}
-                )
-                .join (
-                    EXTRACT_SEURAT_REDUCED_DIMS.out.loadings_csv
-                        .groupTuple()
-                        .map{ meta, l_file_list -> [meta, l_file_list.flatten()]}
-                )
-                .join (
-                    EXTRACT_SEURAT_REDUCED_DIMS.out.stdev_csv
-                        .groupTuple()
-                        .map{ meta, s_file_list -> [meta, s_file_list.flatten()]}
-                    )
-        )
-
     emit:
         versions              = ch_versions
         integrated_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
         umap_dim_plot         = UMAP_DIM_PLOT.out.countour_dim_plot
         tsne_dim_plot         = ch_tsne_dim_plot
+
+        harmony_cluster_metadata = EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
+        harmony_embeddings       = EXTRACT_SEURAT_REDUCED_DIMS.out.embeddings_csv
+        harmony_loadings         = EXTRACT_SEURAT_REDUCED_DIMS.out.loadings_csv
+        harmony_stdev            = EXTRACT_SEURAT_REDUCED_DIMS.out.stdev_csv
+
 
 }

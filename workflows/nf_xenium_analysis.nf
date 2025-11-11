@@ -19,6 +19,8 @@ include { ADD_TISSUE_COORDS                        } from '../modules/local/add_
 include { COMPILE_OBJECTS                          } from '../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS                     } from '../modules/local/merge_xenium_objects'
 include { FIND_VARIABLE_FEATURES                   } from '../modules/local/find_variable_features'
+include { ADD_HARMONY_CLUSTER_TO_SEURAT            } from '../modules/local/add_harmony_cluster_to_seurat'
+include { ADD_BANKSY_TO_SEURAT                     } from '../modules/local/add_banksy_to_seurat'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -97,13 +99,19 @@ workflow NF_XENIUM_ANALYSIS {
         params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : []
     )
 
+    //
     // MODULE: Add tissue coordiates to metadata
+    //
     ADD_TISSUE_COORDS ( NORMALIZE_DATA.out.compiled_norm_objects )
 
+    //
     // MODULE: Merge xenium objects
+    //
     MERGE_XENIUM_OBJECTS ( ADD_TISSUE_COORDS.out.tissue_coords_xenium_obj )
 
+    //
     // MODULE: Find Variable Features
+    //
     FIND_VARIABLE_FEATURES ( 
         MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
         params.vf_nfeatures 
@@ -127,14 +135,39 @@ workflow NF_XENIUM_ANALYSIS {
         dim_list,
         res_list,
         params.skip_tsne_plot,
-        params.marker_gene_list,
-        params.vf_nfeatures
+        params.marker_gene_list
+    )
+
+    //
+    // MODULE: Add Harmony cluster info to Seurat object
+    //
+    ADD_HARMONY_CLUSTER_TO_SEURAT (
+        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
+            .join (
+                INTEGRATE_HARMONY.out.harmony_cluster_metadata
+                .groupTuple()
+                .map{ meta, cm_file_list -> [meta, cm_file_list.flatten()]}
+            )
+            .join (
+                INTEGRATE_HARMONY.out.harmony_embeddings
+                    .groupTuple()
+                    .map{ meta, e_file_list -> [meta, e_file_list.flatten()]}
+            )
+            .join (
+                INTEGRATE_HARMONY.out.harmony_loadings
+                    .groupTuple()
+                    .map{ meta, l_file_list -> [meta, l_file_list.flatten()]}
+            )
+            .join (
+                INTEGRATE_HARMONY.out.harmony_stdev
+                    .groupTuple()
+                    .map{ meta, s_file_list -> [meta, s_file_list.flatten()]}
+                )
     )
 
     //
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
     //
-
     BANKSY (
         FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         params.lambda_BANKSY.split(',').collect { it as Float },
@@ -142,6 +175,21 @@ workflow NF_XENIUM_ANALYSIS {
         params.nPCs_BANKSY.split(',').collect { it as Integer },
         params.res_BANKSY.split(',').collect { it as Float },
         params.skip_banksy_vf_filter
+    )
+
+    //
+    // MODULE: Add BANKSY clusters to Xenium Object
+    //
+    ADD_BANKSY_TO_SEURAT (
+        ADD_HARMONY_CLUSTER_TO_SEURAT.out.harmony_cluster_xenium_obj
+            .join (
+                BANKSY.out.merged_cluster_metadata
+                    .map {
+                        meta, csv ->
+                            keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
+                            [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
+                    }
+            )
     )
 
     //
