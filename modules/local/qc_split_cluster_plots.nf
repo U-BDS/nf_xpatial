@@ -25,7 +25,7 @@ process QC_SPLIT_CLUSTER_PLOTS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    qc_split_cluster_plot.R \\
+    qc_split_cluster_plots.R \\
         $args \\
         --input "$xenium_obj" \\
         $assay_flag \\

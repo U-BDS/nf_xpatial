@@ -30,12 +30,6 @@ params_list <- list(
         metavar="path",
         help="R Object to be analyzed"),
     make_option(
-        c("-b", "--banksy_clust_info"),
-        type="character",
-        default=NULL,
-        metavar="path",
-        help="The cluster information file"),
-    make_option(
         c("-a", "--assay"),
         type="character",
         default=NULL,
@@ -55,25 +49,6 @@ if (is.null(opt$input)) {
     print_help(opt_parser)
     stop("Please provide a xenium object as input.", call. = FALSE)
 }
-
-if (is.null(opt$banksy_clust_info)) {
-    print_help(opt_parser)
-    stop("Please provide the banksy cluster file to add to the xenium object.", call. = FALSE)
-}
-
-##################
-### LOAD INPUT ###
-##################
-
-# Read in xenium_obj
-xenium_obj <- readRDS(file = opt$input)
-
-# Read in the banksy cluster info
-metadata_df <- as.data.frame(read.table(
-    file = opt$banksy_clust_info,
-    header = TRUE,
-    sep = ","
-))
 
 #####################
 ### FUNCTION DEFS ###
@@ -181,11 +156,6 @@ plotCountsProportionsSingle <- function(input_obj,
 
 generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, assay_name, gene_list, return_plot = FALSE) {
 
-    # 1) Make the chosen column a factor & set as Idents
-    colnames(seurat_object@meta.data)
-    seurat_object@meta.data[[cname]] <- as.factor(seurat_object@meta.data[[cname]])
-    Idents(seurat_object) <- cname
-
     # 2) Define a color palette, ensuring reproducibility
     set.seed(1234)
     colors <- createPalette(
@@ -230,32 +200,11 @@ generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, a
             scale_x_reverse()
     }
 
-    # 6) Plot UMAP
-    seurat_object_temp <- seurat_object
-    RUN_ID <- cname
-    colnames(clust_df)[2:3] <- c("UMAP_1", "UMAP_2")
-
-    # clust_df
-    Rownames <- clust_df$Index
-
-    # # Ensure that 'Index' column is set as row names in the UMAP dataframe
-    rownames(clust_df) <- clust_df$Index
-    clust_df <- as.matrix(clust_df[, -1])  # Remove the 'Index' column to keep only UMAP coordinates
-    rownames(clust_df) <- Rownames
-    # 
-    # Now we add the external UMAP data as a new reduction in the Seurat object
-    clust_df
-    assay_name
-    seurat_object_temp[[RUN_ID]] <- CreateDimReducObject(
-        embeddings = clust_df,  # UMAP coordinates as a matrix
-        key = "UMAP_",  assay = assay_name# Prefix for the dimension names (optional, e.g., UMAP_1, UMAP_2)
-    )
-
     # To verify if the new reduction has been added correctly
     # seurat_object_temp[[RUN_ID]]
     UMAP_Plot <- DimPlot(
-        seurat_object_temp,
-        reduction = RUN_ID,
+        seurat_object,
+        reduction = "umap",
         pt.size = 0.1,
         split.by = "Sample",
         cols = colors ,
@@ -265,9 +214,6 @@ generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, a
     )
     UMAP_Plot <- UMAP_Plot[[1]] + ggplot2::theme(legend.position = "none")
     length(UMAP_Plot)
-
-    rm(seurat_object_temp)
-    gc()
 
     # 7) Combine the first 8 dimension plots into a grid
     left_col <- wrap_plots(
@@ -310,24 +256,25 @@ generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, a
     }
 }
 
+##################
+### LOAD INPUT ###
+##################
+
+# Read in xenium_obj
+xenium_obj <- readRDS(file = opt$input)
+
 #######################
 #### QC_BANKSY PLOT ###
 #######################
 
-cnames <- colnames(xenium_obj@meta.data)
-cnames <- cnames[grep("^clust", cnames)]
-
-for (cname in cnames) {
-    Plot <- generate_seurat_plots(
-        cname = cname,
-        seurat_object = xenium_obj,  # Your Seurat object
-        clust_df = metadata_df,  # Named list of UMAP CSV files
-        output_file = paste0(cname,".",opt$outfile),  # Directory to save plots
-        return_plot = FALSE,  # Set to TRUE to return the combined plot
-        assay_name = opt$assay,
-        gene_list = opt$gene_list
-    )
-}
+Plot <- generate_seurat_plots(
+    cname = "seurat_clusters",
+    seurat_object = xenium_obj,  # Your Seurat object
+    output_file = opt$outfile,  # Directory to save plots
+    return_plot = FALSE,  # Set to TRUE to return the combined plot
+    assay_name = opt$assay,
+    gene_list = opt$gene_list
+)
 
 ####################
 ### SESSION INFO ###

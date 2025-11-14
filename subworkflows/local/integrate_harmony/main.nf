@@ -13,6 +13,7 @@ include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/q
 include { QC_HARMONY_PLOTS                      } from '../../../modules/local/qc_harmony_plots'
 include { EXTRACT_SEURAT_CLUSTER_METADATA       } from '../../../modules/local/extract_seurat_cluster_metadata'
 include { EXTRACT_SEURAT_REDUCED_DIMS           } from '../../../modules/local/extract_seurat_reduced_dims'
+include { QC_SPLIT_CLUSTER_PLOTS                } from '../../../modules/local/qc_split_cluster_plots'
 
 workflow INTEGRATE_HARMONY {
     take:
@@ -82,6 +83,11 @@ workflow INTEGRATE_HARMONY {
 
             ch_tsne_dim_plot = TSNE_DIM_PLOT.out.countour_dim_plot
         }
+
+        QC_SPLIT_CLUSTER_PLOTS (
+            FIND_CLUSTERS.out.find_clusters_xenium_obj
+            .map { meta, xenium_obj, dim, res -> [meta, xenium_obj] } 
+        )
 
         //
         // MODULE: Generate violin plots
