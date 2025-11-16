@@ -28,15 +28,9 @@ params_list <- list(
         default=NULL,
         help="The assay to use"),
     make_option(
-        c("-r", "--res"),
-        type="double",
-        help="The resolution used for clustering"
-    ),
-    make_option(
-        c("-d", "--dim"),
-        type="integer",
-        help="The number of dimentsions used for clustering"
-    ),
+        c("-p", "--param_string"),
+        type="string",
+        help="The parameter string to use to identify clustering run"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -68,7 +62,7 @@ if (length(Reductions(xenium_obj)) == 0) {
 # Save each reduction-specific data frame to a csv file
 for (reduc in Reductions(xenium_obj)) {
     
-    file_prefix <- paste0(gsub("_","-",reduc), "_d", opt$dim, "_r", opt$res)
+    file_prefix <- paste0(gsub("_","-",reduc), "_", opt$param_string)
 
     # Extract embeddings
     extracted_embeddings <- Embeddings(xenium_obj, reduction = reduc)

@@ -1,4 +1,4 @@
-process ADD_BANKSY_TO_SEURAT {
+process ADD_CLUSTER_DATA_TO_SEURAT {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,10 +10,10 @@ process ADD_BANKSY_TO_SEURAT {
         }"
 
     input:
-    tuple val(meta), path(xenium_object), path(banksy_cluster_info)
+    tuple val(meta), path(xenium_object), val(cluster_metadata_csv), val(embeddings_csv), val(loadings_csv), val(stdev_csv)
 
     output:
-    tuple val(meta), path("*.rds"), emit: banksy_xenium_obj
+    tuple val(meta), path("*.rds"), emit: harmony_cluster_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
@@ -25,12 +25,15 @@ process ADD_BANKSY_TO_SEURAT {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    add_banksy_to_seurat.R \\
+    add_cluster_data_to_seurat.R \\
         $args \\
         $assay_flag \\
         --input "$xenium_object" \\
-        --banksy_clust_info $banksy_cluster_info \\
-        --outfile ${prefix}_banksy.rds
+        --clusters "${cluster_metadata_csv.join(',')}" \\
+        --embeddings "${embeddings_csv.join(',')}" \\
+        --loadings "${loadings_csv.join(',')}" \\
+        --stdev "${stdev_csv.join(',')}" \\
+        --outfile ${prefix}_harmony_cluster.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

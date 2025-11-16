@@ -1,6 +1,6 @@
-process EXTRACT_PARAMS {
+process CONVERT_SPE_TO_SEURAT {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
@@ -10,10 +10,10 @@ process EXTRACT_PARAMS {
         }"
 
     input:
-    tuple val(meta), path(spe_obj)
+    tuple val(meta), path(xenium_obj), path(spe_obj)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: params_tsv
+    tuple val(meta), path("*.rds"), emit: converted_seurat_object
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,10 +24,11 @@ process EXTRACT_PARAMS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    extract_params.R \\
+    convert_spe_to_seurat.R \\
         $args \\
         $assay_flag \\
-        --input "$spe_obj" \\
-        --outfile "${prefix}_params.tsv"
+        --xenium "$xenium_obj" \\
+        --spe_obj "$spe_obj" \\
+        --outfile "${prefix}_xenium.rds"
     """
 }

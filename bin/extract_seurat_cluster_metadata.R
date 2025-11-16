@@ -29,15 +29,9 @@ params_list <- list(
         default=NULL,
         help="The assay to use"),
     make_option(
-        c("-r", "--res"),
-        type="double",
-        help="The resolution used for clustering"
-    ),
-    make_option(
-        c("-d", "--dim"),
-        type="integer",
-        help="The number of dimensions used for clustering"
-    ),
+        c("-p", "--param_string"),
+        type="string",
+        help="The parameter string to use to identify clustering run"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -69,10 +63,7 @@ clusts <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta
 # Add dim and res to column name
 colnames(clusts) <- paste0(
     colnames(clusts),
-    ".dim",
-    opt$dim,
-    "_res",
-    opt$res
+    opt$param_string
 )
 
 # Create a column for the cell ids

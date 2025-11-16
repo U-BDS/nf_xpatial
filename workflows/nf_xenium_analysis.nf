@@ -19,8 +19,6 @@ include { ADD_TISSUE_COORDS                        } from '../modules/local/add_
 include { COMPILE_OBJECTS                          } from '../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS                     } from '../modules/local/merge_xenium_objects'
 include { FIND_VARIABLE_FEATURES                   } from '../modules/local/find_variable_features'
-include { ADD_HARMONY_CLUSTER_TO_SEURAT            } from '../modules/local/add_harmony_cluster_to_seurat'
-include { ADD_BANKSY_TO_SEURAT                     } from '../modules/local/add_banksy_to_seurat'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -29,8 +27,10 @@ include { MANUAL_ANNOTATIONS_QC               } from '../subworkflows/local/manu
 include { SPATIAL_QC as SPATIAL_QC_PREFILTER  } from '../subworkflows/local/spatial_qc/main'
 include { SPATIAL_QC as SPATIAL_QC_POSTFILTER } from '../subworkflows/local/spatial_qc/main'
 include { NORMALIZE_DATA                      } from '../subworkflows/local/normalize_data/main'
-include { INTEGRATE_HARMONY                   } from '../subworkflows/local/integrate_harmony/main'
+include { CLUSTER_HARMONY                     } from '../subworkflows/local/cluster_harmony/main'
 include { BANKSY                              } from '../subworkflows/local/banksy/main'
+include { MERGE_CLUSTERED_XENIUM_OBJECTS      } from '../subworkflows/local/merge_clustered_xenium_objects/main'
+include { CLUSTER_QC                          } from '../subworkflows/local/cluster_qc/main' 
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,39 +130,12 @@ workflow NF_XENIUM_ANALYSIS {
         ? (0..<( ((params.res_stop + params.res_step) - params.res_start) / params.res_step )).collect { params.res_start + it * params.res_step }
         : params.selected_res
 
-    INTEGRATE_HARMONY (
+    CLUSTER_HARMONY (
         FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         dim_list,
         res_list,
         params.skip_tsne_plot,
         params.marker_gene_list
-    )
-
-    //
-    // MODULE: Add Harmony cluster info to Seurat object
-    //
-    ADD_HARMONY_CLUSTER_TO_SEURAT (
-        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj
-            .join (
-                INTEGRATE_HARMONY.out.harmony_cluster_metadata
-                .groupTuple()
-                .map{ meta, cm_file_list -> [meta, cm_file_list.flatten()]}
-            )
-            .join (
-                INTEGRATE_HARMONY.out.harmony_embeddings
-                    .groupTuple()
-                    .map{ meta, e_file_list -> [meta, e_file_list.flatten()]}
-            )
-            .join (
-                INTEGRATE_HARMONY.out.harmony_loadings
-                    .groupTuple()
-                    .map{ meta, l_file_list -> [meta, l_file_list.flatten()]}
-            )
-            .join (
-                INTEGRATE_HARMONY.out.harmony_stdev
-                    .groupTuple()
-                    .map{ meta, s_file_list -> [meta, s_file_list.flatten()]}
-                )
     )
 
     //
@@ -178,19 +151,29 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // MODULE: Add BANKSY clusters to Xenium Object
+    // SUBWORKFLOW: Merge Harmony and BANKSY clustered xenium objects
     //
-    ADD_BANKSY_TO_SEURAT (
-        ADD_HARMONY_CLUSTER_TO_SEURAT.out.harmony_cluster_xenium_obj
-            .join (
-                BANKSY.out.merged_cluster_metadata
-                    .map {
-                        meta, csv ->
-                            keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
-                            [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
-                    }
-            )
+    MERGE_CLUSTERED_XENIUM_OBJECTS (
+        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+        BANKSY.out.banksy_clustered_xenium_obj
+            .map { meta, banksy_xenium_obj ->
+                def new_meta = meta + [clustering_method: 'BANKSY']
+                return [new_meta, banksy_xenium_obj]}
+            // .mix ( 
+            //     CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
+            //         .map { meta, harmony_xenium_obj ->
+            //             def new_meta = meta + [clustering_method: 'Harmony']
+            //             return [new_meta, harmony_xenium_obj]} 
+            // )
     )
+
+    //
+    // SUBWORKFLOW: Generate clustering QC plots
+    //
+    // CLUSTER_QC (
+    //     BANKSY.out.banksy_clustered_xenium_obj,
+    //     params.marker_gene_list
+    // )
 
     //
     // Collate and save software versions

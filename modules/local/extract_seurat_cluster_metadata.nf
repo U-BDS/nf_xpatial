@@ -10,7 +10,7 @@ process EXTRACT_SEURAT_CLUSTER_METADATA {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(dim), val(res)
+    tuple val(meta), path(spe_obj)
 
     output:
     tuple val(meta), path("*.tsv"), emit: cluster_metadata
@@ -21,15 +21,19 @@ process EXTRACT_SEURAT_CLUSTER_METADATA {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+
+    def param_string_flag = meta.clustering_method == 'BANKSY' ?
+        "--param_string l${meta.lambda}_k${meta.k_geom}_n${meta.nPCs}_r${meta.res}" :
+        "--param_string d${meta.dim}_r${meta.res}"
 
     """
     extract_seurat_cluster_metadata.R \\
         $args \\
         $assay_flag \\
+        $param_string_flag \\
         --input "$spe_obj" \\
-        --dim $dim \\
-        --res $res \\
         --outfile "${prefix}_clusts.tsv"
     """
 }

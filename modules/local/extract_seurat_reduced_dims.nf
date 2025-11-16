@@ -10,7 +10,7 @@ process EXTRACT_SEURAT_REDUCED_DIMS {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(dim), val(res)
+    tuple val(meta), path(xenium_obj)
 
     output:
     tuple val(meta), path("*embeddings*.csv") , emit: embeddings_csv
@@ -23,15 +23,19 @@ process EXTRACT_SEURAT_REDUCED_DIMS {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+
+    def param_string_flag = meta.clustering_method == 'BANKSY' ?
+        "--param_string l${meta.lambda}_k${meta.k_geom}_n${meta.nPCs}_r${meta.res}" :
+        "--param_string d${meta.dim}_r${meta.res}"
 
     """
     extract_seurat_reduced_dims.R \\
         $args \\
         $assay_flag \\
+        $param_string_flag \\
         --input "$xenium_obj" \\
-        --dim "$dim" \\
-        --res "$res" \\
         --outfile "${prefix}_reduced_dims.csv"
     """
 }

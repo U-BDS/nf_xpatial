@@ -3,18 +3,12 @@
 include { CONVERT_SEURAT_TO_SPE           } from '../../../modules/local/convert_seurat_to_spe'
 include { SUBSET_VARIABLE_FEATURES        } from '../../../modules/local/subset_variable_features'
 include { STAGGER_SPATIAL_COORDS          } from '../../../modules/local/stagger_spatial_coords'
-include { CLUSTER_BANKSY                  } from '../../../modules/local/cluster_banksy'
 include { COMPUTE_BANKSY_MATRIX           } from '../../../modules/local/compute_banksy_matrix'
 include { COMPUTE_BANKSY_PCA              } from '../../../modules/local/compute_banksy_pca'
 include { RUN_HARMONY_BANKSY              } from '../../../modules/local/run_harmony_banksy'
 include { RUN_UMAP_BANKSY                 } from '../../../modules/local/run_umap_banksy'
-include { EXTRACT_BANKSY_CLUSTER_METADATA } from '../../../modules/local/extract_banksy_cluster_metadata'
-include { EXTRACT_PARAMS                  } from '../../../modules/local/extract_params'
-include { EXTRACT_XE_METADATA             } from '../../../modules/local/extract_xe_metadata'
-include { EXTRACT_BANKSY_REDUCED_DIMS     } from '../../../modules/local/extract_banksy_reduced_dims'
-include { MERGE_CSV                       } from '../../../modules/local/merge_csv'
-include { ADD_BANKSY_TO_SEURAT            } from '../../../modules/local/add_banksy_to_seurat'
-include { QC_BANKSY_PLOTS                 } from '../../../modules/local/qc_banksy_plots'
+include { CLUSTER_BANKSY                  } from '../../../modules/local/cluster_banksy'
+include { CONVERT_SPE_TO_SEURAT           } from '../../../modules/local/convert_spe_to_seurat'
 
 workflow BANKSY {
     take:
@@ -29,18 +23,19 @@ workflow BANKSY {
     main:
         ch_versions = Channel.empty()
 
+        ch_vf_xenium_obj = ch_merged_xenium_obj
         if (!skip_banksy_vf_filter) {
             // MODULE: Subset to Variable Features
             SUBSET_VARIABLE_FEATURES (
                 ch_merged_xenium_obj
             )
 
-            ch_merged_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
+            ch_vf_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
 
         }
 
         // MODULE: Convert seurat object to spatial experiment object
-        CONVERT_SEURAT_TO_SPE ( ch_merged_xenium_obj )
+        CONVERT_SEURAT_TO_SPE ( ch_vf_xenium_obj )
 
         // MODULE: Stagger spatial coordinates
         STAGGER_SPATIAL_COORDS ( CONVERT_SEURAT_TO_SPE.out.spe_object )
@@ -52,6 +47,11 @@ workflow BANKSY {
         COMPUTE_BANKSY_MATRIX (
             STAGGER_SPATIAL_COORDS.out.coord_staggered_spe_object
                 .combine( ch_geom_list )
+                .map {
+                    meta, spe, k_geom ->
+                        def new_meta = meta + [k_geom: k_geom]
+                        [new_meta, spe, k_geom]
+                }
         )
 
         // MODULE: Compute BANKSY PCAs
@@ -66,6 +66,11 @@ workflow BANKSY {
         COMPUTE_BANKSY_PCA (
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
                 .combine( ch_lambda_npc )
+                .map {
+                    meta, spe, k_geom, lambda, nPCs ->
+                        def new_meta = meta + [lambda: lambda, nPCs: nPCs]
+                        [new_meta, spe, k_geom, lambda, nPCs]
+                }
         )
 
         // MODULE: Run BANKSY Harmony
@@ -82,82 +87,28 @@ workflow BANKSY {
         CLUSTER_BANKSY (
             RUN_UMAP_BANKSY.out.banksy_umap_spe_obj
                 .combine( Channel.of(res_list).flatten() )
-        )
-
-        // MODULE: Extract cluster metadata
-        EXTRACT_BANKSY_CLUSTER_METADATA (
-            CLUSTER_BANKSY.out.banksy_cluster_spe_obj
-        )
-
-        // MODULE: Extract param data
-        EXTRACT_PARAMS (
-            CLUSTER_BANKSY.out.banksy_cluster_spe_obj
                 .map {
-                    meta, csv, k_geom, lambda, nPCs, res ->
-                        [meta,  csv]
+                    meta, spe, k_geom, lambda, nPCs, res ->
+                        def new_meta = meta + [res: res]
+                        [new_meta, spe, k_geom, lambda, nPCs, res]
                 }
         )
 
-        // MODULE: Extract Banksy metadata for Xenium Explorer
-        EXTRACT_XE_METADATA (
-            CLUSTER_BANKSY.out.banksy_cluster_spe_obj
-                .map {
-                    meta, csv, k_geom, lambda, nPCs, res ->
-                        [meta,  csv]
-                }
-        )
-
-        // MODULE: Extract Reduced Dims
-        // TODO this step is redudant across resolutions (see issue #22)
-        EXTRACT_BANKSY_REDUCED_DIMS (
-            CLUSTER_BANKSY.out.banksy_cluster_spe_obj
-                .map {
-                    meta, csv, k_geom, lambda, nPCs, res ->
-                        [meta,  csv]
-                }
-        )
-
-        // MODULE: Merge cluster tsvs
-        MERGE_CSV (
-            EXTRACT_BANKSY_CLUSTER_METADATA.out.cluster_metadata
-                .groupTuple()
-        )
-
-        // MODULE: Add BANKSY clusters to Xenium Object
-        ADD_BANKSY_TO_SEURAT (
+        CONVERT_SPE_TO_SEURAT (
             ch_merged_xenium_obj
-                .join (
-                    MERGE_CSV.out.merged_cluster_csv
-                        .map {
-                            meta, csv ->
-                                keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
-                                [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
-                        }
+                .map { meta, xenium_obj -> [meta.normalization, meta, xenium_obj] }
+                .combine( CLUSTER_BANKSY.out.banksy_cluster_spe_obj
+                    .map {
+                        spe_meta, spe_obj, k_geom, lambda, nPCs, res ->
+                            [spe_meta.normalization, spe_meta, spe_obj]
+                    }, by: 0
                 )
+                .map { norm, merged_meta, merged_obj, spe_meta, spe_obj -> [spe_meta, merged_obj, spe_obj]}
         )
-
-        // MODULE: Generate QC plots for BANKSY clusters
-        // QC_BANKSY_PLOTS (
-        //     CLUSTER_BANKSY.out.banksy_cluster_spe_obj
-        //         .map {
-        //             meta, csv, k_geom, lambda, nPCs, res ->
-        //                 [meta,  csv]
-        //         }
-        //         .join (
-        //             EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
-        //                     .map {
-        //                         meta, csv ->
-        //                             keys_to_remove = ['lambda', 'k_geom', 'nPCs', 'res']
-        //                             [meta.findAll { k, v -> !(k in keys_to_remove) }, csv]
-        //                     }
-        //         , by: 0)
-        // )
 
     emit:
         versions = ch_versions
 
-        merged_cluster_metadata = MERGE_CSV.out.merged_cluster_csv
-        banksy_cluster_metadata = EXTRACT_BANKSY_CLUSTER_METADATA.out.cluster_metadata
-        banksy_reduced_dims     = EXTRACT_BANKSY_REDUCED_DIMS.out.banksy_umap_csv
+        banksy_clustered_xenium_obj = CONVERT_SPE_TO_SEURAT.out.converted_seurat_object
 
 }
