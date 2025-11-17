@@ -1,4 +1,4 @@
-process QC_HARMONY_PLOTS {
+process QC_GENE_VLN_PLOT {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,7 +10,7 @@ process QC_HARMONY_PLOTS {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(dim), val(res), path(gene_list)
+    tuple val(meta), path(xenium_obj), path(gene_list)
 
     output:
     tuple val(meta), path("*.png"), emit: vln_plot
@@ -25,7 +25,7 @@ process QC_HARMONY_PLOTS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    qc_harmony_plots.R \\
+    qc_gene_vln_plot.R \\
         $args \\
         $assay_flag \\
         --input "$xenium_obj" \\

@@ -170,10 +170,11 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Generate clustering QC plots
     //
-    // CLUSTER_QC (
-    //     BANKSY.out.banksy_clustered_xenium_obj,
-    //     params.marker_gene_list
-    // )
+    CLUSTER_QC (
+        BANKSY.out.banksy_clustered_xenium_obj
+            .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj ),
+        params.marker_gene_list
+    )
 
     //
     // Collate and save software versions

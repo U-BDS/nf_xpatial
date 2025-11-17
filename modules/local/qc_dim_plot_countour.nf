@@ -10,11 +10,11 @@ process QC_DIM_PLOT_COUNTOUR {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(dim), val(res)
+    tuple val(meta), path(xenium_obj)
 
     output:
-    tuple val(meta), path("*.png"), val(dim), val(res), emit: countour_dim_plot
-    path 'versions.yml'                               , emit: versions
+    tuple val(meta), path("*.png"), emit: countour_dim_plot
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
