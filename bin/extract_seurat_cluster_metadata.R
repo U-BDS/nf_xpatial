@@ -30,7 +30,7 @@ params_list <- list(
         help="The assay to use"),
     make_option(
         c("-p", "--param_string"),
-        type="string",
+        type="character",
         help="The parameter string to use to identify clustering run"),
     make_option(
         c("-o", "--outfile"),
