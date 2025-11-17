@@ -159,12 +159,12 @@ workflow NF_XENIUM_ANALYSIS {
             .map { meta, banksy_xenium_obj ->
                 def new_meta = meta + [clustering_method: 'BANKSY']
                 return [new_meta, banksy_xenium_obj]}
-            // .mix ( 
-            //     CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
-            //         .map { meta, harmony_xenium_obj ->
-            //             def new_meta = meta + [clustering_method: 'Harmony']
-            //             return [new_meta, harmony_xenium_obj]} 
-            // )
+            .mix ( 
+                CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
+                    .map { meta, harmony_xenium_obj ->
+                        def new_meta = meta + [clustering_method: 'Harmony']
+                        return [new_meta, harmony_xenium_obj]} 
+            )
     )
 
     //

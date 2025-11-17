@@ -168,11 +168,17 @@ for (reduc_dim_res in reduc_dim_res_list) {
     ### ADD STDEV ###
     #################
 
-    print(paste0("Grabbing stdev for  ",reduc_dim_res))
-    stdev_df <- read.csv(
-        stdev_file_list[grepl(reduc_dim_res, stdev_file_list)][[1]],
-        header = TRUE
-    )
+    stdev_file <- stdev_file_list[grepl(reduc_dim_res, stdev_file_list)]
+    stdev_list <- numeric()
+    if (length(loadings_file) == 1) {
+        print(paste0("Grabbing stdev for  ",reduc_dim_res))
+        stdev_df <- read.csv(
+            stdev_file[1],
+            header = TRUE
+        )
+
+        stdev_list <- as.numeric(stdev_df[[1]])
+    }
 
     ############################
     ### CREATE DIM REDUCTION ###
@@ -181,7 +187,7 @@ for (reduc_dim_res in reduc_dim_res_list) {
     xenium_obj[[reduc_dim_res]] <- CreateDimReducObject(
         embeddings = as.matrix(embeddings_df),
         loadings = loadings_mtx,
-        stdev = as.numeric(stdev_df[[1]]),
+        stdev = stdev_list,
         assay = opt$assay,
         key = paste0(reduc_dim_res, "_")
     )
