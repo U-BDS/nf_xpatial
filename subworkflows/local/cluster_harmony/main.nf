@@ -67,8 +67,14 @@ workflow CLUSTER_HARMONY {
                 }
         )
 
+        ch_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
+            .map { meta, xenium_obj, dim, res ->
+                def new_meta = meta + [clustering_method: 'Harmony']
+                [new_meta, xenium_obj]
+            }
+
     emit:
         versions                     = ch_versions
-        harmony_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj.map { meta, xenium_obj, dim, res -> [meta, xenium_obj]}
+        harmony_clustered_xenium_obj = ch_clustered_xenium_obj
 
 }

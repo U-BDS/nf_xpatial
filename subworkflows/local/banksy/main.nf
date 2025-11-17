@@ -94,6 +94,7 @@ workflow BANKSY {
                 }
         )
 
+        // MODULE: Convert SPE back to Seurat object
         CONVERT_SPE_TO_SEURAT (
             ch_merged_xenium_obj
                 .map { meta, xenium_obj -> [meta.normalization, meta, xenium_obj] }
@@ -104,11 +105,18 @@ workflow BANKSY {
                     }, by: 0
                 )
                 .map { norm, merged_meta, merged_obj, spe_meta, spe_obj -> [spe_meta, merged_obj, spe_obj]}
+                .first()
         )
+
+        ch_clustered_xenium_obj = CONVERT_SPE_TO_SEURAT.out.converted_seurat_object
+            .map { meta, xenium_obj ->
+                def new_meta = meta + [clustering_method: 'BANKSY']
+                [new_meta, xenium_obj]
+            }
 
     emit:
         versions = ch_versions
 
-        banksy_clustered_xenium_obj = CONVERT_SPE_TO_SEURAT.out.converted_seurat_object
+        banksy_clustered_xenium_obj = ch_clustered_xenium_obj
 
 }
