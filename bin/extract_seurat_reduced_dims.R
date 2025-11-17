@@ -29,8 +29,12 @@ params_list <- list(
         help="The assay to use"),
     make_option(
         c("-p", "--param_string"),
-        type="string",
+        type="character",
         help="The parameter string to use to identify clustering run"),
+    make_option(
+        c("-c", "--clustering_method"),
+        type="character",
+        help="The clustering method used (e.g., BANKSY, Harmony)"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -80,36 +84,40 @@ for (reduc in Reductions(xenium_obj)) {
         quote = FALSE
     )
 
-    # Extract Loadings
-    extracted_loadings <- Loadings(xenium_obj, reduction = reduc)
+    # NOTE: Banksy objects will not have embeddings or loadings
 
-    loadings_df <- data.frame(
-        Index = rownames(extracted_loadings),
-        extracted_loadings,
-        stringsAsFactors = FALSE
-    )
+    if (opt$clustering_method != "BANKSY") {
+        # Extract Loadings
+        extracted_loadings <- Loadings(xenium_obj, reduction = reduc)
 
-    write.csv(
-        loadings_df,
-        file = paste0(file_prefix, "_loadings_", opt$outfile),
-        row.names = FALSE,
-        quote = FALSE
-    )
+        loadings_df <- data.frame(
+            Index = rownames(extracted_loadings),
+            extracted_loadings,
+            stringsAsFactors = FALSE
+        )
 
-    # Extract Stdev
-    extracted_stdev <- Stdev(xenium_obj, reduction = reduc)
+        write.csv(
+            loadings_df,
+            file = paste0(file_prefix, "_loadings_", opt$outfile),
+            row.names = FALSE,
+            quote = FALSE
+        )
 
-    stdev_df <- data.frame(
-        extracted_stdev,
-        stringsAsFactors = FALSE
-    )
+        # Extract Stdev
+        extracted_stdev <- Stdev(xenium_obj, reduction = reduc)
 
-    write.csv(
-        stdev_df,
-        file = paste0(file_prefix, "_stdev_", opt$outfile),
-        row.names = FALSE,
-        quote = FALSE
-    )
+        stdev_df <- data.frame(
+            extracted_stdev,
+            stringsAsFactors = FALSE
+        )
+
+        write.csv(
+            stdev_df,
+            file = paste0(file_prefix, "_stdev_", opt$outfile),
+            row.names = FALSE,
+            quote = FALSE
+        )
+    }
 }
 
 ####################
