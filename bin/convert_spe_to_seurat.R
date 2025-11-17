@@ -115,7 +115,7 @@ for (dim_name in reducedDimNames(spe_obj)) {
 
     print(reduced_dim_data)
 
-    xenium_obj[[dim_name]] <- CreateDimReducObject(
+    xenium_obj[[converted_dim_name]] <- CreateDimReducObject(
         embeddings = as.matrix(reduced_dim_data),
         assay = opt$assay,
         key = paste0(converted_dim_name, "_")
