@@ -27,32 +27,40 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
             ch_clustered_xenium_obj
         )
 
-            //
-    // MODULE: Add Harmony cluster info to Seurat object
-    //
-    ADD_CLUSTER_DATA_TO_SEURAT (
-        ch_merged_xenium_obj
-            .join (
-                EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
-                .groupTuple()
-                .map{ meta, cm_file_list -> [meta, cm_file_list.flatten()]}
-            )
-            .join (
-                EXTRACT_SEURAT_REDUCED_DIMS.out.embeddings_csv
+        //
+        // MODULE: Add Harmony cluster info to Seurat object
+        //
+        ADD_CLUSTER_DATA_TO_SEURAT (
+            ch_merged_xenium_obj
+                .join (
+                    EXTRACT_SEURAT_CLUSTER_METADATA.out.cluster_metadata
                     .groupTuple()
-                    .map{ meta, e_file_list -> [meta, e_file_list.flatten()]}
-            )
-            .join (
-                EXTRACT_SEURAT_REDUCED_DIMS.out.loadings_csv
-                    .groupTuple()
-                    .map{ meta, l_file_list -> [meta, l_file_list.flatten()]}
-            )
-            .join (
-                EXTRACT_SEURAT_REDUCED_DIMS.out.stdev_csv
-                    .groupTuple()
-                    .map{ meta, s_file_list -> [meta, s_file_list.flatten()]}
+                    .map{ meta, cm_file_list -> 
+                        def new_meta = [id: meta.id, normalization: meta.normalization]
+                        [new_meta, cm_file_list.flatten()]}
                 )
-    )
+                .join (
+                    EXTRACT_SEURAT_REDUCED_DIMS.out.embeddings_csv
+                        .groupTuple()
+                        .map{ meta, e_file_list -> 
+                            def new_meta = [id: meta.id, normalization: meta.normalization]
+                            [new_meta, e_file_list.flatten()]}
+                )
+                .join (
+                    EXTRACT_SEURAT_REDUCED_DIMS.out.loadings_csv
+                        .groupTuple()
+                        .map{ meta, l_file_list -> 
+                            def new_meta = [id: meta.id, normalization: meta.normalization]
+                            [new_meta, l_file_list.flatten()]}
+                )
+                .join (
+                    EXTRACT_SEURAT_REDUCED_DIMS.out.stdev_csv
+                        .groupTuple()
+                        .map{ meta, s_file_list -> 
+                            def new_meta = [id: meta.id, normalization: meta.normalization]
+                            [new_meta, s_file_list.flatten()]}
+                    )
+        )
 
     emit:
         versions              = ch_versions
