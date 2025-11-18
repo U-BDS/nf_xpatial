@@ -154,17 +154,8 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Merge Harmony and BANKSY clustered xenium objects
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (
-        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
         BANKSY.out.banksy_clustered_xenium_obj
-            .map { meta, banksy_xenium_obj ->
-                def new_meta = meta + [clustering_method: 'BANKSY']
-                return [new_meta, banksy_xenium_obj]}
-            .mix ( 
-                CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
-                    .map { meta, harmony_xenium_obj ->
-                        def new_meta = meta + [clustering_method: 'Harmony']
-                        return [new_meta, harmony_xenium_obj]} 
-            )
+            .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj ),
     )
 
     //
