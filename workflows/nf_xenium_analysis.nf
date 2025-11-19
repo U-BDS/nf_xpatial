@@ -154,18 +154,19 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Merge Harmony and BANKSY clustered xenium objects
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (
+        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         BANKSY.out.banksy_clustered_xenium_obj
-            .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj ),
+            .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj )
     )
 
     //
     // SUBWORKFLOW: Generate clustering QC plots
     //
-    CLUSTER_QC (
-        BANKSY.out.banksy_clustered_xenium_obj
-            .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj ),
-        params.marker_gene_list
-    )
+    // CLUSTER_QC (
+    //     BANKSY.out.banksy_clustered_xenium_obj
+    //         .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj ),
+    //     params.marker_gene_list
+    // )
 
     //
     // Collate and save software versions

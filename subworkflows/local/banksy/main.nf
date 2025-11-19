@@ -8,7 +8,6 @@ include { COMPUTE_BANKSY_PCA              } from '../../../modules/local/compute
 include { RUN_HARMONY_BANKSY              } from '../../../modules/local/run_harmony_banksy'
 include { RUN_UMAP_BANKSY                 } from '../../../modules/local/run_umap_banksy'
 include { CLUSTER_BANKSY                  } from '../../../modules/local/cluster_banksy'
-include { CONVERT_SPE_TO_SEURAT           } from '../../../modules/local/convert_spe_to_seurat'
 
 workflow BANKSY {
     take:
@@ -94,22 +93,8 @@ workflow BANKSY {
                 }
         )
 
-        // MODULE: Convert SPE back to Seurat object
-        CONVERT_SPE_TO_SEURAT (
-            ch_merged_xenium_obj
-                .map { meta, xenium_obj -> [meta.normalization, meta, xenium_obj] }
-                .combine( CLUSTER_BANKSY.out.banksy_cluster_spe_obj
-                    .map {
-                        spe_meta, spe_obj, k_geom, lambda, nPCs, res ->
-                            [spe_meta.normalization, spe_meta, spe_obj]
-                    }, by: 0
-                )
-                .map { norm, merged_meta, merged_obj, spe_meta, spe_obj -> [spe_meta, merged_obj, spe_obj]}
-                .first()
-        )
-
-        ch_clustered_xenium_obj = CONVERT_SPE_TO_SEURAT.out.converted_seurat_object
-            .map { meta, xenium_obj ->
+        ch_clustered_xenium_obj = CLUSTER_BANKSY.out.banksy_cluster_spe_obj
+            .map { meta, xenium_obj, k_geom, lambda, nPCs, res ->
                 def new_meta = meta + [clustering_method: 'BANKSY']
                 [new_meta, xenium_obj]
             }

@@ -54,24 +54,39 @@ xenium_obj <- readRDS(file = opt$input)
 ### EXTRACT CLUSTER METADATA ###
 ################################
 
-# Set default assay
-DefaultAssay(xenium_obj) <- opt$assay
+cluster_metadata <- NULL
 
-# Extract cluster data
-clusts <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
+if (class(xenium_obj) == "Seurat") {
+    # Set default assay
+    DefaultAssay(xenium_obj) <- opt$assay
 
-# Add dim and res to column name
-colnames(clusts) <- paste0(
-    colnames(clusts),
-    opt$param_string
-)
+    # Extract cluster data
+    cluster_metadata <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
 
-# Create a column for the cell ids
-clusts$Index <- rownames(clusts)
-rownames(clusts) <- NULL
+    # Add dim and res to column name
+    colnames(cluster_metadata) <- paste0(
+        colnames(cluster_metadata),
+        opt$param_string
+    )
 
-# Rearrange columns
-clusts <- clusts[, c(2,1)]
+    # Create a column for the cell ids
+    cluster_metadata$Index <- rownames(cluster_metadata)
+    rownames(cluster_metadata) <- NULL
+
+    # Rearrange columns
+    cluster_metadata <- cluster_metadata[, c(2,1)]
+
+} else if (class(xenium_obj) == "SpatialExperiment") {
+    # Set default assay
+    mainExpName(xenium_obj) <- opt$assay
+    col_data <- colData(xenium_obj)
+
+    cluster_metadata <- col_data[ grepl("^clust_BSKY", colnames(col_data)) ]
+    cluster_metadata <- cluster_metadata[rev(colnames(cluster_metadata))]
+
+} else {
+    stop("Input object is not of class SeuratObject or SpatialExperiment.")
+}
 
 ###################
 ### WRITE TABLE ###
@@ -79,7 +94,7 @@ clusts <- clusts[, c(2,1)]
 
 # Save the cluster_table
 write.table(
-    clusts,
+    cluster_metadata,
     file = opt$outfile,
     sep = ",",
     quote = FALSE,

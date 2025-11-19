@@ -1,4 +1,4 @@
-process EXTRACT_SEURAT_CLUSTER_METADATA {
+process EXTRACT_CLUSTER_METADATA {
     tag "$meta.id"
     label 'process_medium'
 
@@ -25,11 +25,11 @@ process EXTRACT_SEURAT_CLUSTER_METADATA {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     def param_string_flag = meta.clustering_method == 'BANKSY' ?
-        "--param_string l${meta.lambda}_k${meta.k_geom}_n${meta.nPCs}_r${meta.res}" :
-        "--param_string d${meta.dim}_r${meta.res}"
+        "--param_string l" + "${meta.lambda}" + "_k" + "${meta.k_geom}" + "_n" + "${meta.nPCs}" + "_r" + "${meta.res}" :
+        "--param_string d" + "${meta.dim}" + "_r" + "${meta.res}"
 
     """
-    extract_seurat_cluster_metadata.R \\
+    extract_cluster_metadata.R \\
         $args \\
         $assay_flag \\
         $param_string_flag \\

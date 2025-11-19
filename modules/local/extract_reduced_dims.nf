@@ -1,4 +1,4 @@
-process CONVERT_SPE_TO_SEURAT {
+process EXTRACT_REDUCED_DIMS {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,10 +10,12 @@ process CONVERT_SPE_TO_SEURAT {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), path(spe_obj)
+    tuple val(meta), path(xenium_obj)
 
     output:
-    tuple val(meta), path("*.rds"), emit: converted_seurat_object
+    tuple val(meta), path("*embeddings*.csv") , emit: embeddings_csv
+    tuple val(meta), path("*loadings*.csv")   , emit: loadings_csv, optional: true
+    tuple val(meta), path("*stdev*.csv")      , emit: stdev_csv,    optional: true
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,14 +23,18 @@ process CONVERT_SPE_TO_SEURAT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
+    def param_string_flag = '--param_string d' + "${meta.dim}"
+
     """
-    convert_spe_to_seurat.R \\
+    extract_reduced_dims.R \\
         $args \\
         $assay_flag \\
-        --xenium "$xenium_obj" \\
-        --spe_obj "$spe_obj" \\
-        --outfile "${prefix}_xenium.rds"
+        $param_string_flag \\
+        --clustering_method "${meta.clustering_method}" \\
+        --input "$xenium_obj" \\
+        --outfile "${prefix}_reduced_dims.csv"
     """
 }
