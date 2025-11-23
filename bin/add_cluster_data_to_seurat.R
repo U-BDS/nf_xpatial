@@ -94,12 +94,12 @@ print(stdev_file_list)
 reduction_metadata_df <- t(data.frame(
     lapply(c(embeddings_file_list, loadings_file_list, stdev_file_list),
     function(x) {
-        str_split_1(basename(x), pattern = "_")[c(1:3)]
+        str_split_1(basename(x), pattern = "_")[c(1:4)]
     })
 ))
 
 rownames(reduction_metadata_df) <- NULL
-colnames(reduction_metadata_df) <- c("reduction", "dim", "type")
+colnames(reduction_metadata_df) <- c("clustering_method", "reduction", "dim", "type")
 
 print(reduction_metadata_df)
 
@@ -107,6 +107,8 @@ print(reduction_metadata_df)
 
 reduction_metadata_df <- unique(reduction_metadata_df[, !(colnames(reduction_metadata_df) %in% c("type"))])
 reduc_dim_list <- paste0(
+    reduction_metadata_df[,"clustering_method"],
+    "_",
     reduction_metadata_df[,"reduction"], 
     "_",
     reduction_metadata_df[,"dim"]
@@ -146,6 +148,7 @@ for (reduc_dim in reduc_dim_list) {
 
         print(loadings_file[1])
         print(file.info(loadings_file[1])$size)
+
         if (file.info(loadings_file[1])$size <= 1) {
             print(paste0("Loadings file is empty for  ",reduc_dim))
 
@@ -168,10 +171,10 @@ for (reduc_dim in reduc_dim_list) {
 
     stdev_file <- stdev_file_list[grepl(reduc_dim, stdev_file_list)]
     stdev_list <- numeric()
-    if (length(loadings_file) == 1) {
+    if (length(stdev_file) == 1) {
 
-        if (file.info(loadings_file[1])$size <= 1) {
-            print(paste0("Loadings file is empty for  ",reduc_dim))
+        if (file.info(stdev_file[1])$size <= 1) {
+            print(paste0("Stdev file is empty for  ",reduc_dim))
 
         } else {
             print(paste0("Grabbing stdev for  ",reduc_dim))
@@ -245,7 +248,7 @@ for (cluster_file in cluster_file_list) {
 
 saveRDS(
     object = xenium_obj,
-    file = paste0("d", opt$dim, "_r", opt$res, ".", opt$outfile)
+    file = opt$outfile
 )
 
 ####################

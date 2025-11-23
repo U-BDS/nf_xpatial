@@ -33,7 +33,7 @@ process ADD_CLUSTER_DATA_TO_SEURAT {
         --embeddings "${embeddings_csv.join(',')}" \\
         --loadings "${loadings_csv.join(',')}" \\
         --stdev "${stdev_csv.join(',')}" \\
-        --outfile ${prefix}_harmony_cluster.rds
+        --outfile ${prefix}_all_clusters.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

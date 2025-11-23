@@ -81,31 +81,44 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
             CONNECT_CLUSTERS.out.connected_xenium_obj
                 .join (
                     EXTRACT_CLUSTER_METADATA.out.cluster_metadata
-                    .groupTuple()
                     .map{ meta, cm_file_list -> 
                         def new_meta = [id: meta.id, normalization: meta.normalization]
-                        [new_meta, cm_file_list.flatten()]}
+                        [new_meta, cm_file_list]
+                    }
+                    .groupTuple()
                 )
                 .join (
                     EXTRACT_REDUCED_DIMS.out.embeddings_csv
+                        .map { meta, e_file_list -> 
+                            def new_meta = [id: meta.id, normalization: meta.normalization]
+                            [new_meta, e_file_list]
+                        }
                         .groupTuple()
                         .map{ meta, e_file_list -> 
-                            def new_meta = [id: meta.id, normalization: meta.normalization]
-                            [new_meta, e_file_list.flatten()]}
+                            [meta, e_file_list.flatten()]
+                        }
                 )
                 .join (
                     EXTRACT_REDUCED_DIMS.out.loadings_csv
+                        .map { meta, l_file_list -> 
+                            def new_meta = [id: meta.id, normalization: meta.normalization]
+                            [new_meta, l_file_list]
+                        }
                         .groupTuple()
                         .map{ meta, l_file_list -> 
-                            def new_meta = [id: meta.id, normalization: meta.normalization]
-                            [new_meta, l_file_list.flatten()]}
+                            [meta, l_file_list.flatten()]
+                        }
                 )
                 .join (
                     EXTRACT_REDUCED_DIMS.out.stdev_csv
+                        .map { meta, s_file_list -> 
+                            def new_meta = [id: meta.id, normalization: meta.normalization]
+                            [new_meta, s_file_list]
+                        }
                         .groupTuple()
                         .map{ meta, s_file_list -> 
-                            def new_meta = [id: meta.id, normalization: meta.normalization]
-                            [new_meta, s_file_list.flatten()]}
+                            [meta, s_file_list.flatten()]
+                        }
                     )
         )
 
