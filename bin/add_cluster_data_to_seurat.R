@@ -94,40 +94,38 @@ print(stdev_file_list)
 reduction_metadata_df <- t(data.frame(
     lapply(c(embeddings_file_list, loadings_file_list, stdev_file_list),
     function(x) {
-        str_split_1(basename(x), pattern = "_")[c(1:4)]
+        str_split_1(basename(x), pattern = "_")[c(1:3)]
     })
 ))
 
 rownames(reduction_metadata_df) <- NULL
-colnames(reduction_metadata_df) <- c("reduction", "dim", "res", "type")
+colnames(reduction_metadata_df) <- c("reduction", "dim", "type")
 
 print(reduction_metadata_df)
 
 # Get the unique combinations of dimension, resolution, and reduction
 
 reduction_metadata_df <- unique(reduction_metadata_df[, !(colnames(reduction_metadata_df) %in% c("type"))])
-reduc_dim_res_list <- paste0(
+reduc_dim_list <- paste0(
     reduction_metadata_df[,"reduction"], 
     "_",
-    reduction_metadata_df[,"dim"],
-    "_",
-    reduction_metadata_df[,"res"]
+    reduction_metadata_df[,"dim"]
 )
-print(reduc_dim_res_list)
+print(reduc_dim_list)
 
 # Iterate through each unique combination, grab the corresponding files, and add to the Seurat object
-for (reduc_dim_res in reduc_dim_res_list) {
+for (reduc_dim in reduc_dim_list) {
 
     ######################
     ### ADD EMBEDDINGS ###
     ######################
 
-    print(paste0("Grabbing files for  ",reduc_dim_res))
+    print(paste0("Grabbing files for  ",reduc_dim))
 
     # Obtain the embeddings file 
-    print(paste0("Grabbing embeddings for  ",reduc_dim_res))
+    print(paste0("Grabbing embeddings for  ",reduc_dim))
     embeddings_df <- read.csv(
-        embeddings_file_list[grepl(reduc_dim_res, embeddings_file_list)][[1]],
+        embeddings_file_list[grepl(reduc_dim, embeddings_file_list)][[1]],
         header = TRUE
     )
 
@@ -139,20 +137,20 @@ for (reduc_dim_res in reduc_dim_res_list) {
     ####################
 
     # Should only be one file that matches
-    loadings_file <- loadings_file_list[grepl(reduc_dim_res, loadings_file_list)]
-    loadings_mtx <- matrix()
+    loadings_file <- loadings_file_list[grepl(reduc_dim, loadings_file_list)]
+    loadings_mtx <- new(Class = "matrix")
     if (length(loadings_file) > 1) {
-        stop(paste0("More than one loadings file found for ", reduc_dim_res))
+        stop(paste0("More than one loadings file found for ", reduc_dim))
 
     } else if (length(loadings_file) == 1) {
 
         print(loadings_file[1])
         print(file.info(loadings_file[1])$size)
         if (file.info(loadings_file[1])$size <= 1) {
-            print(paste0("Loadings file is empty for  ",reduc_dim_res))
+            print(paste0("Loadings file is empty for  ",reduc_dim))
 
         } else {
-            print(paste0("Adding loadings for  ",reduc_dim_res))
+            print(paste0("Adding loadings for  ",reduc_dim))
             loadings_df <- read.csv(
                 loadings_file[1],
                 header = TRUE
@@ -168,28 +166,34 @@ for (reduc_dim_res in reduc_dim_res_list) {
     ### ADD STDEV ###
     #################
 
-    stdev_file <- stdev_file_list[grepl(reduc_dim_res, stdev_file_list)]
+    stdev_file <- stdev_file_list[grepl(reduc_dim, stdev_file_list)]
     stdev_list <- numeric()
     if (length(loadings_file) == 1) {
-        print(paste0("Grabbing stdev for  ",reduc_dim_res))
-        stdev_df <- read.csv(
-            stdev_file[1],
-            header = TRUE
-        )
 
-        stdev_list <- as.numeric(stdev_df[[1]])
+        if (file.info(loadings_file[1])$size <= 1) {
+            print(paste0("Loadings file is empty for  ",reduc_dim))
+
+        } else {
+            print(paste0("Grabbing stdev for  ",reduc_dim))
+            stdev_df <- read.csv(
+                stdev_file[1],
+                header = TRUE
+            )
+
+            stdev_list <- as.numeric(stdev_df[[1]])
+        }
     }
 
     ############################
     ### CREATE DIM REDUCTION ###
     ############################
-    print(paste0("Creating DimReducObject for  ",reduc_dim_res))
-    xenium_obj[[reduc_dim_res]] <- CreateDimReducObject(
+    print(paste0("Creating DimReducObject for  ",reduc_dim))
+    xenium_obj[[reduc_dim]] <- CreateDimReducObject(
         embeddings = as.matrix(embeddings_df),
         loadings = loadings_mtx,
         stdev = stdev_list,
         assay = opt$assay,
-        key = paste0(reduc_dim_res, "_")
+        key = paste0(reduc_dim, "_")
     )
 
 }

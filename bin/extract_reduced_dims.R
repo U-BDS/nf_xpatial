@@ -167,6 +167,10 @@ if (class(xenium_obj) == "Seurat") {
             file = paste0(file_prefix, "_embeddings_", opt$outfile),
             row.names = FALSE
         )
+
+        # Write out empty loadings and stdev files for consistency
+        file.create(paste0(file_prefix, "_loadings_", opt$outfile))
+        file.create(paste0(file_prefix, "_stdev_", opt$outfile))
     }
 
 } else {
