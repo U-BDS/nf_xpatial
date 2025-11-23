@@ -63,11 +63,11 @@ if (class(xenium_obj) == "Seurat") {
     # Extract cluster data
     cluster_metadata <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
 
+    # Rename seurat cluster column with a similar prefix to BANKSY
+    colnames(cluster_metadata) <- gsub("seurat_clusters", "clust_HMY_", colnames(cluster_metadata))
+
     # Add dim and res to column name
-    colnames(cluster_metadata) <- paste0(
-        colnames(cluster_metadata),
-        opt$param_string
-    )
+    colnames(cluster_metadata) <- paste0(colnames(cluster_metadata), opt$param_string)
 
     # Create a column for the cell ids
     cluster_metadata$Index <- rownames(cluster_metadata)
@@ -82,6 +82,7 @@ if (class(xenium_obj) == "Seurat") {
     col_data <- colData(xenium_obj)
 
     cluster_metadata <- col_data[ grepl("^clust_BSKY", colnames(col_data)) ]
+    cluster_metadata$Index <- rownames(cluster_metadata)
     cluster_metadata <- cluster_metadata[rev(colnames(cluster_metadata))]
 
 } else {
