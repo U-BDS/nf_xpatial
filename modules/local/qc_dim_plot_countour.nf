@@ -23,9 +23,29 @@ process QC_DIM_PLOT_COUNTOUR {
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
 
+    def embeddings_flag = ''
+    if ( "${meta.clustering_method}" == "BANKSY" ){
+        embeddings_flag = "--embedding BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
+    } else if ( "${meta.clustering_method}" == "Harmony"){
+        embeddings_flag = "--embedding HMY_umap_d" + "${meta.dim}"
+    }
+
+    def cluster_flag = ''
+    if ("${meta.clustering_method}" == "BANKSY"){
+        cluster_flag = "--cluster_col clust_BSKY_AGF1_L" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_PC" + "${meta.nPCs}" + 
+            "_R" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "Harmony"){
+        cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    }
+
     """
     qc_dim_plot_countour.R \\
         $args \\
+        $embeddings_flag \\
+        $cluster_flag \\
         --input "$xenium_obj" \\
         --outfile ${prefix}.png
 

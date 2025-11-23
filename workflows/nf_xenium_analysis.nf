@@ -138,6 +138,12 @@ workflow NF_XENIUM_ANALYSIS {
         params.marker_gene_list
     )
 
+    ch_cluster_params = CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
+        .map {meta, xenium_obj ->
+            def norm_method = meta.normalization_method
+            [norm_method, meta]
+        }
+
     //
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
     //
@@ -148,6 +154,14 @@ workflow NF_XENIUM_ANALYSIS {
         params.nPCs_BANKSY.split(',').collect { it as Integer },
         params.res_BANKSY.split(',').collect { it as Float },
         params.skip_banksy_vf_filter
+    )
+
+    ch_cluster_params = ch_cluster_params.mix(
+        BANKSY.out.banksy_clustered_xenium_obj
+            .map {meta, xenium_obj ->
+                def norm_method = meta.normalization_method
+                [norm_method, meta]
+            }
     )
 
     //
@@ -162,11 +176,18 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Generate clustering QC plots
     //
-    // CLUSTER_QC (
-    //     BANKSY.out.banksy_clustered_xenium_obj
-    //         .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj ),
-    //     params.marker_gene_list
-    // )
+    CLUSTER_QC (
+        MERGE_CLUSTERED_XENIUM_OBJECTS.out.cluster_merged_obj
+            .map { meta, xenium_ob ->
+                def norm_method = meta.normalization_method
+                [norm_method, meta, xenium_ob]
+            }
+            .combine(ch_cluster_params, by:0)
+            .map { norm_method, merged_meta, xenium_obj, param_meta ->
+                [ param_meta, xenium_obj]
+            },
+        params.marker_gene_list
+    )
 
     //
     // Collate and save software versions
