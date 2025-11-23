@@ -110,6 +110,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         )
 
     emit:
-        versions              = ch_versions
+        versions           = ch_versions
+        cluster_merged_obj = ADD_CLUSTER_DATA_TO_SEURAT.out.all_cluster_xenium_obj
 
 }

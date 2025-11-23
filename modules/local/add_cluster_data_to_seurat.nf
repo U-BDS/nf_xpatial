@@ -13,7 +13,7 @@ process ADD_CLUSTER_DATA_TO_SEURAT {
     tuple val(meta), path(xenium_object), val(cluster_metadata_csv), val(embeddings_csv), val(loadings_csv), val(stdev_csv)
 
     output:
-    tuple val(meta), path("*.rds"), emit: harmony_cluster_xenium_obj
+    tuple val(meta), path("*.rds"), emit: all_cluster_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
