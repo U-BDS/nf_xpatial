@@ -12,25 +12,21 @@ workflow COMPILE_ORDERED_OBJECTS {
         // MODULE: Compile objects into a list
         //
 
-        ch_xenium_obj
+        ch_ordered_xenium_obj = ch_xenium_obj
                 .map { meta, xenium_obj -> [xenium_obj] }
                 .collect()
                 .map { xenium_obj_list -> 
-                    [xenium_obj_list.sort { a, b ->
+                    [['id': 'compiled'],
+                     xenium_obj_list.sort { a, b ->
                         def filenameA = file(a).name
                         def filenameB = file(b).name
                         return filenameA.compareTo(filenameB)}]
                 }
+        
+        ch_ordered_xenium_obj.view()
 
         COMPILE_OBJECTS (
-            ch_xenium_obj
-                .map{
-                    meta, xenium_obj -> [xenium_obj]
-                }
-                .collect()
-                .map{
-                    [ [ 'id': 'compiled' ], it ]
-                }
+            ch_ordered_xenium_obj
         )
 
     emit:
