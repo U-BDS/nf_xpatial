@@ -35,6 +35,16 @@ params_list <- list(
         default=NULL,
         help="The assay to operate on"),
     make_option(
+        c("-c", "--cluster_col"),
+        type="character",
+        default="seurat_clusters",
+        help="The column name to pull for cluster numbers"),
+    make_option(
+        c("-r", "--reduction"),
+        type="character",
+        default="umap",
+        help="The reduction to use for UMAP plots"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
         default="split_cluster_plot.png",
@@ -154,7 +164,7 @@ plotCountsProportionsSingle <- function(input_obj,
     return(plot)
 }
 
-generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, assay_name, gene_list, return_plot = FALSE) {
+generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, output_file, assay_name, gene_list, return_plot = FALSE) {
 
     # 2) Define a color palette, ensuring reproducibility
     set.seed(1234)
@@ -204,7 +214,7 @@ generate_seurat_plots <- function(cname, seurat_object, clust_df, output_file, a
     # seurat_object_temp[[RUN_ID]]
     UMAP_Plot <- DimPlot(
         seurat_object,
-        reduction = "umap",
+        reduction = reduction,
         pt.size = 0.1,
         split.by = "Sample",
         cols = colors ,
@@ -268,7 +278,8 @@ xenium_obj <- readRDS(file = opt$input)
 #######################
 
 Plot <- generate_seurat_plots(
-    cname = "seurat_clusters",
+    cname = opt$cluster_col,
+    reduction = opt$reduction,
     seurat_object = xenium_obj,  # Your Seurat object
     output_file = opt$outfile,  # Directory to save plots
     return_plot = FALSE,  # Set to TRUE to return the combined plot

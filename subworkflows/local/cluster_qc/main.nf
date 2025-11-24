@@ -19,22 +19,23 @@ workflow CLUSTER_QC {
             ch_clustered_xenium_obj
         )
 
-        // //
-        // // MODULE: Generate a compiled set of cluster plots split by sample
-        // //
-        // QC_SPLIT_CLUSTER_PLOTS (
-        //     ch_clustered_xenium_obj
-        // )
+        //
+        // MODULE: Generate a compiled set of cluster plots split by sample
+        //
+        QC_SPLIT_CLUSTER_PLOTS (
+            ch_clustered_xenium_obj
+        )
 
-        // //
-        // // MODULE: Generate violin plots
-        // //
-        // if (marker_gene_list) {
-        //     QC_CLUSTER_MARKER_PLOTS (
-        //         ch_clustered_xenium_obj
-        //             .combine( Channel.from(marker_gene_list) )
-        //     )
-        // }
+        //
+        // MODULE: Generate violin plots
+        //
+        if (marker_gene_list) {
+
+            QC_CLUSTER_MARKER_PLOTS (
+                ch_clustered_xenium_obj
+                    .combine( Channel.from(marker_gene_list) )
+            )
+        }
 
     emit:
         versions                    = ch_versions

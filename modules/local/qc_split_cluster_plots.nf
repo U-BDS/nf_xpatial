@@ -24,11 +24,31 @@ process QC_SPLIT_CLUSTER_PLOTS {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
+    def reductions_flag = ''
+    if ( "${meta.clustering_method}" == "BANKSY" ){
+        reductions_flag = "--reduction BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
+    } else if ( "${meta.clustering_method}" == "Harmony"){
+        reductions_flag = "--reduction HMY_umap_d" + "${meta.dim}"
+    }
+
+    def cluster_flag = ''
+    if ("${meta.clustering_method}" == "BANKSY"){
+        cluster_flag = "--cluster_col clust_BSKY_AGF1_L" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_PC" + "${meta.nPCs}" + 
+            "_R" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "Harmony"){
+        cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    }
+
     """
     qc_split_cluster_plots.R \\
         $args \\
-        --input "$xenium_obj" \\
+        $reductions_flag \\
+        $cluster_flag \\
         $assay_flag \\
+        --input "$xenium_obj" \\
         --outfile ${prefix}_split_cluster_plot.png
 
     cat <<-END_VERSIONS > versions.yml
