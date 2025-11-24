@@ -16,6 +16,7 @@ workflow BANKSY {
         k_geom_list             // list: list of k_geom values to evaluate
         nPCs_list               // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
+        use_agf_BANKSY          // boolean: whether to use AGF in BANKSY
         skip_banksy_vf_filter   // boolean: whether to skip filtering to variable features
 
 
@@ -34,7 +35,14 @@ workflow BANKSY {
         }
 
         // MODULE: Convert seurat object to spatial experiment object
-        CONVERT_SEURAT_TO_SPE ( ch_vf_xenium_obj )
+        CONVERT_SEURAT_TO_SPE (
+            ch_vf_xenium_obj
+                .map { meta, xenium_obj ->
+                    def agf_val = use_agf_BANKSY == true ? 1 : 0
+                    def new_meta = meta + [agf: agf_val]
+                    [new_meta, xenium_obj]
+                }
+        )
 
         // MODULE: Stagger spatial coordinates
         STAGGER_SPATIAL_COORDS ( CONVERT_SEURAT_TO_SPE.out.spe_object )

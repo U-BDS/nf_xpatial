@@ -154,6 +154,7 @@ workflow NF_XENIUM_ANALYSIS {
         params.k_geom_BANKSY.split(',').collect { it as Integer },
         params.nPCs_BANKSY.split(',').collect { it as Integer },
         params.res_BANKSY.split(',').collect { it as Float },
+        params.use_agf_BANKSY,
         params.skip_banksy_vf_filter
     )
 
