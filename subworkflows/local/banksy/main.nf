@@ -59,22 +59,28 @@ workflow BANKSY {
         ch_lambda_npc = Channel.of(lambda_list)
             .flatten()
             .combine(
-                Channel.of(nPCs_list).flatten()
+                Channel.of(nPCs_list).flatten().max()
             )
 
         COMPUTE_BANKSY_PCA (
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
                 .combine( ch_lambda_npc )
                 .map {
-                    meta, spe, k_geom, lambda, nPCs ->
-                        def new_meta = meta + [lambda: lambda, nPCs: nPCs]
-                        [new_meta, spe, k_geom, lambda, nPCs]
+                    meta, spe, k_geom, lambda, max_nPC ->
+                        def new_meta = meta + [lambda: lambda, max_nPC: max_nPC]
+                        [new_meta, spe, k_geom, lambda, max_nPC]
                 }
         )
 
         // MODULE: Run BANKSY Harmony
         RUN_HARMONY_BANKSY (
             COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
+                .combine ( Channel.of(nPCs_list).flatten() )
+                .map {
+                    meta, spe, k_geom, lambda, max_nPC, nPCs ->
+                        def new_meta = meta + [nPCs: nPCs]
+                        [new_meta, spe, k_geom, lambda, nPCs]
+                }
         )
 
         // MODULE: Run BANKSY UMAP
