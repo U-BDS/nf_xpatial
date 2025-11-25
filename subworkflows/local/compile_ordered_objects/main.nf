@@ -22,8 +22,6 @@ workflow COMPILE_ORDERED_OBJECTS {
                         def filenameB = file(b).name
                         return filenameA.compareTo(filenameB)}]
                 }
-        
-        ch_ordered_xenium_obj.view()
 
         COMPILE_OBJECTS (
             ch_ordered_xenium_obj
