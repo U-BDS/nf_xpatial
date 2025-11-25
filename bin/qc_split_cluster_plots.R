@@ -165,9 +165,12 @@ plotCountsProportionsSingle <- function(input_obj,
 }
 
 generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, output_file, assay_name, gene_list, return_plot = FALSE) {
+    
+    colnames(seurat_object@meta.data)
+    seurat_object@meta.data[[cname]] <- as.factor(seurat_object@meta.data[[cname]])
+    Idents(seurat_object) <- cname
 
     # 2) Define a color palette, ensuring reproducibility
-    set.seed(1234)
     colors <- createPalette(
         length(levels(seurat_object@meta.data[, cname])),
         c("#00ffff", "#ff00ff", "#ffff00"),
@@ -175,7 +178,9 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
         M = 1000
     )
 
-    names(colors) <- levels(seurat_object@meta.data[[cname]])
+    num_clusters <- length(levels(seurat_object@meta.data[[cname]]))
+    base_palette <- "Paired"
+    colors <- colorRampPalette(brewer.pal(n = 12, name = base_palette))(num_clusters)
 
     # Create single horizontal stacked bar showing composition
     composition_bar <- plotCountsProportionsSingle(
@@ -199,8 +204,13 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
     )
 
     # 5) Customize each plot
+
+    # Images have a hardcoded name 'fov' as first item, and subsequent items have 'fov.' to start
+    sample_names <- unique(seurat_object$Sample)
     fovs <- Images(seurat_object)
+
     fovs <- gsub("fov.", "", fovs)
+    fovs[1] <- setdiff(sample_names, fovs)
 
     for (i in seq_along(ImageDim_Plot)) {
         ImageDim_Plot[[i]] <- ImageDim_Plot[[i]] +
@@ -209,6 +219,7 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
             coord_flip() +
             scale_x_reverse()
     }
+    names(ImageDim_Plot) <- fovs
 
     # To verify if the new reduction has been added correctly
     # seurat_object_temp[[RUN_ID]]
@@ -217,13 +228,17 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
         reduction = reduction,
         pt.size = 0.1,
         split.by = "Sample",
-        cols = colors ,
+        cols = colors,
         combine = F,
         raster = F,
-        ncol=2
+        ncol=2,
+        order = sample_names
     )
-    UMAP_Plot <- UMAP_Plot[[1]] + ggplot2::theme(legend.position = "none")
-    length(UMAP_Plot)
+
+    UMAP_Plot <- UMAP_Plot[[1]] + ggplot2::theme(legend.position = "none") + xlab("UMAP_1") + ylab("UMAP_2")
+
+    # Order ImageDim plots
+    ImageDim_Plot <- ImageDim_Plot[order(sample_names)]
 
     # 7) Combine the first 8 dimension plots into a grid
     left_col <- wrap_plots(
@@ -251,6 +266,11 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
         composition_bar,
         ncol = 1,
         heights = c(12, 1.2)  # adjust as needed
+    ) + plot_annotation(
+        paste0(cname, " (No. of Clusters: ", num_clusters, ")"),
+        theme = theme(
+            plot.title = element_text(size = 32, hjust = 0.5, face = "bold")
+        )
     )
 
     # 10. Save the combined plot

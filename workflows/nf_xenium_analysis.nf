@@ -71,10 +71,10 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Generate spatial QC plots before filtering
     //
-    SPATIAL_QC_PREFILTER (
-        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
-        params.marker_gene_list
-    )
+    // SPATIAL_QC_PREFILTER (
+    //     MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
+    //     params.marker_gene_list
+    // )
 
     //
     // MODULE: Filter the xenium data
@@ -86,10 +86,10 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Generate spatial QC plots after filtering
     //
-    SPATIAL_QC_POSTFILTER (
-        FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
-        params.marker_gene_list
-    )
+    // SPATIAL_QC_POSTFILTER (
+    //     FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
+    //     params.marker_gene_list
+    // )
 
     //
     // SUBWORKFLOW: Normalize xenium objects
