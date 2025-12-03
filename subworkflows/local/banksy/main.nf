@@ -57,7 +57,7 @@ workflow BANKSY {
                 .map {
                     meta, spe, k_geom ->
                         def new_meta = meta + [k_geom: k_geom]
-                        [new_meta, spe, k_geom]
+                        [new_meta, spe]
                 }
         )
 
@@ -74,9 +74,9 @@ workflow BANKSY {
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
                 .combine( ch_lambda_npc )
                 .map {
-                    meta, spe, k_geom, lambda, max_nPC ->
+                    meta, spe, lambda, max_nPC ->
                         def new_meta = meta + [lambda: lambda, max_nPC: max_nPC]
-                        [new_meta, spe, k_geom, lambda, max_nPC]
+                        [new_meta, spe]
                 }
         )
 
@@ -85,9 +85,9 @@ workflow BANKSY {
             COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
                 .combine ( Channel.of(nPCs_list).flatten() )
                 .map {
-                    meta, spe, k_geom, lambda, max_nPC, nPCs ->
+                    meta, spe, nPCs ->
                         def new_meta = meta + [nPCs: nPCs]
-                        [new_meta, spe, k_geom, lambda, nPCs]
+                        [new_meta, spe]
                 }
         )
 
@@ -101,14 +101,14 @@ workflow BANKSY {
             RUN_UMAP_BANKSY.out.banksy_umap_spe_obj
                 .combine( Channel.of(res_list).flatten() )
                 .map {
-                    meta, spe, k_geom, lambda, nPCs, res ->
+                    meta, spe, res ->
                         def new_meta = meta + [res: res]
-                        [new_meta, spe, k_geom, lambda, nPCs, res]
+                        [new_meta, spe]
                 }
         )
 
         ch_clustered_xenium_obj = CLUSTER_BANKSY.out.banksy_cluster_spe_obj
-            .map { meta, xenium_obj, k_geom, lambda, nPCs, res ->
+            .map { meta, xenium_obj ->
                 def new_meta = meta + [clustering_method: 'BANKSY']
                 [new_meta, xenium_obj]
             }

@@ -10,10 +10,10 @@ process CLUSTER_BANKSY {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(k_geom), val(lambda), val(nPCs), val(res)
+    tuple val(meta), path(spe_obj)
 
     output:
-    tuple val(meta), path("*.rds"), val(k_geom), val(lambda), val(nPCs), val(res), emit: banksy_cluster_spe_obj
+    tuple val(meta), path("*.rds"), emit: banksy_cluster_spe_obj
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,8 +29,8 @@ process CLUSTER_BANKSY {
         $assay_flag \\
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_pca_spe.rds" \\
-        --lambda $lambda \\
-        --nPCs $nPCs \\
-        --res $res
+        --lambda "${meta.lambda}" \\
+        --nPCs "${meta.nPCs}" \\
+        --res "${meta.res}"
     """
 }

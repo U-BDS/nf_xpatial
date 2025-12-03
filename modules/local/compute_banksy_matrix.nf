@@ -10,10 +10,10 @@ process COMPUTE_BANKSY_MATRIX {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(k_geom)
+    tuple val(meta), path(spe_obj)
 
     output:
-    tuple val(meta), path("*.rds"), val(k_geom), emit: banksy_mtx_spe_obj
+    tuple val(meta), path("*.rds"), emit: banksy_mtx_spe_obj
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,6 +29,6 @@ process COMPUTE_BANKSY_MATRIX {
         $assay_flag \\
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_mtx_spe.rds" \\
-        --k_geom $k_geom
+        --k_geom "${meta.k_geom}"
     """
 }

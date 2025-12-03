@@ -10,10 +10,10 @@ process RUN_UMAP_BANKSY {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(k_geom), val(lambda), val(nPCs)
+    tuple val(meta), path(spe_obj)
 
     output:
-    tuple val(meta), path("*.rds"), val(k_geom), val(lambda), val(nPCs), emit: banksy_umap_spe_obj
+    tuple val(meta), path("*.rds"), emit: banksy_umap_spe_obj
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,7 +29,7 @@ process RUN_UMAP_BANKSY {
         $assay_flag \\
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_umap_spe.rds" \\
-        --lambda $lambda \\
-        --nPCs $nPCs
+        --lambda "${meta.lambda}" \\
+        --nPCs "${meta.nPCs}"
     """
 }
