@@ -10,11 +10,11 @@ process RUN_UMAP {
         }"
 
     input:
-    tuple val(meta), path(xenium_object), val(dim)
+    tuple val(meta), path(xenium_object)
 
     output:
-    tuple val(meta), path("*.rds"), val(dim), emit: umap_xenium_obj
-    path 'versions.yml'                     , emit: versions
+    tuple val(meta), path("*.rds"), emit: umap_xenium_obj
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,7 +29,7 @@ process RUN_UMAP {
         $args \\
         $assay_flag \\
         --reduction "harmony" \\
-        --dim $dim \\
+        --dim "${meta.dim}" \\
         --input "$xenium_object" \\
         --outfile ${prefix}_umap.rds
 

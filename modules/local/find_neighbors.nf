@@ -10,11 +10,11 @@ process FIND_NEIGHBORS {
         }"
 
     input:
-    tuple val(meta), path(xenium_object), val(dim)
+    tuple val(meta), path(xenium_object)
 
     output:
-    tuple val(meta), path("*.rds"), val(dim), emit: find_neighbors_xenium_obj
-    path 'versions.yml'                     , emit: versions
+    tuple val(meta), path("*.rds"), emit: find_neighbors_xenium_obj
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,13 +25,12 @@ process FIND_NEIGHBORS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    echo "DIMS: $dim"
 
     find_neighbors.R \\
         $args \\
         $assay_flag \\
         --reduction "harmony" \\
-        --dim $dim \\
+        --dim "${meta.dim}" \\
         --input "$xenium_object" \\
         --outfile ${prefix}_find_neighbors.rds
 

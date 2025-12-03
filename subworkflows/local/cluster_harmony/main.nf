@@ -38,7 +38,7 @@ workflow CLUSTER_HARMONY {
                 .combine( Channel.from(dim_list) )
                 .map { meta, xenium_obj, dim ->
                     def new_meta = meta + [dim: dim]
-                    return [new_meta, xenium_obj, dim]
+                    return [new_meta, xenium_obj]
                 }
         )
 
@@ -61,14 +61,14 @@ workflow CLUSTER_HARMONY {
         FIND_CLUSTERS (
             FIND_NEIGHBORS.out.find_neighbors_xenium_obj
                 .combine( Channel.from(res_list) )
-                .map { meta, xenium_obj, dim, res ->
+                .map { meta, xenium_obj, res ->
                     def new_meta = meta + [res: res]
-                    return [new_meta, xenium_obj, dim, res]
+                    return [new_meta, xenium_obj]
                 }
         )
 
         ch_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
-            .map { meta, xenium_obj, dim, res ->
+            .map { meta, xenium_obj ->
                 def new_meta = meta + [clustering_method: 'Harmony']
                 [new_meta, xenium_obj]
             }
