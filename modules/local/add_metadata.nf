@@ -1,5 +1,4 @@
-process CREATE_XENIUM_OBJ {
-    stageInMode 'copy'
+process ADD_METADATA {
     tag "$meta.id"
     label 'process_low'
 
@@ -11,10 +10,10 @@ process CREATE_XENIUM_OBJ {
         }"
 
     input:
-    tuple val(meta), path(xenium_input)
+    tuple val(meta), path(xenium_obj), path(xenium_metadata)
 
     output:
-    tuple val(meta), path("*.rds"), emit: xenium_obj
+    tuple val(meta), path("*.rds"), emit: metadata_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
@@ -25,11 +24,12 @@ process CREATE_XENIUM_OBJ {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    create_xenium_object.R \\
+    add_metadata.R \\
         $args \\
-        --input "$xenium_input" \\
+        --input "$xenium_obj" \\
+        --metadata $xenium_metadata \\
         --sample ${prefix} \\
-        --outfile ${prefix}.rds
+        --outfile ${prefix}_metadata.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

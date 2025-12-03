@@ -72,12 +72,6 @@ params_list <- list(
         metavar="path",
         help="The xenium results to be analyzed"),
     make_option(
-        c("-m", "--metadata"),
-        type="character",
-        default=NULL,
-        metavar="path",
-        help="The metadata file to be incoporated into the seurat object"),
-    make_option(
         c("-o", "--outfile"),
         type="character",
         default="seurat_obj.rds",
@@ -88,7 +82,17 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="string",
-        help="The name of the sample")
+        help="The name of the sample"),
+    make_option(
+        c("--flip_xy"),
+        action="store_true",
+        default=FALSE,
+        help="Whether to flip the x and y coordinates for the xenium outputs"),
+    make_option(
+        c("--mols_qv_threshold"),
+        type="double",
+        default=0,
+        help="The minimum QV for transcript molecules to be retains")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -100,95 +104,30 @@ if (is.null(opt$input)) {
 }
 opt$input <- trimws(opt$input)
 
-if (is.null(opt$metadata)) {
-    print_help(opt_parser)
-    stop("Please provide the metadata file to add to the seurat object.", call. = FALSE)
-}
-
 if (is.null(opt$sample)) {
     print_help(opt_parser)
     stop("Please provide the name of the sample.", call. = FALSE)
 }
 
-###########################
-### LOAD METADATA INPUT ###
-###########################
-
-sample_metadata <- read.csv(opt$metadata)
-
-# TODO: Move to nextflow
-# TODO: Figure out what columns are needed
-# Validate metadata
-# Define required columns
-req_cols <- c("SampleID")
-
-# Check for missing columns
-missing_cols <- setdiff(req_cols, colnames(sample_metadata))
-if (length(missing_cols) > 0) {
-    stop(paste("Missing required columns - ", paste(missing_cols, collapse = ", ")))
-}
-
-# Check if "flip.xy" is missing, if it is issue a warning and set it to NA
-if (!"flip.xy" %in% colnames(sample_metadata)) {
-    warning("'flip.xy' column is missing from metadata. 'flip.xy' is set to default \n")
-    sample_metadata$flip.xy <- NA
-}
-
-# Print out columns included in metadata that are not required
-addl_metadata_cols <- setdiff(colnames(sample_metadata), req_cols)
-print(addl_metadata_cols)
-
-# only grab the row containing the sample
-sample_metadata <- sample_metadata[sample_metadata$SampleID == opt$sample, ]
-
-nrow(sample_metadata)
-sample_metadata
-
-if (nrow(sample_metadata) > 1) {
-    stop(paste("The metadata should only contain one row for each sample. Sample ", opt$sample, "occurs multiple times"))
-}
-
-if (nrow(sample_metadata) < 1) {
-    stop(paste("The metadata should only contain one row for each sample. Sample ", opt$sample, "is not present"))
-}
-
-sample_metadata_row <- sample_metadata[1,]
-
-############################
-### LOAD XENIUM METADATA ###
-############################
+########################
+### LOAD XENIUM DATA ###
+########################
 
 print(paste("Loading ", opt$input, "/cell_feature_matrix"))
 # Load xenium object
-xenium.obj <- if (!is.na(sample_metadata_row[["flip.xy"]]) && !is.null(sample_metadata_row[["flip.xy"]])) {
-
-    LoadXenium(
+xenium.obj <- LoadXenium(
         opt$input,
         fov = "fov",
         segmentations = "cell",
-        flip.xy = sample_metadata_row[["flip.xy"]]
-    )
-
-} else {
-
-    LoadXenium(
-        opt$input,
-        fov = "fov",
-        segmentations = "cell"
-    )
-
-}
+        flip.xy = opt$flip_xy,
+        mols.qv.threshold = opt$mols_qv_threshold
+)
 
 # Replace underscores with dashes in feature names
 rownames(xenium.obj) <- gsub("_", "-", rownames(xenium.obj))
 
-# Remove cells with 0 counts
-message("nrow before filtering 0 count cells: ", nrow(xenium.obj@meta.data))
-xenium.obj <- subset(xenium.obj, subset = nCount_Xenium > 0)
-message("nrow after filtering 0 count cells: ", nrow(xenium.obj@meta.data))
-
-# Assign project metadata
-project <- sample_metadata_row[["SampleID"]]
+# Assign sample name
+project <- opt$sample
 
 xenium.obj@project.name <- project
 xenium.obj$Sample <- project
@@ -196,11 +135,16 @@ xenium.obj$Sample <- project
 xenium.obj$orig.ident <- project
 Idents(xenium.obj) <- xenium.obj$orig.ident
 
-# Add additional metadata
-for (col in setdiff(names(sample_metadata_row), append(req_cols, "flip.xy"))) {
-    xenium.obj[[col]] <- as.character(sample_metadata_row[[col]])
-    xenium.obj@meta.data[[col]] <- as.factor(xenium.obj@meta.data[[col]])
-}
+####################
+### ADD CELL IDS ###
+####################
+
+xenium.obj@meta.data$Cell_ID <- rownames(xenium.obj@meta.data)
+
+######################
+### ADD CELL COUNT ###
+######################
+Misc(xenium.obj, slot = "cell_count") <- sum(table(xenium.obj@meta.data$orig.ident))
 
 ###############################
 ### PARSE PANEL AND FEATURE ###
@@ -249,32 +193,6 @@ xenium.obj@assays$Xenium@meta.data <- left_join(df_gene, df_features, by = "Gene
 print("Metadata added to Xenium object:")
 print(head(xenium.obj@assays$Xenium@meta.data))
 print(tail(xenium.obj@assays$Xenium@meta.data))
-
-
-#####################
-### ADD CELL AREA ###
-#####################
-
-polygons <- xenium.obj@images$fov$segmentations@polygons
-area_list <- map_dbl(names(polygons), ~ polygons[[.]]@area)
-names(area_list) <- names(polygons)
-
-xenium.obj <- AddMetaData(
-    xenium.obj,
-    metadata = area_list,
-    col.name = "Cell_Area"
-)
-
-####################
-### ADD CELL IDS ###
-####################
-
-xenium.obj@meta.data$Cell_ID <- rownames(xenium.obj@meta.data)
-
-######################
-### ADD CELL COUNT ###
-######################
-Misc(xenium.obj, slot = "cell_count") <- sum(table(xenium.obj@meta.data$orig.ident))
 
 #################
 ### SAVE DATA ###

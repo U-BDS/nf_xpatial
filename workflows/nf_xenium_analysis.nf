@@ -12,6 +12,7 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 // MODULE: Loaded from modules/local/
 //
 include { CREATE_XENIUM_OBJ                        } from '../modules/local/create_xenium_object'
+include { ADD_METADATA                             } from '../modules/local/add_metadata'
 include { FILTER_XENIUM_OBJ                        } from '../modules/local/filter_xenium_object'
 include { COMPILE_OBJECTS as COMPILE_FILTERED_OBJS } from '../modules/local/compile_objects'
 include { QC_VLN_PLOT as POST_FILTERING_VLN_PLOT   } from '../modules/local/qc_vln_plot'
@@ -46,26 +47,42 @@ workflow NF_XENIUM_ANALYSIS {
     main:
     ch_versions = Channel.empty()
 
+    ch_input_types = ch_samplesheet
+        .branch {
+            meta, xenium_input, metadata, manual_annotation ->
+                seurat_obj: xenium_input.endsWith('.rds')
+                xenium_out: true
+        }
+
     //
     // MODULE: Read in xenium matrix and add metadata
     //
     CREATE_XENIUM_OBJ (
-        ch_samplesheet
+        ch_input_types.xenium_out
             .map{
                 meta, xenium_input, metadata, manual_annotation ->
-                [meta, xenium_input, metadata]
+                [meta, xenium_input]
             }
     )
 
     ch_xenium_obj = CREATE_XENIUM_OBJ.out.xenium_obj
     ch_versions = ch_versions.mix(CREATE_XENIUM_OBJ.out.versions)
 
+    ADD_METADATA (
+        ch_xenium_obj
+            .join ( ch_samplesheet )
+            .mix ( ch_input_types.seurat_obj )
+            .map { meta, xenium_obj, xenium_input, metadata, manual_annotation ->
+                [meta, xenium_obj, metadata]
+            }
+    )
+
     //
     // SUBWORKFLOW: Add manual annotations and produce qc plots
     //
     MANUAL_ANNOTATIONS_QC (
         ch_samplesheet,
-        ch_xenium_obj
+        ADD_METADATA.out.metadata_xenium_obj
     )
 
     //
