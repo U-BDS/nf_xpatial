@@ -30,6 +30,6 @@ process COMPUTE_BANKSY_PCA {
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_pca_spe.rds" \\
         --lambda "${meta.lambda}" \\
-        --nPCs "${meta.nPCs}"
+        --nPCs "${meta.max_nPC}"
     """
 }
