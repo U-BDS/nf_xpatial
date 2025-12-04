@@ -15,7 +15,6 @@ workflow CLUSTER_HARMONY {
         dim_list                // list: list of dimensions to evaluate
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
-        marker_gene_list        // file: marker gene list
 
     main:
         ch_versions = Channel.empty()

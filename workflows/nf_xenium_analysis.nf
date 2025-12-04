@@ -130,8 +130,7 @@ workflow NF_XENIUM_ANALYSIS {
     // MODULE: Find Variable Features
     //
     FIND_VARIABLE_FEATURES ( 
-        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
-        params.vf_nfeatures 
+        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj 
     )
 
     //
@@ -151,8 +150,7 @@ workflow NF_XENIUM_ANALYSIS {
         FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         dim_list,
         res_list,
-        params.skip_tsne_plot,
-        params.marker_gene_list
+        params.skip_tsne_plot
     )
 
     ch_cluster_params = CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
@@ -207,7 +205,7 @@ workflow NF_XENIUM_ANALYSIS {
             .map { norm_method, merged_meta, xenium_obj, param_meta ->
                 [ param_meta, xenium_obj]
             },
-        params.marker_gene_list
+        params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list
     )
 
     //
