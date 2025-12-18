@@ -35,9 +35,12 @@ fi
 ###############################
 
 rm -f "${output_file}"
+echo -e "Cell_ID\tTissue_annotation" > "${output_file}"
 
-echo $input_files | cut -f1 -d ' ' | while read input_file; do
-    annotation_class=$(grep $SELECTION_NAME_STR "${input_file}" | cut -f2 -d ':' | tr -d ' ')
+echo $input_files
+
+echo $input_files | while read input_file; do
+    annotation_class=$(grep "$SELECTION_NAME_STR" "${input_file}" | cut -f2 -d ':' | tr -d ' ')
 
     egrep -v '^#|Cell ID' "${input_file}" | \
         cut -f1 -d',' | \
