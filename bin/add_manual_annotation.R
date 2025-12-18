@@ -106,6 +106,12 @@ manual_annotation$Tissue_annotation <- factor(manual_annotation$Tissue_annotatio
 # Add tissue annotations to metadata
 xenium_obj <- Seurat::AddMetaData(xenium_obj, metadata = manual_annotation)
 
+# Remove cells that are annotated as 'remove'
+xenium_obj <- subset(
+    xenium_obj,
+    subset = tolower(Tissue_annotation) != "remove"
+)
+
 #################
 ### SAVE DATA ###
 #################
