@@ -169,7 +169,7 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
     colnames(seurat_object@meta.data)
     seurat_object@meta.data[[cname]] <- as.factor(seurat_object@meta.data[[cname]])
     Idents(seurat_object) <- cname
-
+    
     # 2) Define a color palette, ensuring reproducibility
     colors <- createPalette(
         length(levels(seurat_object@meta.data[, cname])),
@@ -180,8 +180,16 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
 
     num_clusters <- length(levels(seurat_object@meta.data[[cname]]))
     base_palette <- "Paired"
-    colors <- colorRampPalette(brewer.pal(n = 12, name = base_palette))(num_clusters)
-
+    
+    # providing named color vector with factor levels to ensure all plots use matching colors
+    cluster_levels <- levels(seurat_object@meta.data[[cname]])
+    colors <- colorRampPalette(brewer.pal(n = 12, name = base_palette))(length(cluster_levels))
+    
+    names(colors) <- cluster_levels
+    
+    # sanity check
+    stopifnot(all(levels(Idents(seurat_object)) %in% names(colors)))
+    
     # Create single horizontal stacked bar showing composition
     composition_bar <- plotCountsProportionsSingle(
         input_obj = seurat_object,
@@ -220,7 +228,7 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
             scale_x_reverse()
     }
     names(ImageDim_Plot) <- fovs
-
+    
     # To verify if the new reduction has been added correctly
     # seurat_object_temp[[RUN_ID]]
     UMAP_Plot <- DimPlot(
@@ -231,11 +239,17 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
         cols = colors,
         combine = F,
         raster = F,
-        ncol=2,
-        order = sample_names
+        ncol=2
     )
+    
+    # ensure scale order is numerically sorted
+    scale_order <- as.character(sort(as.numeric(cluster_levels)))
 
-    UMAP_Plot <- UMAP_Plot[[1]] + ggplot2::theme(legend.position = "none") + xlab("UMAP_1") + ylab("UMAP_2")
+    UMAP_Plot <- UMAP_Plot[[1]] +
+      scale_color_manual(
+        values = colors,
+        limits = scale_order
+      ) + xlab("UMAP_1") + ylab("UMAP_2")
 
     # Order ImageDim plots
     ImageDim_Plot <- ImageDim_Plot[order(sample_names)]
