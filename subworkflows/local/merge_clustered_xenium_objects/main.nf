@@ -24,7 +24,6 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         // MODULE: Extract reduced dims
         //
-        //TODO (see issue #22): check outputs for multiple resolutions (is the redudancy also happening here?)
         EXTRACT_REDUCED_DIMS (
             ch_clustered_xenium_obj
                 .map{ meta, xenium_obj ->

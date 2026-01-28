@@ -92,7 +92,7 @@ params_list <- list(
         c("--mols_qv_threshold"),
         type="double",
         default=0,
-        help="The minimum QV for transcript molecules to be retains")
+        help="The minimum QV for transcript molecules to be retained")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
