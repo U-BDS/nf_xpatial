@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-include { IDENTIFY_VARIABLE_GENES    } from '../../../modules/local/identify_variable_genes'
+include { FIND_VARIABLE_FEATURES     } from '../../../modules/local/find_variable_features'
 include { COMPILE_LISTS              } from '../../../modules/local/compile_lists'
 include { GENERATE_GENE_PAIR_STATS   } from '../../../modules/local/generate_gene_pair_stats'
 include { DETERMINE_MUTEX_GENE_PAIRS } from '../../../modules/local/determine_mutex_gene_pairs'
@@ -19,12 +19,12 @@ workflow MARKER_GENE_PAIRS_QC {
         // If no marker gene list is provided, identify variable genes to use as the gene list
         ch_gene_list = Channel.empty()
         if (!marker_gene_list) {
-            IDENTIFY_VARIABLE_GENES (
+            FIND_VARIABLE_FEATURES (
                 ch_xenium_data
             )
 
             COMPILE_LISTS (
-                IDENTIFY_VARIABLE_GENES.out.variable_gene_list
+                FIND_VARIABLE_FEATURES.out.variable_feature_list
                     .map { meta, gene_list -> [gene_list] }
                     .collect()
                     .map { 
@@ -87,8 +87,8 @@ workflow MARKER_GENE_PAIRS_QC {
     emit:
         gene_pair_stats           = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
         exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
-        barnyard_plot             = QC_BARNYARD_PLOT.out.barnyard_plot
-        heatmap_plot              = QC_HEATMAP_PLOT.out.heatmap_plot
+        // barnyard_plot             = QC_BARNYARD_PLOT.out.barnyard_plot
+        // heatmap_plot              = QC_HEATMAP_PLOT.out.heatmap_plot
         gene_list                 = ch_gene_list
         versions                  = ch_versions
 }

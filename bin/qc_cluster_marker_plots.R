@@ -122,10 +122,10 @@ vln_plot <- VlnPlot(
     fill.by = "ident",
     cols = cols,
     flip = TRUE,
-    y.max = 1.5,
+    y.max = 3,
     same.y.lims = F,
     pt.size = 0.00005
-) + NoLegend()
+) + NoLegend() + theme_classic()
 
 ###################
 ### OUTPUT PLOT ###

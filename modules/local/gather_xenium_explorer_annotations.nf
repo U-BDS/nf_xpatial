@@ -1,6 +1,6 @@
-process RUN_HARMONY_BANKSY {
+process GATHER_XENIUM_EXPLORER_ANNOTATIONS {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_low'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
@@ -10,10 +10,11 @@ process RUN_HARMONY_BANKSY {
         }"
 
     input:
-    tuple val(meta), path(spe_obj)
+    tuple val(meta), path(xenium_explorer_annotations)
 
     output:
-    tuple val(meta), path("*.rds"), emit: banksy_pca_harmony_obj
+    tuple val(meta), path("*.tsv"), emit: manual_annotations
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,14 +22,13 @@ process RUN_HARMONY_BANKSY {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+
+    def input_file_arg = xenium_explorer_annotations.split(',').collect{ file -> "-i ${file.trim()}"}.join(' ')
 
     """
-    run_harmony_banksy.R \\
+    gather_xenium_explorer_annotations.sh \\
         $args \\
-        $assay_flag \\
-        --ncores ${task.cpus} \\
-        --input "$spe_obj" \\
-        --outfile "${prefix}_banksy_harmony_spe.rds"
+        $input_file_arg \\
+        -o ${prefix}_manual_annotations.tsv
     """
 }

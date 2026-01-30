@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 include { ADD_MANUAL_ANNOTATIONS                              } from '../../../modules/local/add_manual_annotations'
+//include { GATHER_XENIUM_EXPLORER_ANNOTATIONS                  } from '../../../modules/local/gather_xenium_explorer_annotations'
 include { QC_IMAGE_DIM_PLOT as MANUAL_ANNOTATION_IMG_DIM_PLOT } from '../../../modules/local/qc_image_dim_plot'
 include { COMPILE_OBJECTS as COMPILE_MANUAL_ANNOTATIONS       } from '../../../modules/local/compile_objects'
 
@@ -24,6 +25,11 @@ workflow MANUAL_ANNOTATIONS_QC {
                     with_annotation: manual_annotation
                     no_annotation: true
             }
+
+        //
+        // MODULE: Convert Xenium Explorer output to easily usable format
+        //
+        // GATHER_XENIUM_EXPLORER_ANNOTATIONS ( )
 
         //
         // MODULE: Add manual annotations where possible
