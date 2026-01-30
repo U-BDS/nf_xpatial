@@ -1,6 +1,6 @@
-process QC_DIM_PLOT_COUNTOUR {
+process QC_SPLIT_CLUSTER_PLOTS {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_high'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
@@ -13,7 +13,7 @@ process QC_DIM_PLOT_COUNTOUR {
     tuple val(meta), path(xenium_obj)
 
     output:
-    tuple val(meta), path("*.png"), emit: countour_dim_plot
+    tuple val(meta), path("*.png"), emit: split_cluster_plot
     path 'versions.yml'           , emit: versions
 
     when:
@@ -22,12 +22,13 @@ process QC_DIM_PLOT_COUNTOUR {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
-    def embeddings_flag = ''
+    def reductions_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        embeddings_flag = "--embedding BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
+        reductions_flag = "--reduction BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
     } else if ( "${meta.clustering_method}" == "Harmony"){
-        embeddings_flag = "--embedding HMY_umap_d" + "${meta.dim}"
+        reductions_flag = "--reduction HMY_umap_d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
@@ -42,12 +43,13 @@ process QC_DIM_PLOT_COUNTOUR {
     }
 
     """
-    qc_dim_plot_countour.R \\
+    qc_split_cluster_plots.R \\
         $args \\
-        $embeddings_flag \\
+        $reductions_flag \\
         $cluster_flag \\
+        $assay_flag \\
         --input "$xenium_obj" \\
-        --outfile ${prefix}.png
+        --outfile ${prefix}_split_cluster_plot.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

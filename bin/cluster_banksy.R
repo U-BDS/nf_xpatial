@@ -62,6 +62,11 @@ params_list <- list(
         default=FALSE,
         help="Whether to use the adaptive Gaussian filter (AGF) in Banksy"),
     make_option(
+        c("--use_harmony"),
+        action="store_true",
+        default=FALSE,
+        help="Whether to use the Harmony-corrected embeddings for Banksy clustering"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
         default="filtered_xenium_obj.rds",

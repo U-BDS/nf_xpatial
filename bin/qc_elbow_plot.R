@@ -87,7 +87,7 @@ elbow_plot <-
         object = xenium_objs,
         ndims = opt$ndims,
         reduction = opt$reduction_name
-    )
+    ) + theme_classic()
 
 ggsave(
     opt$outfile,

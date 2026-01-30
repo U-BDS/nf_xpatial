@@ -1,6 +1,6 @@
-process EXTRACT_BANKSY_CLUSTER_METADATA {
+process GATHER_XENIUM_EXPLORER_ANNOTATIONS {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
     container "${ 
         (workflow.containerEngine == 'singularity') &&
@@ -10,10 +10,11 @@ process EXTRACT_BANKSY_CLUSTER_METADATA {
         }"
 
     input:
-    tuple val(meta), path(spe_obj), val(k_geom), val(lambda), val(nPCs), val(res)
+    tuple val(meta), path(xenium_explorer_annotations)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: cluster_metadata
+    tuple val(meta), path("*.tsv"), emit: manual_annotations
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,13 +22,13 @@ process EXTRACT_BANKSY_CLUSTER_METADATA {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+
+    def input_file_arg = xenium_explorer_annotations.split(',').collect{ file -> "-i ${file.trim()}"}.join(' ')
 
     """
-    extract_banksy_cluster_metadata.R \\
+    gather_xenium_explorer_annotations.sh \\
         $args \\
-        $assay_flag \\
-        --input "$spe_obj" \\
-        --outfile "${prefix}_clusts.tsv"
+        $input_file_arg \\
+        -o ${prefix}_manual_annotations.tsv
     """
 }

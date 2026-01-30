@@ -39,6 +39,11 @@ params_list <- list(
         default="umap",
         help="The embedding to use for the plot"),
     make_option(
+        c("-c", "--cluster_col"),
+        type="character",
+        default="seurat_clusters",
+        help="The column name to pull for cluster numbers"),
+    make_option(
         c("-p", "--pt_size"),
         type="numeric",
         default=0.1,
@@ -63,11 +68,6 @@ params_list <- list(
         type="numeric",
         default=15,
         help="The size of the legend element for the plot"),    
-    make_option(
-        c("-c", "--metadat_col"),
-        type="character",
-        default="seurat_clusters",
-        help="The metadata column to use"),
     make_option(
         c("--width"),
         type="integer",
@@ -96,31 +96,39 @@ if (is.null(opt$input)) {
 ##########################
 ### FUNCTION DEFITIONS ###
 ##########################
-Dimplot_contour_ggplot <- function(seurat_object, Embedding="umap", Rug=F, Metadat_column = NULL, Point_Size = 0.01){
+Dimplot_contour_ggplot <- function(seurat_object, Embedding="umap", Rug=F, Cluster_column = NULL, Point_Size = 0.01){
   
   # Extract embeddings (e.g., tSNE or UMAP) from the Seurat object
   embedding <- Embeddings(seurat_object, reduction = Embedding)  # Replace "umap" with "tsne" or the appropriate reduction
   
   # Extract cluster identities
-  if (is.null(Metadat_column)) {
+  if (is.null(Cluster_column)) {
     clusters <- Idents(seurat_object)
   } else {
-    clusters <- seurat_object@meta.data[[Metadat_column]]
+    clusters <- seurat_object@meta.data[[Cluster_column]]
   }
   
   
   # Create a data frame for plotting
   plot_data <- data.frame(embedding, cluster = clusters)
   # print(head(plot_data))
+  embedding_1 <- paste0(gsub("_", "", Embedding), "_1")
+  embedding_2 <- paste0(gsub("_", "", Embedding), "_2")
   
   # Create the plot with ggplot2
-  if (Embedding=="umap"){
+  if (grepl("umap", tolower(Embedding))){
     message("UMAP")
     # Calculate the center of each cluster for labeling
-    label_data <- aggregate(cbind(umap_1, umap_2) ~ cluster, data = plot_data, FUN = mean)
-    Plot <- ggplot(plot_data, aes(x = umap_1, y = umap_2, color = cluster)) +  # Replace UMAP_1 and UMAP_2 with appropriate column names
+    #label_data <- aggregate(cbind(umap_1, umap_2) ~ cluster, data = plot_data, FUN = mean)
+    label_data <- aggregate(
+      plot_data[, c(embedding_1, embedding_2)],
+      by = list(cluster = plot_data$cluster),
+      FUN = mean
+    )
+
+    Plot <- ggplot(plot_data, aes(x = .data[[embedding_1]], y = .data[[embedding_2]], color = cluster)) +  # Replace UMAP_1 and UMAP_2 with appropriate column names
       geom_point() + geom_density_2d(color = "black", linewidth = 0.5, alpha=.5) + 
-      geom_text(data = aggregate(cbind(umap_1, umap_2) ~ cluster, data = plot_data, mean),
+      geom_text(data = label_data,
                 aes(label = cluster), 
                 size = Point_Size, 
                 color = "black", 
@@ -189,7 +197,7 @@ xenium_obj <- readRDS(
 dim_plot_contour <- Dimplot_contour_ggplot(
     xenium_obj,
     Embedding = opt$embedding,
-    Metadat_column = opt$metadat_col,
+    Cluster_column = opt$cluster_col,
     Point_Size = opt$pt_size
 )
 

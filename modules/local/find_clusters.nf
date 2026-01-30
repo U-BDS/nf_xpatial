@@ -10,11 +10,11 @@ process FIND_CLUSTERS {
         }"
 
     input:
-    tuple val(meta), path(xenium_object), val(dim), val(res)
+    tuple val(meta), path(xenium_object)
 
     output:
-    tuple val(meta), path("*.rds"), val(dim), val(res), emit: find_clusters_xenium_obj
-    path 'versions.yml'                               , emit: versions
+    tuple val(meta), path("*.rds"), emit: find_clusters_xenium_obj
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,13 +25,11 @@ process FIND_CLUSTERS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    echo "DIMS: $dim"
-    echo "RES: $res"
 
     find_clusters.R \\
         $args \\
         $assay_flag \\
-        --resolution $res \\
+        --resolution "${meta.res}" \\
         --input "$xenium_object" \\
         --outfile ${prefix}_find_clusters.rds
 

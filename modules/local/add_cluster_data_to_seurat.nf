@@ -1,4 +1,4 @@
-process QC_HARMONY_PLOTS {
+process ADD_CLUSTER_DATA_TO_SEURAT {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,10 +10,10 @@ process QC_HARMONY_PLOTS {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(dim), val(res), path(gene_list)
+    tuple val(meta), path(xenium_object), val(cluster_metadata_csv), val(embeddings_csv), val(loadings_csv), val(stdev_csv)
 
     output:
-    tuple val(meta), path("*.png"), emit: vln_plot
+    tuple val(meta), path("*.rds"), emit: all_cluster_xenium_obj
     path 'versions.yml'           , emit: versions
 
     when:
@@ -25,12 +25,15 @@ process QC_HARMONY_PLOTS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    qc_harmony_plots.R \\
+    add_cluster_data_to_seurat.R \\
         $args \\
         $assay_flag \\
-        --input "$xenium_obj" \\
-        --gene_list "$gene_list" \\
-        --outfile ${prefix}_harmony_plot.png
+        --input "$xenium_object" \\
+        --clusters "${cluster_metadata_csv.join(',')}" \\
+        --embeddings "${embeddings_csv.join(',')}" \\
+        --loadings "${loadings_csv.join(',')}" \\
+        --stdev "${stdev_csv.join(',')}" \\
+        --outfile ${prefix}_all_clusters.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

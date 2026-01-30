@@ -11,10 +11,10 @@ process FIND_VARIABLE_FEATURES {
 
     input:
     tuple val(meta), path(xenium_object)
-    val variable_feature_nfeatures
 
     output:
     tuple val(meta), path("*.rds"), emit: variable_features_xenium_obj
+    tuple val(meta), path("*.csv"), emit: variable_feature_list
     path 'versions.yml'           , emit: versions
 
     when:
@@ -30,8 +30,7 @@ process FIND_VARIABLE_FEATURES {
         $args \\
         $assay_flag \\
         --input "$xenium_object" \\
-        --nfeatures ${variable_feature_nfeatures} \\
-        --outfile ${prefix}_variable_features.rds
+        --outfile "${prefix}"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
