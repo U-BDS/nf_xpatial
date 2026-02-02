@@ -46,8 +46,7 @@ params_list <- list(
     make_option(
         c("-d", "--dim"),
         type="integer",
-        help="The number of dimensions to use for TSNE"
-    ),
+        help="The number of dimensions to use for TSNE"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -85,7 +84,7 @@ xenium_obj <- readRDS(file = opt$input)
 ################
 
 DefaultAssay(xenium_obj) <- opt$assay
-xenium_obj <- RunTSNE (
+xenium_obj <- RunTSNE(
     xenium_obj,
     reduction = opt$reduction,
     dims = 1:opt$dim,

@@ -11,7 +11,7 @@ process CREATE_XENIUM_OBJ {
         }"
 
     input:
-    tuple val(meta), path(xenium_input), path(xenium_metadata)
+    tuple val(meta), path(xenium_input)
 
     output:
     tuple val(meta), path("*.rds"), emit: xenium_obj
@@ -28,9 +28,8 @@ process CREATE_XENIUM_OBJ {
     create_xenium_object.R \\
         $args \\
         --input "$xenium_input" \\
-        --metadata $xenium_metadata \\
         --sample ${prefix} \\
-        --outfile ${prefix}_raw.rds
+        --outfile ${prefix}.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

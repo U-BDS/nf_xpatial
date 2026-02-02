@@ -1,7 +1,8 @@
 #!/usr/bin/env nextflow
 
+include { COMPILE_ORDERED_OBJECTS } from '../../../subworkflows/local/compile_ordered_objects'
+
 include { QC_HISTOGRAM_PLOT                             } from '../../../modules/local/qc_histogram_plot'
-include { COMPILE_OBJECTS                               } from '../../../modules/local/compile_objects'
 include { COMPILE_DATAFRAMES as COMPILE_OUTLIER_DF      } from '../../../modules/local/compile_dataframes'
 include { COMPILE_DATAFRAMES as COMPILE_OUTLIER_STAT_DF } from '../../../modules/local/compile_dataframes'
 include { CALCULATE_OUTLIERS                            } from '../../../modules/local/calculate_outliers'
@@ -22,22 +23,15 @@ workflow CELL_AREA_QC {
         //
         // MODULE: Compile objects
         //
-        COMPILE_OBJECTS (
+        COMPILE_ORDERED_OBJECTS (
             ch_xenium_data
-                .map{
-                    meta, xenium_obj -> [xenium_obj]
-                }
-                .collect()
-                .map{
-                    [ [ 'id': 'compiled_filtered' ], it ]
-                }
         )
 
         //
         // MODULE: Histogram of cell area
         //
         QC_HISTOGRAM_PLOT (
-            COMPILE_OBJECTS.out.compiled_obj
+            COMPILE_ORDERED_OBJECTS.out.compiled_obj
         )
         ch_versions = ch_versions.mix(
             QC_HISTOGRAM_PLOT.out.versions

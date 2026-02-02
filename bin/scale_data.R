@@ -39,6 +39,11 @@ params_list <- list(
         default=NULL,
         help="The assay to operate on"),
     make_option(
+        c("-r", "--vars_to_regress"),
+        type="character",
+        default=NULL,
+        help="The variables to regress out during scaling"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
         default="scaled_xenium_obj.rds",
@@ -70,7 +75,19 @@ xenium_obj <- readRDS(file = opt$input)
 ##################
 
 DefaultAssay(xenium_obj) <- opt$assay
-xenium_obj <- ScaleData(xenium_obj)
+
+if (length(VariableFeatures(xenium_obj)) == 0) {
+  warning("Variable features not found. The data will be scaled across all features")
+  features_input <- rownames(xenium_obj[[opt$assay]]$counts)
+} else {
+  features_input <- VariableFeatures(xenium_obj) 
+}
+
+xenium_obj <- ScaleData(
+    xenium_obj,
+    vars.to.regress = opt$vars_to_regress,
+    features = features_input
+)
 
 #################
 ### SAVE DATA ###

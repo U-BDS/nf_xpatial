@@ -114,6 +114,8 @@ plot_barnyard <- function(
         ) +
         ggtitle(paste0("Barnyard Plot for ", x_gene, " and ", y_gene))
     }
+
+    scatter_plot <- scatter_plot + theme_classic()
     
     # Add marginal plot types if specified
     if (is.null(plot_types)) {

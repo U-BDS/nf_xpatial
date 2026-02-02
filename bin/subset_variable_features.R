@@ -58,14 +58,14 @@ if (is.null(opt$input)) {
 # Read in xenium_obj
 xenium_obj <- readRDS(file = opt$input)
 
-# Set the default assay on the xeniumx object
+# Set the default assay on the xenium object
 DefaultAssay(xenium_obj) <- opt$assay
 
 ################################
 ### SUBSET VARIABLE FEATURES ###
 ################################
 
-xenium_obj <- subset(xenium_obj, features = VariableFeatures(xenium_obj))
+xenium_obj <- subset(xenium_obj, features = sort(VariableFeatures(xenium_obj)))
 
 #################
 ### SAVE DATA ###

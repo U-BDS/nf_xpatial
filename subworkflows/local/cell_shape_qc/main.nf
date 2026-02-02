@@ -1,7 +1,8 @@
 #!/usr/bin/env nextflow
 
+include { COMPILE_ORDERED_OBJECTS } from '../../../subworkflows/local/compile_ordered_objects'
+
 include { CLASSIFY_CELL_SHAPE                   } from '../../../modules/local/classify_cell_shape'
-include { COMPILE_OBJECTS                       } from '../../../modules/local/compile_objects'
 include { QC_PROPORTION_PLOT as CELL_SHAPE_PLOT } from '../../../modules/local/qc_proportion_plot'
 include { QC_PROPORTION_PLOT as CELL_SEGM_PLOT  } from '../../../modules/local/qc_proportion_plot'
 
@@ -29,15 +30,8 @@ workflow CELL_SHAPE_QC {
         // MODULE: Compile the cell shape dataframes into a single object
         //
         // TODO: Change this to use dataframes instead of objects
-        COMPILE_OBJECTS (
+        COMPILE_ORDERED_OBJECTS (
             CLASSIFY_CELL_SHAPE.out.cell_shape_xenium_obj
-                .map{
-                    meta, xenium_obj -> [xenium_obj]
-                }
-                .collect()
-                .map{
-                    [ [ 'id': 'compiled' ], it ]
-                }
         )
         //ch_versions = ch_versions.mix(COMPILE_OBJECTS.out.versions)
 
@@ -45,7 +39,7 @@ workflow CELL_SHAPE_QC {
         // MODULE: Plot the Cell Segmentation Distribution
         //
         CELL_SEGM_PLOT (
-            COMPILE_OBJECTS.out.compiled_obj,
+            COMPILE_ORDERED_OBJECTS.out.compiled_obj,
             "segmentation_method",
             "Sample"
         )
@@ -55,7 +49,7 @@ workflow CELL_SHAPE_QC {
         // MODULE: Plot the Cell Shape Distribution
         //
         CELL_SHAPE_PLOT (
-            COMPILE_OBJECTS.out.compiled_obj,
+            COMPILE_ORDERED_OBJECTS.out.compiled_obj,
             "shape_classification",
             "Sample"
         )

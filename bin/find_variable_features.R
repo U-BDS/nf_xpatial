@@ -36,8 +36,14 @@ params_list <- list(
     make_option(
         c("-n", "--nfeatures"),
         type="integer",
-        default=2000,
+        default=0,
         help="The number of variable features to select"
+    ),
+    make_option(
+        c("-p", "--percent"),
+        type="double",
+        default=0,
+        help="The percent of highly variable genes to select"
     ),
     make_option(
         c("-s","--selection_method"),
@@ -48,7 +54,7 @@ params_list <- list(
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="merged_xenium_obj.rds",
+        default="vf_xenium",
         metavar="path",
         help="The output name for the xenium object"),
     make_option(
@@ -66,6 +72,14 @@ if (is.null(opt$input)) {
     stop("Please provide the Xenium results as input.", call. = FALSE)
 }
 
+if (opt$percent > 0 && opt$nfeatures > 0) {
+    stop("Please only specify -p/--percent or -n/--nfeatures, not both.", call. = FALSE)
+
+} else if (opt$percent == 0 && opt$nfeatures == 0) {
+    stop("Please specify either -p/--percent or -n/--nfeatures.", call. = FALSE)
+
+}
+
 ###################
 ### LOAD INPUTS ###
 ###################
@@ -79,24 +93,36 @@ DefaultAssay(xenium_obj) <- opt$assay
 ### FIND VARIABLE FEATURES ###
 ##############################
 
-if (length(Features(xenium_obj)) < opt$nfeatures) {
-    warning(
-        paste0(
-            "The number of features in the dataset (",
-            length(Features(xenium_obj)),
-            ") is less than the number of variable features requested (",
-            opt$nfeatures,
-            "). Skipping detection of variable features."
+num_features <- 0
+if (opt$percent > 0) {
+    num_features <- as.integer(opt$percent / 100 * dim(xenium_obj)[1])
+
+} else if (opt$nfeatures > 0) {
+    num_features <- opt$nfeatures
+
+}
+
+if (num_features > nrow(xenium_obj[[opt$assay]]$counts)) {
+    warning(paste0(
+        "The number of total features available in the current assay (",
+        nrow(xenium_obj[[opt$assay]]$counts),
+        ") is less than ", 
+        opt$nfeatures,
+        "\nFindVariableFeatures will result in using all available features."
         )
     )
-} else {
-    xenium_obj <- FindVariableFeatures(
-        object = xenium_obj,
-        assay = opt$assay,
-        selection.method = opt$selection_method,
-        nfeatures = opt$nfeatures
-    )
+
+    num_features <- nrow(xenium_obj[[opt$assay]]$counts)
 }
+
+xenium_obj <- FindVariableFeatures(
+    object = xenium_obj,
+    assay = opt$assay,
+    selection.method = opt$selection_method,
+    nfeatures = num_features
+)
+
+vf_list <- VariableFeatures(xenium_obj)
 
 #################
 ### SAVE DATA ###
@@ -104,7 +130,15 @@ if (length(Features(xenium_obj)) < opt$nfeatures) {
 
 saveRDS(
     object = xenium_obj,
-    file = opt$outfile 
+    file = paste0(opt$outfile,".rds")
+)
+
+write.table(
+    vf_list,
+    file = paste0(opt$outfile,".csv"),
+    sep = ",",
+    quote = FALSE,
+    row.names = FALSE
 )
 
 ####################

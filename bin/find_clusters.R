@@ -41,7 +41,7 @@ params_list <- list(
     make_option(
         c("-r", "--resolution"),
         type="double",
-        help="The resolution to use for Find clusters"
+        help="The resolution to use for FindClusters"
     ),
     make_option(
         c("-o", "--outfile"),
@@ -75,7 +75,7 @@ xenium_obj <- readRDS(file = opt$input)
 ######################
 
 DefaultAssay(xenium_obj) <- opt$assay
-xenium_obj <- FindClusters (
+xenium_obj <- FindClusters(
     xenium_obj,
     resolution = opt$resolution
 )

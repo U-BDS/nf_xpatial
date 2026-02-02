@@ -22,18 +22,18 @@ params_list <- list(
         type="character",
         default=NULL,
         metavar="path",
-        help="The xenium object to be filtered"),
+        help="The xenium object"),
     make_option(
         c("-a", "--assay"),
         type="character",
         default=NULL,
-        help="The assay to keep during conversion"),
+        help="The assay to use"),
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="filtered_xenium_obj.rds",
+        default="extracted_metadata.csv",
         metavar="path",
-        help="The filtered xenium object")
+        help="The extracted metadata")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -46,9 +46,9 @@ opt <- parse_args(opt_parser)
 # Read in xenium_obj
 spe_xenium_obj <- readRDS(file = opt$input)
 
-########################################
-### EXTRACT XENIUM EXPLORER METADATA ###
-########################################
+###################################################
+### EXTRACT BANKSY METADATA for XENIUM EXPLORER ###
+###################################################
 
 # Set the default assay on the spatial experiment object
 mainExpName(spe_xenium_obj) <- opt$assay

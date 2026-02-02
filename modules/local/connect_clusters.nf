@@ -1,4 +1,4 @@
-process EXTRACT_SEURAT_REDUCED_DIMS {
+process CONNECT_CLUSTERS {
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,12 +10,11 @@ process EXTRACT_SEURAT_REDUCED_DIMS {
         }"
 
     input:
-    tuple val(meta), path(xenium_obj), val(dim), val(res)
+    tuple val(meta), path(xenium_object), path(banksy_cluster_info)
 
     output:
-    tuple val(meta), path("*embeddings*.csv") , emit: embeddings_csv
-    tuple val(meta), path("*loadings*.csv")   , emit: loadings_csv
-    tuple val(meta), path("*stdev*.csv")      , emit: stdev_csv
+    tuple val(meta), path("*.rds"), emit: connected_xenium_obj
+    path 'versions.yml'           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,12 +25,17 @@ process EXTRACT_SEURAT_REDUCED_DIMS {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
-    extract_seurat_reduced_dims.R \\
+    connect_clusters.R \\
         $args \\
         $assay_flag \\
-        --input "$xenium_obj" \\
-        --dim "$dim" \\
-        --res "$res" \\
-        --outfile "${prefix}_reduced_dims.csv"
+        --input "$xenium_object" \\
+        --banksy_clust_info $banksy_cluster_info \\
+        --outfile ${prefix}_connected.rds
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
+        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
+    END_VERSIONS
     """
 }

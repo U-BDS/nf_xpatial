@@ -30,7 +30,7 @@ process RUN_HARMONY {
         $assay_flag \\
         --reduction_name "pca_${meta.normalization}" \\
         --input "$xenium_object" \\
-        --outfile ${prefix}_scaled.rds
+        --outfile ${prefix}_harmony.rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
