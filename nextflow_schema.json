@@ -28,6 +28,13 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "marker_gene_list": {
+                    "type": "string",
+                    "description": "The list of marker genes to evaluat",
+                    "pattern": "^\\S+\\.csv$",
+                    "format": "file-path",
+                    "mimetype": "text/csv"
                 }
             }
         },
@@ -128,6 +135,212 @@
                     "hidden": true
                 }
             }
+        },
+        "marker_gene_qc_options": {
+            "title": "Marker Gene QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "max_spearman_p": {
+                    "type": "number",
+                    "description": "The maximum spearman p value to determine if two genes are co-expressed",
+                    "default": 0.05
+                },
+                "max_spearman_r": {
+                    "type": "number",
+                    "description": "The maximum spearman r value to determine if two genes are co-expressed",
+                    "default": -0.2
+                },
+                "min_gini": {
+                    "type": "number",
+                    "description": "The minimum gini score to determine if two genes are co-expressed",
+                    "default": 0.7
+                }
+            },
+            "fa_icon": "fas fa-dna"
+        },
+        "filtering_options": {
+            "title": "Filtering Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "fa_icon": "fas fa-cut",
+            "properties": {
+                "skip_filtering": {
+                    "type": "boolean",
+                    "description": "Skip filtering alltogether"
+                },
+                "skip_column_removal": {
+                    "type": "boolean",
+                    "description": "Skip unneeded column removal"
+                },
+                "columns_to_remove": {
+                    "type": "string",
+                    "description": "A comma-delimited list of unnecessary columns to remove from the xenium object",
+                    "default": "nCount_BlankCodeword,nFeature_BlankCodeword,nCount_ControlCodeword,nFeature_ControlCodeword,nCount_ControlProbe,nFeature_ControlProbe"
+                },
+                "skip_percentile_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the percentile based filtering where cells are filtered based on nFeature percentiles instead of absolute nFeature value",
+                    "default": true
+                },
+                "min_percentile": {
+                    "type": "number",
+                    "description": "The minimum percentile threshold for nFeature percentile based filtering"
+                },
+                "max_percentile": {
+                    "type": "number",
+                    "description": "The maximum percentile threshold for nFeature percentile based filtering"
+                },
+                "skip_nFeature_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the nFeature filtering"
+                },
+                "min_nFeature": {
+                    "type": "number",
+                    "description": "The minimum nFeature threshold for nFeature filtering",
+                    "default": 10
+                },
+                "max_nFeature": {
+                    "type": "number",
+                    "description": "The maximum nFeature threshold for nFeature filtering"
+                },
+                "skip_nCount_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the nCount filtering"
+                },
+                "min_nCount": {
+                    "type": "number",
+                    "description": "The minimum nCount threshold for nCount filtering",
+                    "default": 10
+                },
+                "max_nCount": {
+                    "type": "number",
+                    "description": "The maximum nCount threshold for nCount filtering"
+                },
+                "skip_cell_area_filtering": {
+                    "type": "boolean",
+                    "description": "Skip the cell area filtering",
+                    "default": true
+                },
+                "min_cell_area": {
+                    "type": "integer",
+                    "description": "The minimum cell area for cell area filtering"
+                },
+                "max_cell_area": {
+                    "type": "integer",
+                    "description": "The maximum cell area for cell area filtering"
+                },
+                "filter_features": {
+                    "type": "string",
+                    "description": "A list of features to filter from samples"
+                }
+            }
+        },
+        "normalization_options": {
+            "title": "Normalization Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "fa_icon": "fas fa-align-justify",
+            "properties": {
+                "normalization_method": {
+                    "type": "string",
+                    "pattern": "^(area|log)(,(area|log))*$",
+                    "description": "Choose the normalization method to use (log, and/or area). Multiple options can be chosen in a comma delimited list",
+                    "default": "log"
+                }
+            }
+        },
+        "integration_options": {
+            "title": "Integration options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "dim_start": {
+                    "type": "number",
+                    "description": "The lowest dimension to test"
+                },
+                "dim_stop": {
+                    "type": "number",
+                    "description": "The highest dimension to test"
+                },
+                "dim_step": {
+                    "type": "number",
+                    "description": "The amount to increase dimensions by"
+                },
+                "res_start": {
+                    "type": "number",
+                    "description": "The lowest resolution to test"
+                },
+                "res_stop": {
+                    "type": "number",
+                    "description": "The highest resolution to test"
+                },
+                "res_step": {
+                    "type": "number",
+                    "description": "The amount to increase resolution by"
+                },
+                "selected_res": {
+                    "type": "number",
+                    "description": "Use this to specify a single resolution to explore",
+                    "default": -1
+                },
+                "selected_dim": {
+                    "type": "number",
+                    "description": "Use this to specify a single dimension to explore",
+                    "default": -1
+                },
+                "skip_tsne_plot": {
+                    "type": "boolean",
+                    "description": "Use this to specify to skip producing a tsne plot"
+                }
+            },
+            "fa_icon": "fas fa-object-group"
+        },
+        "banksy_options": {
+            "title": "BANKSY options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_banksy_vf_filter": {
+                    "type": "boolean",
+                    "description": "This will skip subsetting the xenium object by highly variable genes before going into BANKSY"
+                },
+                "vf_nfeatures": {
+                    "type": "number",
+                    "description": "The number of variable features to keep if filtering by variable feature is enabled",
+                    "default": 2000
+                },
+                "lambda_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of lambda values to pass to BANKSY"
+                },
+                "k_geom_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of k_grom values to pass to BANKSY"
+                },
+                "nPCs_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of nPCs to pass to BANKSY"
+                },
+                "res_BANKSY": {
+                    "type": "string",
+                    "description": "The comma-delimited list of resolutions to pass to BANKSY"
+                },
+                "use_agf_BANKSY": {
+                    "type": "boolean",
+                    "description": "Whether or not to use agf for BANKSY"
+                },
+                "max_iter_BANKSY": {
+                    "type": "integer",
+                    "description": "The maximum number of iterations to use for BANKSY",
+                    "default": 60
+                }
+            }
         }
     },
     "allOf": [
@@ -139,6 +352,21 @@
         },
         {
             "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/marker_gene_qc_options"
+        },
+        {
+            "$ref": "#/$defs/filtering_options"
+        },
+        {
+            "$ref": "#/$defs/normalization_options"
+        },
+        {
+            "$ref": "#/$defs/integration_options"
+        },
+        {
+            "$ref": "#/$defs/banksy_options"
         }
     ]
 }
