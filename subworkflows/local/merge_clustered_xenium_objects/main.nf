@@ -79,7 +79,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         ADD_CLUSTER_DATA_TO_SEURAT (
             CONNECT_CLUSTERS.out.connected_xenium_obj
                 .join (
-                    EXTRACT_CLUSTER_METADATA.out.cluster_metadata
+                    ch_cluster_csvs.harmony
                     .map{ meta, cm_file_list -> 
                         def new_meta = [id: meta.id, normalization: meta.normalization]
                         [new_meta, cm_file_list]
