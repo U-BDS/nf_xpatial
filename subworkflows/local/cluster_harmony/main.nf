@@ -8,6 +8,7 @@ include { RUN_UMAP                              } from '../../../modules/local/r
 include { RUN_TSNE                              } from '../../../modules/local/run_tsne'
 include { FIND_NEIGHBORS                        } from '../../../modules/local/find_neighbors'
 include { FIND_CLUSTERS                         } from '../../../modules/local/find_clusters'
+include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 
 workflow CLUSTER_HARMONY {
     take:
@@ -49,6 +50,7 @@ workflow CLUSTER_HARMONY {
                 RUN_UMAP.out.umap_xenium_obj
             )   
             ch_umap_obj = RUN_TSNE.out.tsne_xenium_obj
+
         }
 
         // MODULE: Find Neighbors for Harmony Integrated object
@@ -65,6 +67,17 @@ workflow CLUSTER_HARMONY {
                     return [new_meta, xenium_obj]
                 }
         )
+
+        if (!skip_tsne_plot) {
+                        //
+            // MODULE: Generate a dim plot with contours for TSNE
+            //
+            TSNE_DIM_PLOT (
+                FIND_CLUSTERS.out.find_clusters_xenium_obj
+            )
+
+            ch_tsne_dim_plot = TSNE_DIM_PLOT.out.countour_dim_plot
+        }
 
         ch_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
             .map { meta, xenium_obj ->
