@@ -30,7 +30,7 @@ process CLUSTER_BANKSY {
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_pca_spe.rds" \\
         --lambda "${meta.lambda}" \\
-        --nPCs "${meta.nPCs}" \\
+        --nPCs "${meta.dim}" \\
         --res "${meta.res}"
     """
 }

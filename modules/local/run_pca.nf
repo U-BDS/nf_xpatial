@@ -22,7 +22,7 @@ process RUN_PCA {
     script:
     def args       = task.ext.args ?: ""
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
     """
     run_pca.R \\

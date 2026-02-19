@@ -22,10 +22,10 @@ process EXTRACT_CLUSTER_METADATA {
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
-    def param_string_flag = meta.clustering_method == 'BANKSY' ?
-        "--param_string l" + "${meta.lambda}" + "_k" + "${meta.k_geom}" + "_n" + "${meta.nPCs}" + "_r" + "${meta.res}" :
+    def param_string_flag = meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSY_Seurat' ?
+        "--param_string l" + "${meta.lambda}" + "_k" + "${meta.k_geom}" + "_d" + "${meta.dim}" + "_r" + "${meta.res}" :
         "--param_string d" + "${meta.dim}" + "_r" + "${meta.res}"
 
     """
