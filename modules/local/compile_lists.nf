@@ -25,6 +25,6 @@ process COMPILE_LISTS {
     """
     #!/usr/bin/env bash
 
-    cat ${gene_list} | sort | uniq > ${prefix}_compiled_list.csv
+    cat ${gene_list} | sort | uniq | while read GENE; do echo "variable_feature,\$GENE" > ${prefix}_compiled_list.csv
     """
 }

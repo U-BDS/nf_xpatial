@@ -3,7 +3,7 @@
 include { FIND_VARIABLE_FEATURES     } from '../../../modules/local/find_variable_features'
 include { COMPILE_LISTS              } from '../../../modules/local/compile_lists'
 include { GENERATE_GENE_PAIR_STATS   } from '../../../modules/local/generate_gene_pair_stats'
-include { DETERMINE_MUTEX_GENE_PAIRS } from '../../../modules/local/determine_mutex_gene_pairs'
+include { FILTER_GENE_PAIRS           } from '../../../modules/local/filter_gene_pairs'
 include { QC_BARNYARD_PLOT           } from '../../../modules/local/qc_barnyard_plot'
 include { CONCAT_CSV                 } from '../../../modules/local/concat_csv'
 include { QC_HEATMAP_PLOT            } from '../../../modules/local/qc_heatmap_plot'
@@ -50,24 +50,23 @@ workflow MARKER_GENE_PAIRS_QC {
         //
         // MODULE: Determine mutually exclusive gene pairs
         //
-        DETERMINE_MUTEX_GENE_PAIRS (
+        FILTER_GENE_PAIRS (
            GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
         )
-        ch_versions = ch_versions.mix ( DETERMINE_MUTEX_GENE_PAIRS.out.versions )
+        ch_versions = ch_versions.mix ( FILTER_GENE_PAIRS.out.versions )
 
         //
         // MODULE: Generate Barnyard Plot
         //
-
         QC_BARNYARD_PLOT (
-           ch_xenium_data.join ( GENERATE_GENE_PAIR_STATS.out.gene_pair_stats )
+           ch_xenium_data.join ( FILTER_GENE_PAIRS.out.gene_pair_stats )
         )
 
         //
         // MODULE: Concatenate CSVs
         //
         CONCAT_CSV (
-           GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+           FILTER_GENE_PAIRS.out.gene_pair_stats
                .map{
                    meta, gene_stat_csv -> [gene_stat_csv]
                }

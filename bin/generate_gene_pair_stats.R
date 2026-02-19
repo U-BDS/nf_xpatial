@@ -86,7 +86,7 @@ xenium_obj <- readRDS(file = opt$input)
 marker_gene_list <- NULL
 if (!is.null(opt$gene_list) && opt$gene_list != "") {
     marker_gene_list <- read.csv(opt$gene_list, sep = ",", header=FALSE)
-    marker_gene_list <- unlist(marker_gene_list, use.names = FALSE)
+    marker_gene_list <- unlist(marker_gene_list["gene"], use.names = FALSE)
 }
 
 ####################################################
@@ -139,13 +139,6 @@ for (i in seq_along(eval_genes)){
             gini_gene1 <- calculate_gini_score(expr_data[[gene1]])
             gini_gene2 <- calculate_gini_score(expr_data[[gene2]])
 
-            # Determine if the gene pairs passes the cutoffs
-            # Any pairs that do (with stringent cutoffs) may be cell-type specific
-            filter_pass <- cor_test$p.value < opt$max_spearman_p &&
-                cor_test$estimate < opt$max_spearman_r &&
-                gini_gene1 > opt$min_gini &&
-                gini_gene2 > opt$min_gini
-
             # Append result to dataframe
             gene_pair_stats_df <- gene_pair_stats_df %>% add_row(
                 sample = unique(xenium_obj$Sample),
@@ -154,8 +147,7 @@ for (i in seq_along(eval_genes)){
                 spearman_r = cor_test$estimate,
                 spearman_p = cor_test$p.value,
                 gini_gene1 = gini_gene1,
-                gini_gene2 = gini_gene2,
-                filter_pass = filter_pass
+                gini_gene2 = gini_gene2
             )
         }
     }

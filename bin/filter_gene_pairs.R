@@ -26,7 +26,7 @@ params_list <- list(
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="mutex_gene_pairs.csv",
+        default="filtered_gene_pairs.csv",
         metavar="path",
         help="The output name for the mutually exclusive gene pairs file"),
     make_option(
@@ -43,7 +43,13 @@ params_list <- list(
         c("--min_gini"),
         type="double",
         default=0.7,
-        help="The minimum gini index")
+        help="The minimum gini index"),
+    make_option(
+        c("--max_gene_pair_count"),
+        type="integer",
+        default=50,
+        help="The maximum number of genes"
+    )
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -64,7 +70,7 @@ gene_pair_stats_df <- read.csv(opt$gene_pair_stats, sep = ",")
 ### GET MUTEX GENE PAIRS ###
 ############################
 
-mutex_gene_pair_df <- gene_pair_stats_df %>%
+filter_gene_pair_df <- gene_pair_stats_df %>%
     # Filter by spearman correlation
     filter(
         spearman_p < opt$max_spearman_p,
@@ -76,14 +82,16 @@ mutex_gene_pair_df <- gene_pair_stats_df %>%
         gini_gene2 > opt$min_gini
     ) %>%
     # Sort by spearman correlation (most negative first)
-    arrange(spearman_r)
+    arrange(spearman_r) %>%
+    # Select top gene pairs
+    top_n(opt$max_gene_pair_count)
 
 #################
 ### SAVE DATA ###
 #################
 
 write.csv(
-    mutex_gene_pair_df,
+    filter_gene_pair_df,
     opt$outfile,
     row.names = FALSE,
     quote = FALSE

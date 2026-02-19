@@ -1,4 +1,4 @@
-process DETERMINE_MUTEX_GENE_PAIRS {
+process FILTER_GENE_PAIRS {
     tag "$meta.id"
     label 'process_low'
 
@@ -24,10 +24,10 @@ process DETERMINE_MUTEX_GENE_PAIRS {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    determine_mutex_gene_pairs.R \\
+    filter_gene_pairs.R \\
         $args \\
         --gene_pair_stats $gene_pair_stats \\
-        --outfile ${prefix}_mutex_gene_pair.csv
+        --outfile ${prefix}_filtered_genes.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
