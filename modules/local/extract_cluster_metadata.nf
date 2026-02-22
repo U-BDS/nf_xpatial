@@ -24,7 +24,7 @@ process EXTRACT_CLUSTER_METADATA {
 
     def assay_flag = "--assay ${meta.assay}"
 
-    def param_string_flag = meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSY_Seurat' ?
+    def param_string_flag = meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSYSeurat' ?
         "--param_string l" + "${meta.lambda}" + "_k" + "${meta.k_geom}" + "_d" + "${meta.dim}" + "_r" + "${meta.res}" :
         "--param_string d" + "${meta.dim}" + "_r" + "${meta.res}"
 

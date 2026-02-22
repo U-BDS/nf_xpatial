@@ -111,7 +111,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 stdev: files.findAll { it.name.contains('stdev') } ? [meta, files.findAll { it.name.contains('stdev') }] : null
             }
             .set { ch_reduction_csvs }
-
+        
         //
         // MODULE: Add Harmony cluster info to Seurat object
         //
