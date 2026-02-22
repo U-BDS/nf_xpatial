@@ -26,12 +26,13 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 meta, cluster_csv ->
                     banksy: meta.clustering_method == 'BANKSY'
                     harmony: meta.clustering_method == 'Harmony'
-                    banksy_seurat: meta.clustering_method == 'BANKSY_Seurat'
+                    banksy_seurat: meta.clustering_method == 'BANKSYSeurat'
             }
 
         //
         // MODULE: Extract reduced dims
         //
+
         EXTRACT_REDUCED_DIMS (
             ch_clustered_xenium_obj
                 .map{ meta, xenium_obj ->
@@ -74,19 +75,6 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 .join ( MERGE_CSV.out.merged_cluster_csv )
         )
 
-        ch_xenium_obj = CONNECT_CLUSTERS.out.connected_xenium_obj
-            .ifEmpty { 
-                ch_merged_xenium_obj 
-                    .map { meta, xenium_obj -> 
-                        def new_meta = [
-                            id: meta.id,
-                            normalization: meta.normalization,
-                            assay: meta.assay
-                        ]
-                        [new_meta, xenium_obj]
-                    }
-            }
-
         // Create a channel of cluster csvs
         ch_split_cluster_csvs.harmony
             .mix( ch_split_cluster_csvs.banksy_seurat )
@@ -94,7 +82,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 def new_meta = [
                     id: meta.id,
                     normalization: meta.normalization,
-                    assay: meta.assay
+                    assay: meta.assay.replace('_BANKSY', '')
                 ]
                 [new_meta, cluster_csv]
             }
@@ -109,7 +97,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 def new_meta = [
                     id: meta.id,
                     normalization: meta.normalization,
-                    assay: meta.assay
+                    assay: meta.assay.replace('_BANKSY', '')
                 ]
                 [new_meta, file_list]
             }
@@ -127,10 +115,11 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         // MODULE: Add Harmony cluster info to Seurat object
         //
+        //CONNECT_CLUSTERS.out.connected_xenium_obj.view()
 
         // TODO: If the object already has cluster info, make sure to remove them
         ADD_CLUSTER_DATA_TO_SEURAT (
-            ch_xenium_obj
+            CONNECT_CLUSTERS.out.connected_xenium_obj
                 .join ( ch_cluster_csvs )
                 .join ( ch_reduction_csvs.embeddings )
                 .join ( ch_reduction_csvs.loadings )

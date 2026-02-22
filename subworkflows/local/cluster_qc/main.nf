@@ -1,7 +1,6 @@
 #!/usr/bin/env nextflow
 
 include { QC_DIM_PLOT_COUNTOUR as UMAP_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
-include { QC_CLUSTER_MARKER_PLOTS               } from '../../../modules/local/qc_cluster_marker_plots'
 include { QC_SPLIT_CLUSTER_PLOTS                } from '../../../modules/local/qc_split_cluster_plots'
 
 workflow CLUSTER_QC {
@@ -19,23 +18,12 @@ workflow CLUSTER_QC {
             ch_clustered_xenium_obj
         )
 
-        //
-        // MODULE: Generate a compiled set of cluster plots split by sample
-        //
-        QC_SPLIT_CLUSTER_PLOTS (
-            ch_clustered_xenium_obj
-        )
-
-        //
-        // MODULE: Generate violin plots
-        //
-        if (marker_gene_list) {
-
-            QC_CLUSTER_MARKER_PLOTS (
-                ch_clustered_xenium_obj
-                    .combine( Channel.from(marker_gene_list) )
-            )
-        }
+        // //
+        // // MODULE: Generate a compiled set of cluster plots split by sample
+        // //
+        // QC_SPLIT_CLUSTER_PLOTS (
+        //     ch_clustered_xenium_obj
+        // )
 
     emit:
         versions                    = ch_versions

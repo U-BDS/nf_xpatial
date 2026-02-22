@@ -85,7 +85,7 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
 
         ch_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
             .map { meta, xenium_obj ->
-                def new_meta = meta + [clustering_method: 'BANKSY_Seurat']
+                def new_meta = meta + [clustering_method: 'BANKSYSeurat']
                 [new_meta, xenium_obj]
             }
 

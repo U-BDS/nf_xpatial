@@ -25,20 +25,27 @@ process QC_DIM_PLOT_COUNTOUR {
 
     def embeddings_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        embeddings_flag = "--embedding BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
+        embeddings_flag = "--embedding BANKSY_UMAPBANKSYharmony_d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "Harmony"){
         embeddings_flag = "--embedding HMY_umap_d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
+        embeddings_flag = "--embedding BANKSYSeurat_umap_d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
     if ("${meta.clustering_method}" == "BANKSY"){
-        cluster_flag = "--cluster_col clust_BSKY_AGF1_L" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_BANKSY_AGF1_L" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_PC" + "${meta.nPCs}" + 
+            "_PC" + "${meta.dim}" + 
             "_R" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "Harmony"){
         cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
+        cluster_flag = "--cluster_col clust_HMY_AGF1_L" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_PC" + "${meta.dim}" + 
+            "_R" + "${meta.res}"
     }
 
     """
