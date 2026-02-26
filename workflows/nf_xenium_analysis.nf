@@ -207,7 +207,11 @@ workflow NF_XENIUM_ANALYSIS {
             .map { norm_method, merged_meta, xenium_obj, param_meta ->
                 [ param_meta, xenium_obj]
             },
-        params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list
+        params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list,
+        False,
+        False,
+        False,
+        False
     )
 
     //
