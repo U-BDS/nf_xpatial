@@ -199,7 +199,11 @@ dim_plot_contour <- Dimplot_contour_ggplot(
     Embedding = opt$embedding,
     Cluster_column = opt$cluster_col,
     Point_Size = opt$pt_size
-)
+) + plot_annotation(
+        opt$cluster_col,
+        theme = theme(
+            plot.title = element_text(size = 32, hjust = 0.5, face = "bold")
+        )) + theme(plot.title = element_text(size = opt$axis_label_size, hjust = 0.5))
 
 ###################
 ### OUTPUT PLOT ###
