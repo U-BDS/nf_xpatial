@@ -59,33 +59,32 @@ workflow MARKER_GENE_PAIRS_QC {
         // MODULE: Generate Barnyard Plot
         //
         QC_BARNYARD_PLOT (
-           ch_xenium_data.join ( FILTER_GENE_PAIRS.out.gene_pair_stats )
+           ch_xenium_data.join ( FILTER_GENE_PAIRS.out.filtered_gene_pair_stats )
         )
 
-        //
-        // MODULE: Concatenate CSVs
-        //
-        CONCAT_CSV (
-           FILTER_GENE_PAIRS.out.gene_pair_stats
-               .map{
-                   meta, gene_stat_csv -> [gene_stat_csv]
-               }
-               .collect()
-               .map{
-                   [ [ 'id': 'compiled'], it ]
-               }
-        )
+        // //
+        // // MODULE: Concatenate CSVs
+        // //
+        // CONCAT_CSV (
+        //    FILTER_GENE_PAIRS.out.gene_pair_stats
+        //        .map{
+        //            meta, gene_stat_csv -> [gene_stat_csv]
+        //        }
+        //        .collect()
+        //        .map{
+        //            [ [ 'id': 'compiled'], it ]
+        //        }
+        // )
 
-        //
-        // MODULE: Generate Heatmap Plot
-        //
-        QC_HEATMAP_PLOT (
-           CONCAT_CSV.out.concat_csv
-        )
+        // //
+        // // MODULE: Generate Heatmap Plot
+        // //
+        // QC_HEATMAP_PLOT (
+        //    CONCAT_CSV.out.concat_csv
+        // )
 
     emit:
         gene_pair_stats           = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-        exclusive_gene_pair_stats = DETERMINE_MUTEX_GENE_PAIRS.out.mutex_gene_pair_stats
         // barnyard_plot             = QC_BARNYARD_PLOT.out.barnyard_plot
         // heatmap_plot              = QC_HEATMAP_PLOT.out.heatmap_plot
         gene_list                 = ch_gene_list

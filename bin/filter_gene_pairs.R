@@ -66,9 +66,9 @@ if (is.null(opt$gene_pair_stats)) {
 
 gene_pair_stats_df <- read.csv(opt$gene_pair_stats, sep = ",")
 
-############################
-### GET MUTEX GENE PAIRS ###
-############################
+#########################
+### FILTER GENE PAIRS ###
+#########################
 
 filter_gene_pair_df <- gene_pair_stats_df %>%
     # Filter by spearman correlation

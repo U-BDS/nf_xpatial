@@ -13,7 +13,7 @@ process FILTER_GENE_PAIRS {
     tuple val(meta), path(gene_pair_stats)
 
     output:
-    tuple val(meta), path('*.csv'), emit: mutex_gene_pair_stats
+    tuple val(meta), path('*.csv'), emit: filtered_gene_pair_stats
     path 'versions.yml'           , emit: versions
 
     when:

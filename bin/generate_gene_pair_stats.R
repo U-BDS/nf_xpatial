@@ -85,7 +85,7 @@ xenium_obj <- readRDS(file = opt$input)
 # Read in marker gene list if passed in
 marker_gene_list <- NULL
 if (!is.null(opt$gene_list) && opt$gene_list != "") {
-    marker_gene_list <- read.csv(opt$gene_list, sep = ",", header=FALSE)
+    marker_gene_list <- read.csv(opt$gene_list, sep = ",", header=TRUE)
     marker_gene_list <- unlist(marker_gene_list["gene"], use.names = FALSE)
 }
 
@@ -109,7 +109,6 @@ gene_pair_stats_df <- data.frame(
     spearman_p = numeric(),
     gini_gene1 = numeric(),
     gini_gene2 = numeric(),
-    filter_pass = logical(),
     stringsAsFactors = FALSE
 )
 
