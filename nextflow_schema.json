@@ -156,6 +156,11 @@
                     "type": "number",
                     "description": "The minimum gini score to determine if two genes are co-expressed",
                     "default": 0.7
+                },
+                "skip_gene_list_filtering": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Determines whether to perform gene list filtering or not"
                 }
             },
             "fa_icon": "fas fa-dna"
