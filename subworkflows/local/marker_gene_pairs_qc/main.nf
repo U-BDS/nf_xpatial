@@ -12,6 +12,7 @@ workflow MARKER_GENE_PAIRS_QC {
     take:
         ch_xenium_data   // channel: annotated xenium data
         marker_gene_list // file: marker gene list
+        filter_gene_list // bool: whether to filter gene list used by barnyard plots
 
     main:
         ch_versions = Channel.empty()
@@ -47,19 +48,24 @@ workflow MARKER_GENE_PAIRS_QC {
         )
         ch_versions = ch_versions.mix ( GENERATE_GENE_PAIR_STATS.out.versions )
 
-        //
-        // MODULE: Determine mutually exclusive gene pairs
-        //
-        FILTER_GENE_PAIRS (
-           GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-        )
-        ch_versions = ch_versions.mix ( FILTER_GENE_PAIRS.out.versions )
+        ch_gene_list = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+        if (filter_gene_list) {
+            //
+            // MODULE: Determine mutually exclusive gene pairs
+            //
+            FILTER_GENE_PAIRS (
+            GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+            )
+            ch_versions = ch_versions.mix ( FILTER_GENE_PAIRS.out.versions )
+
+            ch_gene_list = FILTER_GENE_PAIRS.out.filtered_gene_pair_stats
+        }
 
         //
         // MODULE: Generate Barnyard Plot
         //
         QC_BARNYARD_PLOT (
-           ch_xenium_data.join ( FILTER_GENE_PAIRS.out.filtered_gene_pair_stats )
+           ch_xenium_data.join ( ch_gene_list )
         )
 
         // //

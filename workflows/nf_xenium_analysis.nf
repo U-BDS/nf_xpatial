@@ -90,7 +90,8 @@ workflow NF_XENIUM_ANALYSIS {
     //
     SPATIAL_QC_PREFILTER (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
-        params.marker_gene_list
+        params.marker_gene_list,
+        true
     )
 
     //
@@ -105,7 +106,8 @@ workflow NF_XENIUM_ANALYSIS {
     //
     SPATIAL_QC_POSTFILTER (
         FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
-        params.marker_gene_list
+        params.marker_gene_list,
+        true
     )
 
     //

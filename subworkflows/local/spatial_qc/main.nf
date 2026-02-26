@@ -8,6 +8,7 @@ workflow SPATIAL_QC {
     take:
         ch_xenium_obj    // channel: xenium objects
         marker_gene_list // file: marker gene list
+        filter_gene_list // bool: whether to filter gene list used for marker gene pair qc
 
     main:
         ch_versions = Channel.empty()
@@ -17,7 +18,8 @@ workflow SPATIAL_QC {
         //
         MARKER_GENE_PAIRS_QC (
           ch_xenium_obj,
-          marker_gene_list
+          marker_gene_list,
+          filter_gene_list
         )
         ch_versions = ch_versions.mix(MARKER_GENE_PAIRS_QC.out.versions)
 
