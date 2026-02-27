@@ -48,7 +48,7 @@ params_list <- list(
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="split_cluster_plot.png",
+        default="vln_plot.pdf",
         metavar="path",
         help="The output name for the image"),
     make_option(
@@ -74,7 +74,7 @@ if (is.null(opt$input)) {
 xenium_obj <- readRDS(file = opt$input)
 
 # Read in teh marker list
-marker_list <- read.csv(opt$marker_list, sep = "\t")
+marker_list <- read.csv(opt$marker_list, sep = ",")
 
 #######################
 #### QC_BANKSY PLOT ###
@@ -89,11 +89,11 @@ cols <- as.vector(
 )
 
 pdf(
-    paste0(opt$cluster_col,".vln_plots.pdf"), width = 15, height = 15
+    opt$outfile, width = 15, height = 15
 )
 
 for (group_name in unique(marker_list$group)) {
-    genes <- gene_df[gene_df$group == group_name,]$gene
+    genes <- marker_list[marker_list$group == group_name,]$gene
 
     # We need to split the gene list to avoid overcrowding the plot
     gene_groups <- split(genes, ceiling(seq_along(genes) / opt$max_gene_per_group))

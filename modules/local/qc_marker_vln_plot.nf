@@ -43,7 +43,7 @@ process QC_MARKER_VLN_PLOT {
         $assay_flag \\
         --input "$xenium_obj" \\
         --marker_list "$marker_list" \\
-        --outfile ${prefix}_vln_plot.pdf
+        --outfile ${prefix}.vln_plot.pdf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
