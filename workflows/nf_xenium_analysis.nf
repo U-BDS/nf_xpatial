@@ -15,7 +15,6 @@ include { CREATE_XENIUM_OBJ                        } from '../modules/local/crea
 include { ADD_METADATA                             } from '../modules/local/add_metadata'
 include { FILTER_XENIUM_OBJ                        } from '../modules/local/filter_xenium_object'
 include { COMPILE_OBJECTS as COMPILE_FILTERED_OBJS } from '../modules/local/compile_objects'
-include { QC_VLN_PLOT as POST_FILTERING_VLN_PLOT   } from '../modules/local/qc_vln_plot'
 include { ADD_TISSUE_COORDS                        } from '../modules/local/add_tissue_coords'
 include { COMPILE_OBJECTS                          } from '../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS                     } from '../modules/local/merge_xenium_objects'
@@ -82,7 +81,8 @@ workflow NF_XENIUM_ANALYSIS {
     //
     MANUAL_ANNOTATIONS_QC (
         ch_samplesheet,
-        ADD_METADATA.out.metadata_xenium_obj
+        ADD_METADATA.out.metadata_xenium_obj,
+        false
     )
 
     //
@@ -91,7 +91,22 @@ workflow NF_XENIUM_ANALYSIS {
     SPATIAL_QC_PREFILTER (
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
         params.marker_gene_list,
-        !params.skip_gene_list_filtering
+        params.skip_gene_list_filtering,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
     )
 
     //
@@ -107,7 +122,22 @@ workflow NF_XENIUM_ANALYSIS {
     SPATIAL_QC_POSTFILTER (
         FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
         params.marker_gene_list,
-        !params.skip_gene_list_filtering
+        params.skip_gene_list_filtering,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
     )
 
     //
@@ -115,7 +145,9 @@ workflow NF_XENIUM_ANALYSIS {
     //
     NORMALIZE_DATA (
         FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
-        params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : []
+        params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : [],
+        false,
+        false
     )
 
     //
@@ -208,10 +240,10 @@ workflow NF_XENIUM_ANALYSIS {
                 [ param_meta, xenium_obj]
             },
         params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list,
-        False,
-        False,
-        False,
-        False
+        false,
+        false,
+        false,
+        false
     )
 
     //

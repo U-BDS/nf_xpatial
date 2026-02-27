@@ -10,9 +10,10 @@ include { QC_HEATMAP_PLOT            } from '../../../modules/local/qc_heatmap_p
 
 workflow MARKER_GENE_PAIRS_QC {
     take:
-        ch_xenium_data   // channel: annotated xenium data
-        marker_gene_list // file: marker gene list
-        filter_gene_list // bool: whether to filter gene list used by barnyard plots
+        ch_xenium_data            // channel: annotated xenium data
+        marker_gene_list          // file: marker gene list
+        skip_gene_list_filtering  // bool: whether to filter gene list used by barnyard plots
+        skip_marker_barnyard_plot // bool: whether to skip the barnyard qc plots
 
     main:
         ch_versions = Channel.empty()
@@ -49,24 +50,29 @@ workflow MARKER_GENE_PAIRS_QC {
         ch_versions = ch_versions.mix ( GENERATE_GENE_PAIR_STATS.out.versions )
 
         ch_gene_list = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-        if (filter_gene_list) {
+        if (!skip_gene_list_filtering) {
             //
             // MODULE: Determine mutually exclusive gene pairs
             //
             FILTER_GENE_PAIRS (
-            GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+                GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
             )
             ch_versions = ch_versions.mix ( FILTER_GENE_PAIRS.out.versions )
 
             ch_gene_list = FILTER_GENE_PAIRS.out.filtered_gene_pair_stats
         }
 
-        //
-        // MODULE: Generate Barnyard Plot
-        //
-        QC_BARNYARD_PLOT (
-           ch_xenium_data.join ( ch_gene_list )
-        )
+        ch_marker_barnyard = Channel.empty()
+        if (!skip_marker_barnyard_plot) {
+            //
+            // MODULE: Generate Barnyard Plot
+            //
+            QC_BARNYARD_PLOT (
+                ch_xenium_data.join ( ch_gene_list )
+            )
+
+            ch_marker_barnyard = QC_BARNYARD_PLOT.out.barnyard_plot
+        }
 
         // //
         // // MODULE: Concatenate CSVs
@@ -91,8 +97,7 @@ workflow MARKER_GENE_PAIRS_QC {
 
     emit:
         gene_pair_stats           = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
-        // barnyard_plot             = QC_BARNYARD_PLOT.out.barnyard_plot
-        // heatmap_plot              = QC_HEATMAP_PLOT.out.heatmap_plot
         gene_list                 = ch_gene_list
+        marker_barnyard_plot      = ch_marker_barnyard
         versions                  = ch_versions
 }
