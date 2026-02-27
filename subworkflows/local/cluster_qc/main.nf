@@ -46,15 +46,15 @@ workflow CLUSTER_QC {
                 )
             }
 
-            // //
-            // // MODULE: Generate dot plots
-            // //
-            // if (!skip_marker_dot_plot) {
-            //     QC_MARKER_DOT_PLOT (
-            //         ch_clustered_xenium_obj,
-            //         marker_gene_list
-            //     )
-            // }
+            //
+            // MODULE: Generate dot plots
+            //
+            if (!skip_marker_dot_plot) {
+                QC_MARKER_DOT_PLOT (
+                    ch_clustered_xenium_obj,
+                    marker_gene_list
+                )
+            }
         }
 
     emit:

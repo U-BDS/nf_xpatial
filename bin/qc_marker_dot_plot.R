@@ -48,9 +48,14 @@ params_list <- list(
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="split_cluster_plot.png",
+        default="dot_plot.pdf",
         metavar="path",
-        help="The output name for the image")
+        help="The output name for the image"),
+    make_option(
+        c("--max_gene_per_group"),
+        type="integer",
+        default=50,
+        help="The maximum number of genes to plot per group")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -68,54 +73,45 @@ if (is.null(opt$input)) {
 # Read in xenium_obj
 xenium_obj <- readRDS(file = opt$input)
 
-marker_list <- read.csv(opt$marker_list, sep = "\t")
-
-marker_list <- marker_list[c("Cell_Type", "Subtype", "Marker_Genes")]
-#marker_list$Cell_Type <- gsub("/", "", marker_list$Cell_Type)
-#marker_list$Cell_Type <- gsub(" ", "_", marker_list$Cell_Type)
-
-#marker_list$Subtype <- gsub("/||\\(||\\)", "", marker_list$Subtype)
-#marker_list$Subtype <- gsub("\\+", "_pos", marker_list$Subtype)
-#marker_list$Subtype <- gsub(" ", "_", marker_list$Subtype)
-
-marker_list$Marker_Genes <- gsub(" ", "", marker_list$Marker_Genes)
-
-length(marker_list$Subtype)
-
-marker_list[1,]$Cell_Type
+# Read in teh marker list
+marker_list <- read.csv(opt$marker_list, sep = ",")
 
 #######################
 #### QC_BANKSY PLOT ###
 #######################
 
-# Get colors
-cols <- as.vector(
-    Polychrome::createPalette(
-    N = length(unique(xenium_obj@meta.data[[opt$cluster_col]])),
-    seedcolors = c("#FF0000", "#00FF00", "#0000FF")
-    )
-)
-
 pdf(
-    paste0(opt$cluster_col,".dot_plots.pdf"), width = 15, height = 7
+    opt$outfile, width = 15, height = 7
 )
 
-for (k in 1:length(marker_list$Cell_Type)) {
-    cell_type <- marker_list[k,]$Cell_Type
-    subtype <- marker_list[k,]$Subtype
-    genes <- str_split_1(marker_list[k,]$Marker_Genes, ",")
+for (group_name in unique(marker_list$group)) {
+    genes <- marker_list[marker_list$group == group_name,]$gene
 
-    # Check if the input was a list of objects or a single object
-    dot_plot <- DotPlot(
-        xenium_obj,
-        features = genes,
-        group.by = opt$cluster_col,
-        assay = opt$assay,
-        cols = c("red", "blue")
-    ) + RotatedAxis() + ggtitle(paste0(opt$cluster_col, "\n", cell_type, " - ", subtype))
+    # We need to split the gene list to avoid overcrowding the plot
+    gene_groups <- split(genes, ceiling(seq_along(genes) / opt$max_gene_per_group))
 
-    # Output the plot
-    print(dot_plot)
+    dot_plot_title <- paste0(opt$cluster_col, "\n", group_name)
+
+    group_num = 1
+    for (gene_group in gene_groups) {
+
+        # Update the title to include the group number if there are multiple groups
+        dot_plot_title <- paste0(dot_plot_title, ifelse(length(gene_groups) > 1, paste0(" - ", group_num), ""))
+
+        # Check if the input was a list of objects or a single object
+        dot_plot <- DotPlot(
+            xenium_obj,
+            features = genes,
+            group.by = opt$cluster_col,
+            assay = opt$assay,
+            cols = c("red", "blue")
+        ) + RotatedAxis() + ggtitle(dot_plot_title)
+
+        # Output the plot
+        print(dot_plot)
+
+        group_num = group_num + 1
+    }
 }
 dev.off()
 

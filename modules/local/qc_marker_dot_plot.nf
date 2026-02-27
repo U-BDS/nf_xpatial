@@ -43,7 +43,7 @@ process QC_MARKER_DOT_PLOT {
         $assay_flag \\
         --input "$xenium_obj" \\
         --marker_list "$marker_list" \\
-        --outfile ${prefix}_dot_plot.pdf
+        --outfile ${prefix}.dot_plot.pdf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
