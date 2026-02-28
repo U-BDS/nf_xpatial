@@ -82,32 +82,34 @@ workflow NF_XENIUM_ANALYSIS {
     MANUAL_ANNOTATIONS_QC (
         ch_samplesheet,
         ADD_METADATA.out.metadata_xenium_obj,
-        false
+        params.skip_man_ann_dim_plot
     )
 
-    //
-    // SUBWORKFLOW: Generate spatial QC plots before filtering
-    //
-    SPATIAL_QC_PREFILTER (
-        MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
-        params.marker_gene_list,
-        params.skip_gene_list_filtering,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    )
+    if (!params.skip_qc) {
+        //
+        // SUBWORKFLOW: Generate spatial QC plots before filtering
+        //
+        SPATIAL_QC_PREFILTER (
+            MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
+            params.marker_gene_list,
+            params.skip_gene_list_filtering,
+            params.skip_pre_marker_gene_qc,
+            params.skip_pre_marker_barnyard_plot,
+            params.skip_pre_cell_shape_qc,
+            params.skip_pre_cell_shape_prop_plot,
+            params.skip_pre_cell_segm_prop_plot,
+            params.skip_pre_general_qc,
+            params.skip_pre_general_dim_plot,
+            params.skip_pre_general_vln_plot,
+            params.skip_pre_general_scatter_plot,
+            params.skip_pre_general_nfeature_plot,
+            params.skip_pre_general_ncount_plot,
+            params.skip_pre_cell_area_qc,
+            params.skip_pre_area_histogram_plot,
+            params.skip_pre_area_box_plot,
+            params.skip_pre_area_overlap_histogram_plot
+        )
+    }
 
     //
     // MODULE: Filter the xenium data
@@ -116,29 +118,31 @@ workflow NF_XENIUM_ANALYSIS {
         MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj
     )
 
-    //
-    // SUBWORKFLOW: Generate spatial QC plots after filtering
-    //
-    SPATIAL_QC_POSTFILTER (
-        FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
-        params.marker_gene_list,
-        params.skip_gene_list_filtering,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    )
+    if (!params.skip_qc) {
+        //
+        // SUBWORKFLOW: Generate spatial QC plots after filtering
+        //
+        SPATIAL_QC_POSTFILTER (
+            FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
+            params.marker_gene_list,
+            params.skip_gene_list_filtering,
+            params.skip_post_marker_gene_qc,
+            params.skip_post_marker_barnyard_plot,
+            params.skip_post_cell_shape_qc,
+            params.skip_post_cell_shape_prop_plot,
+            params.skip_post_cell_segm_prop_plot,
+            params.skip_post_general_qc,
+            params.skip_post_general_dim_plot,
+            params.skip_post_general_vln_plot,
+            params.skip_post_general_scatter_plot,
+            params.skip_post_general_nfeature_plot,
+            params.skip_post_general_ncount_plot,
+            params.skip_post_cell_area_qc,
+            params.skip_post_area_histogram_plot,
+            params.skip_post_area_box_plot,
+            params.skip_post_area_overlap_histogram_plot
+        )
+    }
 
     //
     // SUBWORKFLOW: Normalize xenium objects
@@ -146,8 +150,8 @@ workflow NF_XENIUM_ANALYSIS {
     NORMALIZE_DATA (
         FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
         params.normalization_method ? params.normalization_method.split(',').collect { it.trim() } : [],
-        false,
-        false
+        params.skip_qc || params.skip_norm_ncount,
+        params.skip_qc || params.skip_norm_nfeature
     )
 
     //
@@ -184,7 +188,7 @@ workflow NF_XENIUM_ANALYSIS {
         FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
         dim_list,
         res_list,
-        params.skip_tsne_plot
+        params.skip_qc || params.skip_tsne_plot
     )
 
     ch_cluster_params = CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
@@ -229,22 +233,24 @@ workflow NF_XENIUM_ANALYSIS {
     //
     // SUBWORKFLOW: Generate clustering QC plots
     //
-    CLUSTER_QC (
-        MERGE_CLUSTERED_XENIUM_OBJECTS.out.cluster_merged_obj
-            .map { meta, xenium_obj ->
-                def norm_method = meta.normalization
-                [norm_method, meta, xenium_obj]
-            }
-            .combine(ch_cluster_params, by:0)
-            .map { norm_method, merged_meta, xenium_obj, param_meta ->
-                [ param_meta, xenium_obj]
-            },
-        params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list,
-        false,
-        false,
-        false,
-        false
-    )
+    if (!params.skip_qc) {
+        CLUSTER_QC (
+            MERGE_CLUSTERED_XENIUM_OBJECTS.out.cluster_merged_obj
+                .map { meta, xenium_obj ->
+                    def norm_method = meta.normalization
+                    [norm_method, meta, xenium_obj]
+                }
+                .combine(ch_cluster_params, by:0)
+                .map { norm_method, merged_meta, xenium_obj, param_meta ->
+                    [ param_meta, xenium_obj]
+                },
+            params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list,
+            params.skip_qc || params.skip_cluster_umap_plot,
+            params.skip_qc || params.skip_cluster_split_plot,
+            params.skip_qc || params.skip_cluster_vln_plot,
+            params.skip_qc || params.skip_cluster_dot_plot
+        )
+    }
 
     //
     // Collate and save software versions
