@@ -537,7 +537,8 @@
                 },
                 "skip_cluster_vln_plot": {
                     "type": "boolean",
-                    "description": "Skip generating the marker violin plot for clustered data"
+                    "description": "Skip generating the marker violin plot for clustered data",
+                    "default": true
                 },
                 "skip_cluster_dot_plot": {
                     "type": "boolean",
