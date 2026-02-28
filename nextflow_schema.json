@@ -6,7 +6,7 @@
     "type": "object",
     "$defs": {
         "input_output_options": {
-            "title": "Input/output options",
+            "title": "Input/output Options",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
@@ -39,7 +39,7 @@
             }
         },
         "institutional_config_options": {
-            "title": "Institutional config options",
+            "title": "Institutional Config Options",
             "type": "object",
             "fa_icon": "fas fa-university",
             "description": "Parameters used to describe centralised config profiles. These should not be edited.",
@@ -55,7 +55,6 @@
                 "custom_config_base": {
                     "type": "string",
                     "description": "Base directory for Institutional configs.",
-                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
                     "hidden": true,
                     "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
                     "fa_icon": "fas fa-users-cog"
@@ -87,7 +86,7 @@
             }
         },
         "generic_options": {
-            "title": "Generic options",
+            "title": "Generic Options",
             "type": "object",
             "fa_icon": "fas fa-file-import",
             "description": "Less common options for the pipeline, typically set in a config file.",
@@ -125,7 +124,6 @@
                     "type": "string",
                     "fa_icon": "far fa-check-circle",
                     "description": "Base URL or local path to location of pipeline test dataset files",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
                     "hidden": true
                 },
                 "trace_report_suffix": {
@@ -133,6 +131,30 @@
                     "fa_icon": "far calendar",
                     "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
                     "hidden": true
+                }
+            }
+        },
+        "general_pipeline_options": {
+            "title": "General Pipeline Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_qc": {
+                    "type": "boolean",
+                    "description": "Skip all QC Plots"
+                }
+            }
+        },
+        "manual_annotation_options": {
+            "title": "Manual Annotation Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_man_ann_dim_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Manual Annotation Dim Plot"
                 }
             }
         },
@@ -159,11 +181,154 @@
                 },
                 "skip_gene_list_filtering": {
                     "type": "boolean",
-                    "default": true,
                     "description": "Determines whether to perform gene list filtering or not"
+                },
+                "skip_pre_marker_gene_qc": {
+                    "type": "boolean",
+                    "description": "Skip marker gene QC for pre-filtered data"
+                },
+                "skip_pre_marker_barnyard_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating Barnyard Plot for the pre-filtered data"
+                },
+                "skip_post_marker_gene_qc": {
+                    "type": "boolean",
+                    "description": "Skip marker gene QC for post-filtered data"
+                },
+                "skip_post_marker_barnyard_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating Barnyard Plot for the post-filtered data"
                 }
             },
             "fa_icon": "fas fa-dna"
+        },
+        "cell_shape_qc": {
+            "title": "Cell Shape QC",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_pre_cell_shape_qc": {
+                    "type": "boolean",
+                    "description": "Skip Cell Shape QC steps for pre-filtered datea"
+                },
+                "skip_pre_cell_segm_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Segmentation Proportion Plot for pre-filtered data"
+                },
+                "skip_pre_cell_shape_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Shape Proportion Plot for pre-filtered data"
+                },
+                "skip_post_cell_shape_qc": {
+                    "type": "boolean",
+                    "description": "Skip Cell Shape QC steps for pre-filtered datea"
+                },
+                "skip_post_cell_segm_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Segmentation Proportion Plot for post-filtered data"
+                },
+                "skip_post_cell_shape_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Shape Proportion Plot for post-filtered data"
+                }
+            }
+        },
+        "general_qc_options": {
+            "title": "General QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_pre_general_qc": {
+                    "type": "boolean",
+                    "description": "Skip the General QC steps for pre-filtered data"
+                },
+                "skip_pre_general_dim_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating dim plot for pre-filtered data"
+                },
+                "skip_pre_general_vln_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating vln plot for pre-filtered data"
+                },
+                "skip_pre_general_scatter_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature/nCount scatter plot for pre-filtered data"
+                },
+                "skip_pre_general_nfeature_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature plot for pre-filtered data"
+                },
+                "skip_pre_general_ncount_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nCount plot for pre-filtered data"
+                },
+                "skip_post_general_qc": {
+                    "type": "boolean",
+                    "description": "Skip the General QC steps for post-filtered data"
+                },
+                "skip_post_general_dim_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating dim plot for post-filtered data"
+                },
+                "skip_post_general_vln_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating vln plot for post-filtered data"
+                },
+                "skip_post_general_scatter_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature/nCount scatter plot for post-filtered data"
+                },
+                "skip_post_general_nfeature_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature plot for post-filtered data"
+                },
+                "skip_post_general_ncount_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nCount plot for post-filtered data"
+                }
+            }
+        },
+        "cell_area_qc_options": {
+            "title": "Cell Area QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_pre_cell_area_qc": {
+                    "type": "boolean",
+                    "description": "Skip the Cell Area QC steps for pre-filtered data"
+                },
+                "skip_pre_area_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Histogram Plot for pre-filtered data"
+                },
+                "skip_pre_area_box_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Box Plot for pre-filtered data"
+                },
+                "skip_pre_area_overlap_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Overlapping Histogram for pre-filtered data"
+                },
+                "skip_post_cell_area_qc": {
+                    "type": "boolean",
+                    "description": "Skip the Cell Area QC steps for post-filtered data"
+                },
+                "skip_post_area_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Histogram Plot for post-filtered data"
+                },
+                "skip_post_area_box_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Box Plot for post-filtered data"
+                },
+                "skip_post_area_overlap_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Box Plot for post-filtered data"
+                }
+            }
         },
         "filtering_options": {
             "title": "Filtering Options",
@@ -255,11 +420,19 @@
                     "pattern": "^(area|log)(,(area|log))*$",
                     "description": "Choose the normalization method to use (log, and/or area). Multiple options can be chosen in a comma delimited list",
                     "default": "log"
+                },
+                "skip_norm_ncount": {
+                    "type": "boolean",
+                    "description": "Skip generating the nCount plot for normalized data"
+                },
+                "skip_norm_nfeature": {
+                    "type": "boolean",
+                    "description": "Skip generating the nFeature plot for normalized data"
                 }
             }
         },
-        "integration_options": {
-            "title": "Integration options",
+        "seurat_clustering_options": {
+            "title": "Seurat Clustering Options",
             "type": "object",
             "description": "",
             "default": "",
@@ -305,8 +478,8 @@
             },
             "fa_icon": "fas fa-object-group"
         },
-        "banksy_options": {
-            "title": "BANKSY options",
+        "banksy_clustering_options": {
+            "title": "BANKSY Clustering Options",
             "type": "object",
             "description": "",
             "default": "",
@@ -338,12 +511,37 @@
                 },
                 "use_agf_BANKSY": {
                     "type": "boolean",
-                    "description": "Whether or not to use agf for BANKSY"
+                    "description": "Whether or not to use agf for BANKSY",
+                    "default": true
                 },
                 "max_iter_BANKSY": {
                     "type": "integer",
                     "description": "The maximum number of iterations to use for BANKSY",
                     "default": 60
+                }
+            }
+        },
+        "cluster_qc_options": {
+            "title": "Cluster QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_cluster_umap_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the UMAP plot for clustered data"
+                },
+                "skip_cluster_split_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the UMAP + Spatial Dim plot split out by sample"
+                },
+                "skip_cluster_vln_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the marker violin plot for clustered data"
+                },
+                "skip_cluster_dot_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the marker dot plot for clustered data"
                 }
             }
         }
@@ -359,7 +557,22 @@
             "$ref": "#/$defs/generic_options"
         },
         {
+            "$ref": "#/$defs/general_pipeline_options"
+        },
+        {
+            "$ref": "#/$defs/manual_annotation_options"
+        },
+        {
             "$ref": "#/$defs/marker_gene_qc_options"
+        },
+        {
+            "$ref": "#/$defs/cell_shape_qc"
+        },
+        {
+            "$ref": "#/$defs/general_qc_options"
+        },
+        {
+            "$ref": "#/$defs/cell_area_qc_options"
         },
         {
             "$ref": "#/$defs/filtering_options"
@@ -368,10 +581,13 @@
             "$ref": "#/$defs/normalization_options"
         },
         {
-            "$ref": "#/$defs/integration_options"
+            "$ref": "#/$defs/seurat_clustering_options"
         },
         {
-            "$ref": "#/$defs/banksy_options"
+            "$ref": "#/$defs/banksy_clustering_options"
+        },
+        {
+            "$ref": "#/$defs/cluster_qc_options"
         }
     ]
 }
