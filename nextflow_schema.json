@@ -473,7 +473,8 @@
                 },
                 "skip_tsne_plot": {
                     "type": "boolean",
-                    "description": "Use this to specify to skip producing a tsne plot"
+                    "description": "Use this to specify to skip producing a tsne plot",
+                    "default": true
                 }
             },
             "fa_icon": "fas fa-object-group"
