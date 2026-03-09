@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 
-include { FIND_VARIABLE_FEATURES     } from '../../../modules/local/find_variable_features'
-include { COMPILE_LISTS              } from '../../../modules/local/compile_lists'
+include { GET_VARIABLE_FEATURES     } from '../../../subworkflows/local/get_variable_features'
+
 include { GENERATE_GENE_PAIR_STATS   } from '../../../modules/local/generate_gene_pair_stats'
-include { FILTER_GENE_PAIRS           } from '../../../modules/local/filter_gene_pairs'
+include { FILTER_GENE_PAIRS          } from '../../../modules/local/filter_gene_pairs'
 include { QC_BARNYARD_PLOT           } from '../../../modules/local/qc_barnyard_plot'
 include { CONCAT_CSV                 } from '../../../modules/local/concat_csv'
 include { QC_HEATMAP_PLOT            } from '../../../modules/local/qc_heatmap_plot'
@@ -21,22 +21,11 @@ workflow MARKER_GENE_PAIRS_QC {
         // If no marker gene list is provided, identify variable genes to use as the gene list
         ch_gene_list = Channel.empty()
         if (!marker_gene_list) {
-            FIND_VARIABLE_FEATURES (
+            GET_VARIABLE_FEATURES (
                 ch_xenium_data
             )
 
-            COMPILE_LISTS (
-                FIND_VARIABLE_FEATURES.out.variable_feature_list
-                    .map { meta, gene_list -> [gene_list] }
-                    .collect()
-                    .map { 
-                        gene_list -> 
-                            def new_meta = ['id': 'genes']
-                        [new_meta, gene_list]
-                    }
-            )
-
-            ch_gene_list = COMPILE_LISTS.out.compiled_list.map { meta, gene_list -> [gene_list] }
+            ch_gene_list = GET_VARIABLE_FEATURES.out.vf_xenium_obj
         } else {
             ch_gene_list = Channel.from(marker_gene_list)
         }

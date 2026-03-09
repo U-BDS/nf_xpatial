@@ -18,7 +18,6 @@ include { COMPILE_OBJECTS as COMPILE_FILTERED_OBJS } from '../modules/local/comp
 include { ADD_TISSUE_COORDS                        } from '../modules/local/add_tissue_coords'
 include { COMPILE_OBJECTS                          } from '../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS                     } from '../modules/local/merge_xenium_objects'
-include { FIND_VARIABLE_FEATURES                   } from '../modules/local/find_variable_features'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -27,6 +26,7 @@ include { MANUAL_ANNOTATIONS_QC               } from '../subworkflows/local/manu
 include { SPATIAL_QC as SPATIAL_QC_PREFILTER  } from '../subworkflows/local/spatial_qc/main'
 include { SPATIAL_QC as SPATIAL_QC_POSTFILTER } from '../subworkflows/local/spatial_qc/main'
 include { NORMALIZE_DATA                      } from '../subworkflows/local/normalize_data/main'
+include { GET_VARIABLE_FEATURES               } from '../subworkflows/local/get_variable_features'
 include { CLUSTER_HARMONY                     } from '../subworkflows/local/cluster_harmony/main'
 include { BANKSY                              } from '../subworkflows/local/banksy/main'
 include { MERGE_CLUSTERED_XENIUM_OBJECTS      } from '../subworkflows/local/merge_clustered_xenium_objects/main'
@@ -165,9 +165,9 @@ workflow NF_XENIUM_ANALYSIS {
     MERGE_XENIUM_OBJECTS ( ADD_TISSUE_COORDS.out.tissue_coords_xenium_obj )
 
     //
-    // MODULE: Find Variable Features
+    // SUBWORKFLOW: Find Variable Features
     //
-    FIND_VARIABLE_FEATURES ( 
+    GET_VARIABLE_FEATURES ( 
         MERGE_XENIUM_OBJECTS.out.merged_xenium_obj 
     )
 
@@ -185,7 +185,7 @@ workflow NF_XENIUM_ANALYSIS {
         : params.selected_res
 
     CLUSTER_HARMONY (
-        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
+        GET_VARIABLE_FEATURES.out.vf_xenium_obj,
         dim_list,
         res_list,
         params.skip_qc || params.skip_tsne_plot
@@ -202,7 +202,7 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
     //
     BANKSY (
-        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
+        GET_VARIABLE_FEATURES.out.vf_xenium_obj,
         params.lambda_BANKSY.split(',').collect { it as Float },
         params.k_geom_BANKSY.split(',').collect { it as Integer },
         params.nPCs_BANKSY.split(',').collect { it as Integer },
@@ -225,7 +225,7 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Merge Harmony and BANKSY clustered xenium objects
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (
-        FIND_VARIABLE_FEATURES.out.variable_features_xenium_obj,
+        GET_VARIABLE_FEATURES.out.vf_xenium_obj,
         BANKSY.out.banksy_clustered_xenium_obj
             .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj )
     )
@@ -244,7 +244,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .map { norm_method, merged_meta, xenium_obj, param_meta ->
                     [ param_meta, xenium_obj]
                 },
-            params.marker_gene_list ?: FIND_VARIABLE_FEATURES.out.variable_feature_list,
+            params.marker_gene_list ?: GET_VARIABLE_FEATURES.out.gene_list,
             params.skip_qc || params.skip_cluster_umap_plot,
             params.skip_qc || params.skip_cluster_split_plot,
             params.skip_qc || params.skip_cluster_vln_plot,
