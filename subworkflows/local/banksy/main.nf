@@ -1,7 +1,6 @@
 #!/usr/bin/env nextflow
 
 include { CONVERT_SEURAT_TO_SPE           } from '../../../modules/local/convert_seurat_to_spe'
-include { SUBSET_VARIABLE_FEATURES        } from '../../../modules/local/subset_variable_features'
 include { STAGGER_SPATIAL_COORDS          } from '../../../modules/local/stagger_spatial_coords'
 include { COMPUTE_BANKSY_MATRIX           } from '../../../modules/local/compute_banksy_matrix'
 include { COMPUTE_BANKSY_PCA              } from '../../../modules/local/compute_banksy_pca'
@@ -17,26 +16,14 @@ workflow BANKSY {
         nPCs_list               // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
         use_agf_BANKSY          // boolean: whether to use AGF in BANKSY
-        skip_banksy_vf_filter   // boolean: whether to skip filtering to variable features
 
 
     main:
         ch_versions = Channel.empty()
 
-        ch_vf_xenium_obj = ch_merged_xenium_obj
-        if (!skip_banksy_vf_filter) {
-            // MODULE: Subset to Variable Features
-            SUBSET_VARIABLE_FEATURES (
-                ch_merged_xenium_obj
-            )
-
-            ch_vf_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
-
-        }
-
         // MODULE: Convert seurat object to spatial experiment object
         CONVERT_SEURAT_TO_SPE (
-            ch_vf_xenium_obj
+            ch_merged_xenium_obj
                 .map { meta, xenium_obj ->
                     def agf_val = use_agf_BANKSY == true ? 1 : 0
                     def new_meta = meta + [agf: agf_val]

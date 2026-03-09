@@ -168,7 +168,8 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Find Variable Features
     //
     GET_VARIABLE_FEATURES ( 
-        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj 
+        MERGE_XENIUM_OBJECTS.out.merged_xenium_obj,
+        params.skip_banksy_vf_filter
     )
 
     //
@@ -202,13 +203,12 @@ workflow NF_XENIUM_ANALYSIS {
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
     //
     BANKSY (
-        GET_VARIABLE_FEATURES.out.vf_xenium_obj,
+        params.skip_banksy_vf_filter ? GET_VARIABLE_FEATURES.out.vf_xenium_obj : GET_VARIABLE_FEATURES.out.vf_subset_obj,
         params.lambda_BANKSY.split(',').collect { it as Float },
         params.k_geom_BANKSY.split(',').collect { it as Integer },
         params.nPCs_BANKSY.split(',').collect { it as Integer },
         params.res_BANKSY.split(',').collect { it as Float },
-        params.use_agf_BANKSY,
-        params.skip_banksy_vf_filter
+        params.use_agf_BANKSY
     )
 
     ch_cluster_params = ch_cluster_params
