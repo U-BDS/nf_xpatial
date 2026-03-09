@@ -31,10 +31,16 @@
                 },
                 "marker_gene_list": {
                     "type": "string",
-                    "description": "The list of marker genes to evaluat",
+                    "description": "The list of marker genes to evaluate and plot",
                     "pattern": "^\\S+\\.csv$",
                     "format": "file-path",
                     "mimetype": "text/csv"
+                },
+                "gene_whitelist": {
+                    "type": "string",
+                    "description": "A list of features to always keep if you subset by variable features.",
+                    "pattern": "^\\S+\\.csv$",
+                    "format": "file-path"
                 }
             }
         },
