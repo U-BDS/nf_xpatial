@@ -42,7 +42,7 @@ process QC_DIM_PLOT_COUNTOUR {
         cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
-        cluster_flag = "--cluster_col clust_l" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_HMY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
             "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
