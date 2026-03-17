@@ -33,6 +33,10 @@ params_list <- list(
         type="character",
         help="The parameter string to use to identify clustering run"),
     make_option(
+        c("-c", "--clustering_method"),
+        type="character",
+        help="The clustering method used to generate the cluster (e.g. BANKSY, Seurat, etc.)"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
         default="cluster_metadata.csv",
@@ -60,14 +64,25 @@ if (class(xenium_obj) == "Seurat") {
     # Set default assay
     DefaultAssay(xenium_obj) <- opt$assay
 
-    # Extract cluster data
-    cluster_metadata <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
+    print(head(xenium_obj@meta.data))
+    
+    cluster_metadata <- data.frame()
+    if (opt$clustering_method == "Harmony") {
+        # Extract cluster data
+        cluster_metadata <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
+        print(head(cluster_metadata))
 
-    # Rename seurat cluster column with a similar prefix to BANKSY
-    colnames(cluster_metadata) <- gsub("seurat_clusters", "clust_HMY_", colnames(cluster_metadata))
+        # Rename seurat cluster column with a similar prefix to BANKSY
+        colnames(cluster_metadata) <- gsub("seurat_clusters", "clust_HMY_", colnames(cluster_metadata))
 
-    # Add dim and res to column name
-    colnames(cluster_metadata) <- paste0(colnames(cluster_metadata), opt$param_string)
+        # Add dim and res to column name
+        colnames(cluster_metadata) <- paste0(colnames(cluster_metadata), opt$param_string)
+
+    } else {
+        # Clusters added by Banksy alread have the param string in the column name, so we just need to extract them
+        cluster_metadata <- xenium_obj@meta.data[grepl(paste0("^clust_BSKY_",opt$param_string), colnames(xenium_obj@meta.data))]
+        print(head(cluster_metadata))
+    }
 
     # Create a column for the cell ids
     cluster_metadata$Index <- rownames(cluster_metadata)
@@ -76,12 +91,15 @@ if (class(xenium_obj) == "Seurat") {
     # Rearrange columns
     cluster_metadata <- cluster_metadata[, c(2,1)]
 
+
 } else if (class(xenium_obj) == "SpatialExperiment") {
     # Set default assay
     mainExpName(xenium_obj) <- opt$assay
     col_data <- colData(xenium_obj)
 
     cluster_metadata <- col_data[ grepl("^clust_BSKY", colnames(col_data)) ]
+    colnames(cluster_metadata) <- c(paste0("clust_BSKY_",opt$param_string))
+
     cluster_metadata$Index <- rownames(cluster_metadata)
     cluster_metadata <- cluster_metadata[rev(colnames(cluster_metadata))]
 

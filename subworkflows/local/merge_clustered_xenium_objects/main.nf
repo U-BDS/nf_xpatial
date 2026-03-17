@@ -1,10 +1,12 @@
 #!/usr/bin/env nextflow
 
-include { EXTRACT_CLUSTER_METADATA   } from '../../../modules/local/extract_cluster_metadata'
-include { EXTRACT_REDUCED_DIMS       } from '../../../modules/local/extract_reduced_dims'
-include { MERGE_CSV                  } from '../../../modules/local/merge_csv'
-include { CONNECT_CLUSTERS           } from '../../../modules/local/connect_clusters'
-include { ADD_CLUSTER_DATA_TO_SEURAT } from '../../../modules/local/add_cluster_data_to_seurat'
+include { EXTRACT_CLUSTER_METADATA                                 } from '../../../modules/local/extract_cluster_metadata'
+include { EXTRACT_CLUSTER_METADATA as EXTRACT_CONNECTED_CLUSTERS   } from '../../../modules/local/extract_cluster_metadata'
+include { EXTRACT_REDUCED_DIMS                                     } from '../../../modules/local/extract_reduced_dims'
+include { MERGE_CSV as MERGE_BANKSY_CSV                            } from '../../../modules/local/merge_csv'
+include { MERGE_CSV as MERGE_CLUSTER_CSV                           } from '../../../modules/local/merge_csv'
+include { CONNECT_CLUSTERS                                         } from '../../../modules/local/connect_clusters'
+include { ADD_CLUSTER_DATA_TO_SEURAT                               } from '../../../modules/local/add_cluster_data_to_seurat'
 
 workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
     take:
@@ -13,13 +15,6 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
 
     main:
         ch_versions = Channel.empty()
-
-        //
-        // MODULE: Extract cluster metadata
-        //
-        EXTRACT_CLUSTER_METADATA (
-            ch_clustered_xenium_obj
-        )
 
         //
         // MODULE: Extract reduced dims
@@ -33,13 +28,30 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         dim: meta.dim ?: meta.nPCs,
                         clustering_method: meta.clustering_method
                     ]
+
+                    if (meta.clustering_method == 'BANKSY') {
+                        new_meta = new_meta + [
+                            lambda: meta.lambda,
+                            k_geom: meta.k_geom
+                        ]
+                    }
+
                     [new_meta, xenium_obj]
                 }
                 .groupTuple()
                 .map { meta, xenium_obj_list ->
                     [meta, xenium_obj_list.flatten().first()]
                 }
+                .view()
         )
+
+        //
+        // MODULE: Extract cluster metadata
+        //
+        EXTRACT_CLUSTER_METADATA (
+            ch_clustered_xenium_obj
+        )
+
         //
         // MODULE: Merge cluster csvs
         //
@@ -53,11 +65,12 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         // MODULE: Merge BANKSY cluster csvs
         //
-        MERGE_CSV (
+        MERGE_BANKSY_CSV (
             ch_cluster_csvs.banksy
                 .map{ meta, cluster_csv -> 
                     def new_meta = [
                         id: meta.id,
+                        clustering_method: meta.clustering_method,
                         normalization: meta.normalization,
                     ]
                     [new_meta, cluster_csv]
@@ -70,21 +83,61 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         CONNECT_CLUSTERS (
             ch_merged_xenium_obj
-                .join ( MERGE_CSV.out.merged_cluster_csv )
+                .combine( 
+                    MERGE_BANKSY_CSV.out.merged_cluster_csv
+                        .map { meta, cluster_csv -> 
+                            def new_meta = [
+                                id: meta.id,
+                                normalization: meta.normalization,
+                            ]
+                            [new_meta, meta, cluster_csv]
+                        }
+                    , by: 0
+                )
+                .map { xenium_obj_meta, xenium_obj, cluster_csv_meta, cluster_csv ->
+                    [cluster_csv_meta, xenium_obj, cluster_csv]
+                }
+        )
+
+        //
+        // MODULE: Extract connected cluster metadata
+        //
+        EXTRACT_CONNECTED_CLUSTERS (
+            CONNECT_CLUSTERS.out.connected_xenium_obj
+                .map { meta, xenium_obj -> [meta.normalization, meta, xenium_obj]}
+                .combine (
+                    ch_cluster_csvs.banksy
+                        .map{ meta, cluster_csv -> [meta.normalization, meta]}
+                    , by: 0
+                )
+                .map { norm_method, xenium_obj_meta, xenium_obj, cluster_csv_meta ->
+                    [cluster_csv_meta, xenium_obj]
+                }
+        )
+
+        //
+        // MODULE: Merge all cluster csvs into a single csv
+        //
+        MERGE_CLUSTER_CSV (
+            EXTRACT_CONNECTED_CLUSTERS.out.cluster_metadata
+                .mix(ch_cluster_csvs.harmony)
+                .map{ meta, cluster_csv -> 
+                    def new_meta = [
+                        id: meta.id,
+                        normalization: meta.normalization,
+                    ]
+                    [new_meta, cluster_csv]
+                }
+                .groupTuple()
         )
 
         //
         // MODULE: Add Harmony cluster info to Seurat object
         //
         ADD_CLUSTER_DATA_TO_SEURAT (
-            CONNECT_CLUSTERS.out.connected_xenium_obj
+            ch_merged_xenium_obj
                 .join (
-                    ch_cluster_csvs.harmony
-                    .map{ meta, cm_file_list -> 
-                        def new_meta = [id: meta.id, normalization: meta.normalization]
-                        [new_meta, cm_file_list]
-                    }
-                    .groupTuple()
+                    MERGE_CLUSTER_CSV.out.merged_cluster_csv
                 )
                 .join (
                     EXTRACT_REDUCED_DIMS.out.embeddings_csv
@@ -123,6 +176,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
 
     emit:
         versions           = ch_versions
-        cluster_merged_obj = ADD_CLUSTER_DATA_TO_SEURAT.out.all_cluster_xenium_obj
+        //cluster_merged_obj = ADD_CLUSTER_DATA_TO_SEURAT.out.all_cluster_xenium_obj
+        cluster_merged_obj = Channel.empty()
 
 }

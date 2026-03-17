@@ -33,6 +33,7 @@ process EXTRACT_CLUSTER_METADATA {
         $args \\
         $assay_flag \\
         $param_string_flag \\
+        --clustering_method "${meta.clustering_method}" \\
         --input "$spe_obj" \\
         --outfile "${prefix}_clusts.tsv"
     """
