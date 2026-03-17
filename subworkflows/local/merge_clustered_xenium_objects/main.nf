@@ -40,9 +40,10 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 }
                 .groupTuple()
                 .map { meta, xenium_obj_list ->
-                    [meta, xenium_obj_list.flatten().first()]
+                    // Sort the list to ensure deterministic order
+                    def sorted_list = xenium_obj_list.flatten().sort { it.toString() }
+                    [meta, sorted_list[0]]
                 }
-                .view()
         )
 
         //
