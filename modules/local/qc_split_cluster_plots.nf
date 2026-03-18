@@ -26,17 +26,19 @@ process QC_SPLIT_CLUSTER_PLOTS {
 
     def reductions_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        reductions_flag = "--reduction BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
+        reductions_flag = "--reduction BSKY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
+            ".k" + "${meta.k_geom}" + 
+            ".d" + "${meta.nPCs}"
     } else if ( "${meta.clustering_method}" == "Harmony"){
         reductions_flag = "--reduction HMY_umap_d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
     if ("${meta.clustering_method}" == "BANKSY"){
-        cluster_flag = "--cluster_col clust_BSKY_AGF1_L" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_PC" + "${meta.nPCs}" + 
-            "_R" + "${meta.res}"
+            "_n" + "${meta.nPCs}" + 
+            "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "Harmony"){
         cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"

@@ -148,7 +148,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         }
                         .groupTuple()
                         .map{ meta, e_file_list -> 
-                            [meta, e_file_list.flatten()]
+                            [meta, e_file_list.flatten().sort { it.toString() }]
                         }
                 )
                 .join (
@@ -159,7 +159,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         }
                         .groupTuple()
                         .map{ meta, l_file_list -> 
-                            [meta, l_file_list.flatten()]
+                            [meta, l_file_list.flatten().sort { it.toString() }]
                         }
                 )
                 .join (
@@ -170,14 +170,13 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         }
                         .groupTuple()
                         .map{ meta, s_file_list -> 
-                            [meta, s_file_list.flatten()]
+                            [meta, s_file_list.flatten().sort { it.toString() }]
                         }
                     )
         )
 
     emit:
         versions           = ch_versions
-        //cluster_merged_obj = ADD_CLUSTER_DATA_TO_SEURAT.out.all_cluster_xenium_obj
-        cluster_merged_obj = Channel.empty()
+        cluster_merged_obj = ADD_CLUSTER_DATA_TO_SEURAT.out.all_cluster_xenium_obj
 
 }

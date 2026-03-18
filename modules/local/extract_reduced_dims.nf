@@ -26,7 +26,9 @@ process EXTRACT_REDUCED_DIMS {
 
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
-    def param_string_flag = '--param_string d' + "${meta.dim}"
+    def param_string_flag = meta.clustering_method == 'BANKSY' ?
+        "--param_string l" + "${meta.lambda}" + "-k" + "${meta.k_geom}" + "-d" + "${meta.dim}" :
+        "--param_string d" + "${meta.dim}"
 
     """
     extract_reduced_dims.R \\

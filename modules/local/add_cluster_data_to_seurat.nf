@@ -29,7 +29,7 @@ process ADD_CLUSTER_DATA_TO_SEURAT {
         $args \\
         $assay_flag \\
         --input "$xenium_object" \\
-        --clusters "${cluster_metadata_csv.join(',')}" \\
+        --clusters "${cluster_metadata_csv}" \\
         --embeddings "${embeddings_csv.join(',')}" \\
         --loadings "${loadings_csv.join(',')}" \\
         --stdev "${stdev_csv.join(',')}" \\
