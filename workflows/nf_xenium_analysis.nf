@@ -441,7 +441,6 @@ workflow NF_XENIUM_ANALYSIS {
                 }
                 .map {meta, video -> [video]}
         )
-        .view()
     )
 
     //
