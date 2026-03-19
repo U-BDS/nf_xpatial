@@ -18,6 +18,8 @@ include { COMPILE_OBJECTS as COMPILE_FILTERED_OBJS } from '../modules/local/comp
 include { ADD_TISSUE_COORDS                        } from '../modules/local/add_tissue_coords'
 include { COMPILE_OBJECTS                          } from '../modules/local/compile_objects'
 include { MERGE_XENIUM_OBJECTS                     } from '../modules/local/merge_xenium_objects'
+include { COMPILE_IMAGES_TO_VIDEO                  } from '../modules/local/compile_images_to_video'
+include { RENDER_SUMMARY_REPORT                    } from '../modules/local/render_summary_report'
 
 //
 // SUBWORKFLOW: Loaded from subworkflows/local/
@@ -251,6 +253,211 @@ workflow NF_XENIUM_ANALYSIS {
             params.skip_qc || params.skip_cluster_dot_plot
         )
     }
+
+    //
+    // MODULE: Compile images into video
+    //
+    COMPILE_IMAGES_TO_VIDEO (
+        CLUSTER_QC.out.umap_plot
+            .map { meta, umap_plot ->
+                def new_meta = [ 
+                    'id': meta.id,
+                    'normalization': meta.normalization,
+                    'clustering_method': meta.clustering_method,
+                    'plot_type': 'umap'
+                ]
+                [new_meta, umap_plot]
+            }
+            .mix (
+                CLUSTER_QC.out.split_cluster_plot
+                    .map { meta, split_cluster_plot ->
+                        def new_meta = [ 
+                            'id': meta.id,
+                            'normalization': meta.normalization,
+                            'clustering_method': meta.clustering_method,
+                            'plot_type': 'split_cluster'
+                        ]
+                        [new_meta, split_cluster_plot]
+                    }
+            )
+            .mix (
+                CLUSTER_QC.out.marker_vln_plot
+                    .map { meta, marker_vln_plot ->
+                        def new_meta = [ 
+                            'id': meta.id,
+                            'normalization': meta.normalization,
+                            'clustering_method': meta.clustering_method,
+                            'plot_type': 'vln_plot'
+                        ]
+                        [new_meta, marker_vln_plot]
+                    }
+            )
+            .mix (
+                CLUSTER_QC.out.marker_dot_plot
+                    .map { meta, marker_dot_plot ->
+                        def new_meta = [ 
+                            'id': meta.id,
+                            'normalization': meta.normalization,
+                            'clustering_method': meta.clustering_method,
+                            'plot_type': 'dot_plot'
+                        ]
+                        [new_meta, marker_dot_plot]
+                    }
+            )
+            .groupTuple()
+    )
+
+    //
+    // MODULE: Create the summary report for the analysis
+    //
+    RENDER_SUMMARY_REPORT(
+    Channel.of(file("$baseDir/assets/report_template.Rmd"))
+        .combine (
+            FILTER_XENIUM_OBJ.out.filtered_stats_csv
+                .map{ meta, filtered_stat -> [1, filtered_stat] }
+                .groupTuple()
+                .map{ key, filtered_file_list -> [filtered_file_list] }
+        )
+        .combine ( SPATIAL_QC_POSTFILTER.out.dim_plot.map {meta, dim_plot -> [dim_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.vln_plot.map {meta, vln_plot -> [vln_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.feature_scatter_plot.map {meta, feat_scatter_plot -> [feat_scatter_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.nfeature_plot.map {meta, nfeature_plot -> [nfeature_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.ncount_plot.map {meta, ncount_plot -> [ncount_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.cell_shape_plot.map{meta, cell_shape_plot -> [cell_shape_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.cell_segm_plot.map {meta, cell_segm_plot -> [cell_segm_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.area_histogram_plot.map {meta, area_histogram_plot -> [area_histogram_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.area_box_plot.map {meta, area_box_plot -> [area_box_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.area_overlapping_histogram_plot.map {meta, area_histogram_plot -> [area_histogram_plot]} )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'umap' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'split_cluster' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'dot_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'umap' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'split_cluster' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'dot_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'umap' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'split_cluster' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'dot_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'umap' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'split_cluster' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'dot_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+        )
+        .view()
+    )
 
     //
     // Collate and save software versions

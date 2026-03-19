@@ -69,6 +69,7 @@ workflow GENERAL_QC {
                 ch_scatter_plot_in
             )
             ch_versions = ch_versions.mix(QC_FEATURE_SCATTER_PLOT.out.versions)
+            ch_general_scatter_plot = QC_FEATURE_SCATTER_PLOT.out.feature_scatter_plot
         }
 
         ch_general_nfeature_plot = Channel.empty()

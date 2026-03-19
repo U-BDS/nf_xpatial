@@ -20,30 +20,39 @@ workflow CLUSTER_QC {
         //
         // MODULE: Generate a dim plot with contours for UMAP
         //
+        ch_umap_dim_plot = Channel.empty()
         if (!skip_cluster_umap_plot) {
             UMAP_DIM_PLOT (
                 ch_clustered_xenium_obj
             )
+
+            ch_umap_dim_plot = UMAP_DIM_PLOT.out.countour_dim_plot
         }
 
         //
         // MODULE: Generate a compiled set of cluster plots split by sample
         //
+        ch_split_cluster_plot = Channel.empty()
         if (!skip_split_cluster_plot) {
             QC_SPLIT_CLUSTER_PLOTS (
                 ch_clustered_xenium_obj
             )
+
+            ch_split_cluster_plot = QC_SPLIT_CLUSTER_PLOTS.out.split_cluster_plot
         }
 
+        //
+        // MODULE: Generate vln plots
+        //
+        ch_cluster_vln_plot = Channel.empty()
+        ch_cluster_dot_plot = Channel.empty()
         if (marker_gene_list) {
-            //
-            // MODULE: Generate vln plots
-            //
             if (!skip_cluster_vln_plot) {
                 QC_MARKER_VLN_PLOT (
                     ch_clustered_xenium_obj,
                     marker_gene_list
                 )
+                ch_cluster_vln_plot = QC_MARKER_VLN_PLOT.out.vln_plot
             }
 
             //
@@ -54,11 +63,17 @@ workflow CLUSTER_QC {
                     ch_clustered_xenium_obj,
                     marker_gene_list
                 )
+
+                ch_cluster_dot_plot = QC_MARKER_DOT_PLOT.out.dot_plot
             }
         }
 
     emit:
-        versions                    = ch_versions
+        versions           = ch_versions
+        umap_plot          = ch_umap_dim_plot
+        split_cluster_plot = ch_split_cluster_plot
+        marker_vln_plot    = ch_cluster_vln_plot
+        marker_dot_plot    = ch_cluster_dot_plot
 
 
 }

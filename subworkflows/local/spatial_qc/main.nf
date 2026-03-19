@@ -44,6 +44,8 @@ workflow SPATIAL_QC {
         //
         // SUBWORKFLOW: Generate qc plots for cell shapes
         //
+        ch_cell_segm_prop_plot = Channel.empty()
+        ch_cell_shape_prop_plot = Channel.empty()
         if (!skip_cell_shape_qc) {
             CELL_SHAPE_QC (
                 ch_xenium_obj,
@@ -51,11 +53,20 @@ workflow SPATIAL_QC {
                 skip_cell_segm_prop_plot
             )
             ch_versions = ch_versions.mix(CELL_SHAPE_QC.out.versions)
+
+            ch_cell_segm_prop_plot  = CELL_SHAPE_QC.out.cell_segm_plot
+            ch_cell_shape_prop_plot = CELL_SHAPE_QC.out.cell_shape_plot
         }
 
         //
         // SUBWORKFLOW: Generate basic QC plots for xenium objects
         //
+        ch_dim_plot = Channel.empty()
+        ch_vln_plot = Channel.empty()
+        ch_feature_scatter_plot = Channel.empty()
+        ch_ncount_plot = Channel.empty()
+        ch_nfeature_plot = Channel.empty()
+
         if (!skip_general_qc) {
             GENERAL_QC (
                 ch_xenium_obj,
@@ -66,11 +77,21 @@ workflow SPATIAL_QC {
                 ch_skip_general_ncount_plot
             )
             ch_versions = ch_versions.mix(GENERAL_QC.out.versions)
+
+            ch_dim_plot             = GENERAL_QC.out.image_dim_plot
+            ch_vln_plot             = GENERAL_QC.out.vln_plot
+            ch_feature_scatter_plot = GENERAL_QC.out.feature_scatter_plot
+            ch_ncount_plot          = GENERAL_QC.out.image_feature_plot_ncount
+            ch_nfeature_plot        = GENERAL_QC.out.image_feature_plot_nfeature
         }
 
         //
         // SUBWORKFLOW: Generate QC plots for cell area
         //
+        ch_area_histogram_plot = Channel.empty()
+        ch_area_box_plot = Channel.empty()
+        ch_area_overlapping_histogram_plot = Channel.empty()
+
         if (!skip_cell_area_qc) {
             CELL_AREA_QC (
                 ch_xenium_obj,
@@ -79,10 +100,31 @@ workflow SPATIAL_QC {
                 skip_area_overlap_histogram_plot
             )
             ch_versions = ch_versions.mix(CELL_AREA_QC.out.versions)
+
+            ch_area_histogram_plot             = CELL_AREA_QC.out.cell_area_histogram_plot
+            ch_area_box_plot                   = CELL_AREA_QC.out.cell_area_box_plot
+            ch_area_overlapping_histogram_plot = CELL_AREA_QC.out.cell_area_overlapping_histogram_plot
         }
 
     emit:
         versions                    = ch_versions
+
+        // CELL_SHAPE_QC
+        cell_segm_plot = ch_cell_segm_prop_plot
+        cell_shape_plot = ch_cell_shape_prop_plot
+
+        // GENERAL_QC
+        dim_plot             = ch_dim_plot
+        vln_plot             = ch_vln_plot
+        feature_scatter_plot = ch_feature_scatter_plot
+        ncount_plot          = ch_ncount_plot
+        nfeature_plot        = ch_nfeature_plot
+
+        // CELL_AREA_QC
+        area_histogram_plot             = ch_area_histogram_plot
+        area_box_plot                   = ch_area_box_plot
+        area_overlapping_histogram_plot = ch_area_overlapping_histogram_plot
+
 
 
 }

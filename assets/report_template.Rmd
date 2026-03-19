@@ -1,0 +1,448 @@
+---
+params:
+  report_title: ""
+  nf_version: "24.04.3"
+  filtered_stats_files: ""
+  filtered_dim_plot: ""
+  filtered_vln_plot: ""
+  filtered_feature_scatter_plot: ""
+  filtered_nfeature_plot: ""
+  filtered_ncount_plot: ""
+  cell_shape_proportion_plot: ""
+  cell_segmentation_proportion_plot: ""
+  compiled_histogram_plot: ""
+  compiled_filtered_box_plot: ""
+  compiled_filtered_overlapping_histogram_plot: ""
+  log_norm_seurat_umap_video: ""
+  log_norm_seurat_split_cluster_video: ""
+  log_norm_seurat_vln_video: ""
+  log_norm_seurat_dot_video: ""
+  log_norm_banksy_umap_video: ""
+  log_norm_banksy_split_cluster_video: ""
+  log_norm_banksy_vln_video: ""
+  log_norm_banksy_dot_video: ""
+  area_norm_seurat_umap_video: ""
+  area_norm_seurat_split_cluster_video: ""
+  area_norm_seurat_vln_video: ""
+  area_norm_seurat_dot_video: ""
+  area_norm_banksy_umap_video: ""
+  area_norm_banksy_split_cluster_video: ""
+  area_norm_banksy_vln_video: ""
+  area_norm_banksy_dot_video: ""
+  
+title: "`r params$report_title`"
+author: 
+  - name: "Austyn Trull  | <agtrull@uabmc.edu> | <https://www.uab.edu/cores/ircp/bds>"
+  - name: "Lara Ianov, Ph.D. | <lianov@uab.edu> | <https://www.uab.edu/cores/ircp/bds>"
+date: |
+      | Report Date: `r format(Sys.time(), '%B %d, %Y')`
+output:
+  html_document:
+    code_folding: show
+    css: "./www/assets/style.css"
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+
+library(DT)
+library(dplyr)
+library(base64enc)
+library(av)
+
+knitr::opts_chunk$set(
+	fig.align = "center",
+	message = FALSE,
+	warning = FALSE,
+	echo = FALSE,
+	include = TRUE
+)
+
+```
+
+```{css, echo = FALSE}
+
+.nav-pills>li>a {
+    color: white;
+}
+
+.nav-pills>li>a,
+.nav-pills>li>a:hover,
+.nav-pills>li>a:focus {
+   background-color: #144B39; /* Red for default links */
+}
+
+.nav-pills>li.active>a,
+.nav-pills>li.active>a:hover,
+.nav-pills>li.active>a:focus {
+   background-color: #88C408; /* Green for active links */
+}
+
+.nav-pills>li>a:hover, .nav-pills>li>a:focus {
+    background-color: #808285;
+    color: #FFD602;
+}
+
+```
+
+## Software Versions
+
+The data was processed using the U-BDS Nextflow xpatial pipeline, using Nextflow version `r params$nf_version`
+
+The versions of all software and packages used by the pipeline to process the data can be found in `sessionInfo.txt`. All analyses were performed using Singularity containers derived from custom built Docker images.
+
+# Preliminary QCs
+
+## Sample Statistics {.tabset .tabset-pills}
+
+### Pre-Filtering Cell Counts {.active}
+
+```{r pre-filtering-cell-counts}
+filtered_stats_files_list <- str_split_1(params$filtered_stats_files, ",")
+
+filtered_stats_df <- data.frame()
+
+for (filter_stats_csv in filtered_stats_files_list) {
+  filtered_stats_df <- rbind(
+    filtered_stats_df,
+    read.csv(paste0("www/results/", filter_stats_csv))
+  )
+}
+
+pre_filtered_stats_df <- filtered_stats_df %>%
+  select("sample_name"|contains("pre"))
+
+DT::datatable(pre_filtered_stats_df, options = list (scrollX = TRUE))
+```
+
+### Post-Filtering Cell Counts
+
+The pipeline provides a number of ways to filter cells, the following filters were applied to this dataset:
+
+-   minimum nCount = 10
+-   minimum nFeature = 10
+
+```{r post-filtering-cell-counts}
+
+post_filtered_stats_df <- filtered_stats_df %>%
+  select("sample_name"|!(contains("pre")))
+
+DT::datatable(post_filtered_stats_df, options = list (scrollX = TRUE))
+```
+
+## Post-Filtering QC's {.tabset .tabset-pills}
+
+### Dim Plot {.active}
+
+![](`r params$filtered_dim_plot`)
+
+### Violin Plot
+
+![](`r params$filtered_vln_plot`)
+
+### Feature Scatter Plot
+
+![](`r params$filtered_feature_scatter_plot``)
+
+### nFeature Image Feature Plot
+
+![](`r params$filtered_nfeature_plot``)
+
+### nCount Image Feature Plot
+
+![](`r` params$filtered_ncount_plot`)
+
+## Cell Segmentation QC {.tabset .tabset-pills}
+
+### Cell Shape QC {.active}
+
+Each cell is classified into 'Circular', 'Elongated', and 'Polygonal'. The amount of each category should be consistent across all samples, deviation from this can indicate samples are too dissimilate from one another which can cause issues with integration and clustering or there is an issue with cell segmentation.
+
+![](`r params$cell_shape_proportion_plot`)
+
+### Cell Segmentation Method QC
+
+The Xenium software uses three different methods to segment cells. We expect that segmentation by interior stain should be the most abundant, and this should be consistent across all samples. Deviations from either assumption would indicate an issue with cell segmentation.
+
+![](`r params$cell_segmentation_proportion_plot`)
+
+### Cell Area QC {.tabset .tabset-pills}
+
+Each cell has its area calculated with the areas for each cell within a sample listed below. We expect that in most cases, the areas to be consistent across all samples. Deviations from these assumptions can indicate issues with cell segmentation or that tissue sections are too dissimilar.
+
+#### Histogram Plot {.active}
+
+![](`r params$compiled_histogram_plot`)
+
+#### Box Plot
+
+![](`r params$compiled_filtered_box_plot`)
+
+#### Overlapping Histogram Plot
+
+![](`r params$compiled_filtered_overlapping_histogram_plot`)
+
+# Normalization {.tabset .tabset-pills}
+
+There are currently two normalization methods implemented in this pipeline: cell area normalization and log normalization. Log Normalization is the traditional normalization method in single-cell data, scaling gene counts by library size. Cell area (or cell volume) normalization instead scales counts based on the physical size of cells, and is a common method for normalizing spatial data. To learn more about cell area normalization, we encourage reading of the following publication: <https://link.springer.com/article/10.1186/s13059-024-03303-w>
+
+**NOTE**: Log and Area normalization are performed separately, resulting in two normalized Seurat objects: One containing only log normalized counts (accessible via the `Xenium` assay) and another containing the cell area normalized counts (accessible via the `AreaNorm` assay). Past this point, all processing is performed separately on the objects for parallelisation.
+
+# Single-Cell and Spatial Clustering {#single-cell-and-spatial-clustering .tabset .tabset-pills}
+
+## Area Norm
+
+### Seurat (Single-Cell Clustering) {.tabset .tabset-pills}
+
+Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used in the current analysis:
+
+-   dimensions: 15, 20, 25, 30
+-   resolutions: 0.4, 0.5, 0.6, 0.7, 0.8
+
+Note that Seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
+
+Further, due to the high number of genes from the marker list, the gene-expression plots below use a subsetted list of markers (1-2 genes from each category). However, you may visualize any gene directly in the Seurat object we provide as long as it was within the Xenium panel.
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+#### UMAP
+
+![](`r params$area_norm_seurat_umap_video`){width="75%"}
+
+#### Split Cluster Plot
+
+![](`r params$area_norm_seurat_split_cluster_video`){width="75%"}
+
+#### Dot Plots
+
+![](`r params$area_norm_seurat_dot_video`){width="75%"}
+
+#### Vln Plots
+
+![](`r params$area_norm_seurat_vln_video`){width="75%"}
+
+### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
+
+BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+
+-   lambda: 0.2, 0.9
+-   k_geom: 15, 30
+-   PCs: 20, 30
+-   resolutions: 0.4, 0.5, 0.6, 0.8, 1.0
+
+Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+#### UMAP
+
+![](`r params$area_norm_banksy_umap_video`){width="75%"}
+
+#### Split Cluster Plot
+
+![](`r params$area_norm_banksy_split_cluster_video`){width="75%"}
+
+#### Dot Plots
+
+![](`r params$area_norm_banksy_dot_video`){width="75%"}
+
+#### Vln Plots
+
+![](`r params$area_norm_banksy_vln_video`){width="75%"}
+
+## Log Norm
+
+### Seurat (Single Cell Clustering) {.tabset .tabset-pills}
+
+Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used:
+
+-   dimensions: 15, 20, 25, 30
+-   resolutions: 0.4, 0.5, 0.6, 0.7, 0.8
+
+Note that seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+### UMAP
+
+![](`r params$log_norm_seurat_umap_video`){width="75%"}
+
+#### Split Cluster Plot
+
+![](`r params$log_norm_seurat_split_cluster_video`){width="75%"}
+
+#### Dot Plots
+
+![](`r params$log_norm_seurat_dot_video`){width="75%"}
+
+#### Vln Plots
+
+![](`r params$log_norm_seurat_vln_video`){width="75%"}
+
+### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
+
+BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat Clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+
+-   lambda: 0.2, 0.9
+-   k_geom: 15, 30
+-   PCs: 20, 30
+-   resolutions: 0.4, 0.5, 0.6, 0.8, 1.0
+
+Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+#### UMAP
+
+![](`r params$log_norm_banksy_umap_video`){width="75%"}
+
+#### Split Cluster Plot
+
+![](`r params$log_norm_banksy_split_cluster_video`){width="75%"}
+
+#### Dot Plots
+
+![](`r params$log_norm_banksy_dot_video`){width="75%"}
+
+#### Vln Plots
+
+![](`r params$log_norm_banksy_vln_video`){width="75%"}
+
+# Final Objects
+
+This pipeline produces a final R object for each normalization method used by this workflow. The final R objects contain all processing done by the pipeline, i.e. filtering, normalization, integration, etc. and contain all the clustering and dimension reduction results for every parameter combination across both Seurat and BANKSY clustering workflows. As a result, these objects can be large but can be filtered to contain only the clustering parameters you want to proceed forward with.
+
+The final R objects can be found in the results directory at the following path:
+
+`<results>/compiled/*.rds`
+
+**We've written the following function in R that can be used to filter the combined Seurat Objects:**
+
+``` r
+
+library(Seurat)     # Main analysis package
+
+#' This function filters a Seurat object processed by the nf_xpatial pipeline
+#' 
+#' @param input The Seurat object to filter
+#' @param assays A character vector of assays to keep. Values: ("Xenium", "AreaNorm")
+#' @param clustering_method A character vector of clustering methods to keep. Values ("Seurat", "BANKSY")
+#' @param hmy_dims A double vector of dimensions used for Seurat clustering to keep. Leave empty to include all dimensions.
+#' @param hmy_res A double vector of resolutions used for Seurat clustering to keep. Leave empty to include all resolutions.
+#' @param bsky_dims A double vector of dimensions used for BANKSY clustering to keep. Leave empty to include all dimensions.
+#' @param bsky_res A double vector of resolutions used for BANKSY clustering to keep. Leave empty to include all resolutions.
+#' @param bsky_lambda A double vector of lambdas used for BANKSY clustering to keep. Leave empty to include all lambdas.
+#' @param bsky_kgeom A double vector of kgeom used for BANKSY clustering to keep. Leave empty to include all k_geoms.
+#'
+#' @returns A Seurat object containing only the assays, reductions, and clusters listed above.
+
+filter_xenium_obj <- function(
+    input = NULL,
+    assays = "Xenium",
+    clustering_method = vector(),
+    hmy_dims = vector(),
+    hmy_res = vector(),
+    bsky_dims = vector(),
+    bsky_res = vector(),
+    bsky_lambda = vector(),
+    bsky_kgeom = vector() ) {
+
+    metadata_cols <- colnames(input@meta.data)
+    cluster_cols_keep <- metadata_cols[!grepl("^clust_", metadata_cols)]
+    
+    reductions_keep <- c()
+    
+    # Helper: build parameter patterns for regex matching
+    add_param_to_keep <- function(prefix, param_list = vector() ) {
+      
+        suffix <- ifelse(length(param_list), param_list, ".*" )
+        
+        return(
+          apply(expand.grid(prefix, suffix), 1, function(x) paste(x, collapse = ""))
+        )
+    }
+    
+    if ("Seurat" %in% clustering_method) {
+      # Get the Cluster columns
+      srt_clusts <- c("clust_HMY")
+
+      srt_clusts <- add_param_to_keep(paste0(srt_clusts, "_d"), hmy_dims)
+      srt_clusts <- add_param_to_keep(paste0(srt_clusts, "_r"), hmy_res)
+      
+      cluster_cols_keep <- c(cluster_cols_keep, srt_clusts)
+      
+      # Get the reductions
+      reductions_keep <- c(reductions_keep, add_param_to_keep("Harmony_.*_d", hmy_dims))
+      
+    }
+    
+    if ("BANKSY" %in% clustering_method) {
+      # Get the Cluster columns
+      bsky_clusts <- c("clust_BSKY_AGF1")
+      
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_L"), bsky_lambda)
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_k"), bsky_kgeom)
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_d"), bsky_dims)
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_R"), bsky_res)
+      
+      cluster_cols_keep <- c(cluster_cols_keep, bsky_clusts)
+      
+      # Get the reductions
+      reductions_keep <- c(reductions_keep, add_param_to_keep("BANKSY_.*_d", bsky_dims))
+    }
+    
+    filtered_seurat <- input
+    
+    # Build regex patterns
+    reductions_keep_regex <- paste(reductions_keep, collapse = "|")
+    cluster_keep_regex <- paste(cluster_cols_keep, collapse = "|")
+    
+    # Filter reductions
+    all_reductions <- Reductions(input)
+    reductions_to_remove <- all_reductions[!grepl(reductions_keep_regex, all_reductions)]
+    
+    for (reduction in reductions_to_remove) {
+      filtered_seurat[[reduction]] <- NULL
+    }
+    
+    # Filter metadata columns
+    cols_to_remove <- metadata_cols[!grepl(cluster_keep_regex, metadata_cols)]
+    
+    for (col in cols_to_remove) {
+      filtered_seurat[[col]] <- NULL
+    }
+
+    return(filtered_seurat)
+    
+  }
+```
+
+A couple examples of how to run the function are listed below.
+
+``` r
+
+# This will grab all the BANKSY cluster and reductions, filtering out the Seurat cluster results
+only_banksy_obj <- filter_xenium_obj(
+  input = full_object,
+  clustering_method = c("BANKSY")
+)
+
+# This will grab only the Seurat cluster and reductions for dimension 20 and resolution 0.4
+single_seurat <- filter_xenium_obj(
+  input = full_object,
+  clustering_method = c("Seurat"),
+  hmy_dims = c(20),
+  hmy_res = c(0.4)
+)
+
+# This will grab only the Seurat cluster and reductions for dimension 20, 25,and 30 and resolution 0.4
+mutliple_dims_seurat <- filter_xenium_obj(
+  input = full_object,
+  clustering_method = c("Seurat"),
+  hmy_dims = c(20,25,30),
+  hmy_res = c(0.4)
+)
+```
