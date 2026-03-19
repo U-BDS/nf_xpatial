@@ -64,7 +64,7 @@ workflow CELL_AREA_QC {
         )
 
         ch_area_box_plot = Channel.empty()
-        if (skip_area_box_plot) {
+        if (!skip_area_box_plot) {
             //
             // MODULE: Box Plot of cell area with outliers
             //
@@ -76,7 +76,7 @@ workflow CELL_AREA_QC {
         }
 
         ch_area_overlap_histogram_plot = Channel.empty()
-        if (skip_area_overlap_histogram_plot) {
+        if (!skip_area_overlap_histogram_plot) {
             //
             // MODULE: Overlapping Historgram Plot of cell area
             //
