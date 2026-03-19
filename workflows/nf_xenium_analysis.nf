@@ -312,6 +312,11 @@ workflow NF_XENIUM_ANALYSIS {
     //
     RENDER_SUMMARY_REPORT(
     Channel.of(file("$baseDir/assets/report_template.Rmd"))
+        .map { report_template -> 
+            def meta = ['id': 'summary_report']
+            [meta, report_template]
+        }
+        .combine(Channel.of(file("$baseDir/assets/style.css")))
         .combine (
             FILTER_XENIUM_OBJ.out.filtered_stats_csv
                 .map{ meta, filtered_stat -> [1, filtered_stat] }
@@ -335,6 +340,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'log_norm' &&
                     meta.clustering_method == 'Harmony' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -343,14 +349,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'log_norm' &&
                     meta.clustering_method == 'Harmony' 
                 }
-        )
-        .combine (
-            COMPILE_IMAGES_TO_VIDEO.out.image_video
-                .filter { meta, video -> 
-                    meta.plot_type == 'vln_plot' &&
-                    meta.normalization == 'log_norm' &&
-                    meta.clustering_method == 'Harmony' 
-                }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -359,6 +358,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'log_norm' &&
                     meta.clustering_method == 'Harmony' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -367,6 +367,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'area_norm' &&
                     meta.clustering_method == 'Harmony' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -375,14 +376,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'area_norm' &&
                     meta.clustering_method == 'Harmony' 
                 }
-        )
-        .combine (
-            COMPILE_IMAGES_TO_VIDEO.out.image_video
-                .filter { meta, video -> 
-                    meta.plot_type == 'vln_plot' &&
-                    meta.normalization == 'area_norm' &&
-                    meta.clustering_method == 'Harmony' 
-                }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -391,6 +385,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'area_norm' &&
                     meta.clustering_method == 'Harmony' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -399,6 +394,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'log_norm' &&
                     meta.clustering_method == 'BANKSY' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -407,14 +403,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'log_norm' &&
                     meta.clustering_method == 'BANKSY' 
                 }
-        )
-        .combine (
-            COMPILE_IMAGES_TO_VIDEO.out.image_video
-                .filter { meta, video -> 
-                    meta.plot_type == 'vln_plot' &&
-                    meta.normalization == 'log_norm' &&
-                    meta.clustering_method == 'BANKSY' 
-                }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -423,6 +412,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'log_norm' &&
                     meta.clustering_method == 'BANKSY' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -431,6 +421,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'area_norm' &&
                     meta.clustering_method == 'BANKSY' 
                 }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -439,14 +430,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'area_norm' &&
                     meta.clustering_method == 'BANKSY' 
                 }
-        )
-        .combine (
-            COMPILE_IMAGES_TO_VIDEO.out.image_video
-                .filter { meta, video -> 
-                    meta.plot_type == 'vln_plot' &&
-                    meta.normalization == 'area_norm' &&
-                    meta.clustering_method == 'BANKSY' 
-                }
+                .map {meta, video -> [video]}
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -455,6 +439,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.normalization == 'area_norm' &&
                     meta.clustering_method == 'BANKSY' 
                 }
+                .map {meta, video -> [video]}
         )
         .view()
     )

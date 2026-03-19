@@ -12,6 +12,7 @@ process RENDER_SUMMARY_REPORT {
     input:
     tuple val(meta),
         path(report_template),
+        path(css_file),
         path(filtered_stats_file),
         path(filtered_dim_plot),
         path(filtered_vln_plot),
@@ -25,24 +26,19 @@ process RENDER_SUMMARY_REPORT {
         path(compiled_filtered_overlapping_histogram_plot),
         path(log_norm_seurat_umap_video),
         path(log_norm_seurat_split_cluster_video),
-        path(log_norm_seurat_vln_video),
         path(log_norm_seurat_dot_video),
         path(area_norm_seurat_umap_video),
         path(area_norm_seurat_split_cluster_video),
-        path(area_norm_seurat_vln_video),
         path(area_norm_seurat_dot_video),
         path(log_norm_banksy_umap_video),
         path(log_norm_banksy_split_cluster_video),
-        path(log_norm_banksy_vln_video),
         path(log_norm_banksy_dot_video),
         path(area_norm_banksy_umap_video),
         path(area_norm_banksy_split_cluster_video),
-        path(area_norm_banksy_vln_video),
         path(area_norm_banksy_dot_video)
 
     output:
-    tuple val(meta), path("*.rds"), emit: all_cluster_xenium_obj
-    path 'versions.yml'           , emit: versions
+    tuple val(meta), path("*.html"), emit: summary_report
 
     when:
     task.ext.when == null || task.ext.when
@@ -53,13 +49,15 @@ process RENDER_SUMMARY_REPORT {
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
+     #!/usr/bin/env Rscript
 
     library(knitr)
 
     rmarkdown::render(
         "${report_template}",
         params = list(
-            filtered_stats_file = "${filtered_stats_file.join(',')}",
+            css_file = "${css_file}",
+            filtered_stats_files = "${filtered_stats_file.join(',')}",
             filtered_dim_plot = "${filtered_dim_plot}",
             filtered_vln_plot = "${filtered_vln_plot}",
             filtered_feature_scatter_plot = "${filtered_feature_scatter_plot}",
@@ -72,27 +70,17 @@ process RENDER_SUMMARY_REPORT {
             compiled_filtered_overlapping_histogram_plot = "${compiled_filtered_overlapping_histogram_plot}",
             log_norm_seurat_umap_video = "${log_norm_seurat_umap_video}",
             log_norm_seurat_split_cluster_video = "${log_norm_seurat_split_cluster_video}",
-            log_norm_seurat_vln_video = "${log_norm_seurat_vln_video}",
             log_norm_seurat_dot_video = "${log_norm_seurat_dot_video}",
             area_norm_seurat_umap_video = "${area_norm_seurat_umap_video}",
             area_norm_seurat_split_cluster_video = "${area_norm_seurat_split_cluster_video}",
-            area_norm_seurat_vln_video = "${area_norm_seurat_vln_video}",
             area_norm_seurat_dot_video = "${area_norm_seurat_dot_video}",
             log_norm_banksy_umap_video = "${log_norm_banksy_umap_video}",
             log_norm_banksy_split_cluster_video = "${log_norm_banksy_split_cluster_video}",
-            log_norm_banksy_vln_video = "${log_norm_banksy_vln_video}",
             log_norm_banksy_dot_video = "${log_norm_banksy_dot_video}",
             area_norm_banksy_umap_video = "${area_norm_banksy_umap_video}",
             area_norm_banksy_split_cluster_video = "${area_norm_banksy_split_cluster_video}",
-            area_norm_banksy_vln_video = "${area_norm_banksy_vln_video}",
             area_norm_banksy_dot_video = "${area_norm_banksy_dot_video}"
         )
     )
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
-    END_VERSIONS
     """
 }
