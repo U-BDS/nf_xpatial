@@ -43,6 +43,8 @@ process COMPILE_IMAGES_TO_VIDEO {
         )
     }
 
+    plots_png <- sort(unlist(plots_png))
+
     av_encode_video(
         unlist(plots_png),
         framerate = 0.5,
