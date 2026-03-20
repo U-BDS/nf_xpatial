@@ -317,7 +317,15 @@ workflow NF_XENIUM_ANALYSIS {
             def meta = ['id': 'summary_report']
             [meta, report_template]
         }
-        .combine(Channel.of(file("$baseDir/assets/style.css")))
+        .combine ( Channel.of(file("$baseDir/assets/style.css")) )
+        .combine ( Channel.of("${params.min_nCount}") )
+        .combine ( Channel.of("${params.min_nFeature}") )
+        .combine ( Channel.of("${dim_list}") )
+        .combine ( Channel.of("${res_list}") )
+        .combine ( Channel.of("${params.lambda_BANKSY}") )
+        .combine ( Channel.of("${params.k_geom_BANKSY}") )
+        .combine ( Channel.of("${params.nPCs_BANKSY}") )
+        .combine ( Channel.of("${params.res_BANKSY}") )
         .combine (
             FILTER_XENIUM_OBJ.out.filtered_stats_csv
                 .map{ meta, filtered_stat -> [1, filtered_stat] }
