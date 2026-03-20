@@ -27,15 +27,19 @@ process RENDER_SUMMARY_REPORT {
         path(log_norm_seurat_umap_video),
         path(log_norm_seurat_split_cluster_video),
         path(log_norm_seurat_dot_video),
+        path(log_norm_seurat_vln_video),
         path(area_norm_seurat_umap_video),
         path(area_norm_seurat_split_cluster_video),
         path(area_norm_seurat_dot_video),
+        path(area_norm_seurat_vln_video),
         path(log_norm_banksy_umap_video),
         path(log_norm_banksy_split_cluster_video),
         path(log_norm_banksy_dot_video),
+        path(log_norm_banksy_vln_video),
         path(area_norm_banksy_umap_video),
         path(area_norm_banksy_split_cluster_video),
-        path(area_norm_banksy_dot_video)
+        path(area_norm_banksy_dot_video),
+        path(area_norm_banksy_vln_video)
 
     output:
     tuple val(meta), path("*.html"), emit: summary_report
@@ -56,6 +60,7 @@ process RENDER_SUMMARY_REPORT {
     rmarkdown::render(
         "${report_template}",
         params = list(
+            report_title = "nf_xpatial Summary Report",
             css_file = "${css_file}",
             filtered_stats_files = "${filtered_stats_file.join(',')}",
             filtered_dim_plot = "${filtered_dim_plot}",
@@ -80,7 +85,8 @@ process RENDER_SUMMARY_REPORT {
             area_norm_banksy_umap_video = "${area_norm_banksy_umap_video}",
             area_norm_banksy_split_cluster_video = "${area_norm_banksy_split_cluster_video}",
             area_norm_banksy_dot_video = "${area_norm_banksy_dot_video}"
-        )
+        ),
+        output_file = "${prefix}.html"
     )
     """
 }

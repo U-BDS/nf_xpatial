@@ -305,6 +305,7 @@ workflow NF_XENIUM_ANALYSIS {
                     }
             )
             .groupTuple()
+            .map { meta, plot_list -> [meta, plot_list.sort{it.toString()}] }
     )
 
     //
@@ -323,16 +324,16 @@ workflow NF_XENIUM_ANALYSIS {
                 .groupTuple()
                 .map{ key, filtered_file_list -> [filtered_file_list] }
         )
-        .combine ( SPATIAL_QC_POSTFILTER.out.dim_plot.map {meta, dim_plot -> [dim_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.vln_plot.map {meta, vln_plot -> [vln_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.feature_scatter_plot.map {meta, feat_scatter_plot -> [feat_scatter_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.nfeature_plot.map {meta, nfeature_plot -> [nfeature_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.ncount_plot.map {meta, ncount_plot -> [ncount_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.cell_shape_plot.map{meta, cell_shape_plot -> [cell_shape_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.cell_segm_plot.map {meta, cell_segm_plot -> [cell_segm_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.area_histogram_plot.map {meta, area_histogram_plot -> [area_histogram_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.area_box_plot.map {meta, area_box_plot -> [area_box_plot]} )
-        .combine ( SPATIAL_QC_POSTFILTER.out.area_overlapping_histogram_plot.map {meta, area_histogram_plot -> [area_histogram_plot]} )
+        .combine ( SPATIAL_QC_POSTFILTER.out.dim_plot.map {meta, dim_plot -> [dim_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.vln_plot.map {meta, vln_plot -> [vln_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.feature_scatter_plot.map {meta, feat_scatter_plot -> [feat_scatter_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.nfeature_plot.map {meta, nfeature_plot -> [nfeature_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.ncount_plot.map {meta, ncount_plot -> [ncount_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.cell_shape_plot.map{meta, cell_shape_plot -> [cell_shape_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.cell_segm_plot.map {meta, cell_segm_plot -> [cell_segm_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.area_histogram_plot.map {meta, area_histogram_plot -> [area_histogram_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.area_box_plot.map {meta, area_box_plot -> [area_box_plot]}.ifEmpty([]) )
+        .combine ( SPATIAL_QC_POSTFILTER.out.area_overlapping_histogram_plot.map {meta, area_histogram_plot -> [area_histogram_plot]}.ifEmpty([]) )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
                 .filter { meta, video -> 
@@ -341,6 +342,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Harmony' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -350,6 +352,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Harmony' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -359,6 +362,17 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Harmony' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_VLH')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -368,6 +382,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Harmony' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -377,6 +392,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Harmony' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -386,7 +402,18 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Harmony' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'Harmony' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_VAH')])
+        )        
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
                 .filter { meta, video -> 
@@ -395,6 +422,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -404,6 +432,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -413,6 +442,17 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_VLB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -422,6 +462,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -431,6 +472,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -440,6 +482,17 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
+                .ifEmpty([])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSY' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_VAB')])
         )
     )
 
