@@ -214,8 +214,7 @@ for (cluster_file in cluster_file_list) {
         clusters_df <- read.csv(cluster_file, row.names = 1)
         
         # set clusters to be a sorted factor
-        clusters_df[[1]] <- factor(clusters_df[[1]],
-                                   levels = sort(unique(clusters_df[[1]])))
+        clusters_df <- lapply(clusters_df, function(x) { factor(x, levels = sort(unique(x)))})
 
         # Ensure that the order of rownames matches between xenium metadata and new metadata
         common_cells <- intersect(rownames(xenium_obj@meta.data), rownames(clusters_df))
