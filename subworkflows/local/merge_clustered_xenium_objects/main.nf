@@ -73,6 +73,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         id: meta.id,
                         clustering_method: meta.clustering_method,
                         normalization: meta.normalization,
+                        lambda: meta.lambda
                     ]
                     [new_meta, cluster_csv]
                 }
@@ -89,7 +90,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         .map { meta, cluster_csv -> 
                             def new_meta = [
                                 id: meta.id,
-                                normalization: meta.normalization,
+                                normalization: meta.normalization
                             ]
                             [new_meta, meta, cluster_csv]
                         }
@@ -105,10 +106,14 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         EXTRACT_CONNECTED_CLUSTERS (
             CONNECT_CLUSTERS.out.connected_xenium_obj
-                .map { meta, xenium_obj -> [meta.normalization, meta, xenium_obj]}
+                .map { meta, xenium_obj -> 
+                    def join_key = meta.normalization + meta.lambda
+                    [join_key, meta, xenium_obj]}
                 .combine (
                     ch_cluster_csvs.banksy
-                        .map{ meta, cluster_csv -> [meta.normalization, meta]}
+                        .map{ meta, cluster_csv -> 
+                        def join_key = meta.normalization + meta.lambda
+                        [join_key, meta]}
                     , by: 0
                 )
                 .map { norm_method, xenium_obj_meta, xenium_obj, cluster_csv_meta ->
@@ -121,8 +126,8 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         MERGE_CLUSTER_CSV (
             EXTRACT_CONNECTED_CLUSTERS.out.cluster_metadata
-                .mix(ch_cluster_csvs.harmony)
-                .map{ meta, cluster_csv -> 
+                .mix (ch_cluster_csvs.harmony)
+                .map { meta, cluster_csv -> 
                     def new_meta = [
                         id: meta.id,
                         normalization: meta.normalization,
