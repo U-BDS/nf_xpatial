@@ -8,50 +8,91 @@
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/U-BDS/nf_xenium_analysis)
 
 ## Introduction
 
-**U-BDS/nf_xenium_analysis** is a bioinformatics pipeline that ...
+**U-BDS/nf_xpatial** is a best-practices bioinformatics pipeline written in Nextflow that can be used to perform tertiary analysis on 10X Xenium data. It uses the output directories produced by the Xenium Analyzer instrument as input and performs quality control, filtering, normalization, and clustering, and generates configurable figures that can be reviewed individually or in the final summary report.
 
-<!-- TODO
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to the pipeline here, in 15-20 seconds. 
--->
+## Pipeline Summary
 
-<!-- TODO: Include a figure that guides the user through the major workflow steps. Many
-     workflows use the "tube map" design for that. --> 
-<!-- TODO: Fill in short bullet-pointed list of the default steps in the pipeline -->
+1. Create Seurat object from Xenium output
+2. Generate QC images for initial seurat object
+   1. Cell Area QC (`Area Box Plot`, `Area Histogram Plot`, `Overlapping Histogram Plot`)
+   2. Cell Shape QC (`Cell Segmentation Proportion Plot`, `Cell Shape Proportion Plot`)
+   3. Gene Pair QC (`Barnyard Plot`, `Heatmap Plot`)
+   4. General QC (`Image Dim Plot`, `nFeature/nCount Violin Plot`, `nFeature/nCount Feature Scatter Plot`, `nFeature Dim Plot`, `nCount Dim Plot`)
+3. Filter the Seurat object
+4. Generate QC images for filtered seurat object
+   1. Cell Area QC (`Area Box Plot`, `Area Histogram Plot`, `Overlapping Histogram Plot`)
+   2. Cell Shape QC (`Cell Segmentation Proportion Plot`, `Cell Shape Proportion Plot`)
+   3. Gene Pair QC (`Barnyard Plot`, `Heatmap Plot`)
+   4. General QC (`Image Dim Plot`, `nFeature/nCount Violin Plot`, `nFeature/nCount Feature Scatter Plot`, `nFeature Dim Plot`, `nCount Dim Plot`)
+5. Normalize the Seurat object (Choose between `area normalization`, `log normalization`, or `both`)
+6. Merge normalized Seurat objects
+7. Perform Seurat clustering for single-cell clustering
+   1. Scale data
+   2. Run PCA
+   3. Run Harmony
+   4. Run UMAP
+   5. Find Neighbors
+   6. Find Clusters
+8. Perform BANKSY clustering for single-cell and spatial-domain clsutering
+   1. Convert to Spatial Experiment
+   2. Stagger Spatial Coordinates
+   3. Compute BANKSY Matrix
+   4. Compute BANKSY PCA 
+   5. Run Harmony BANKSY
+   6. Run BANKSY Umap
+9. Merge BANKSY and Seurat clustered objects into a single object
+10. Generate Cluster QC images (This is done for all parameter combinations) (`UMAP Dim Plot`, `Split Cluster Plot`, `Marker Violin Plot`, `Marker Dot Plot`)
+11. Generate final summary report
 
 ## Usage
 
-> [!NOTE]
-<!-- Add installation notes -->
-<!-- TODO: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+First, prepare a csv file containing metadata for the samples you wish to analyze. You can create separate metadata csv's for each sample or create a single metadata csv that contains information for all samples. (The only required columns in this file are `SampleID` and `BiologicalGroup`, however you can add additional columns that will be stored on the seurat object)
 
-First, prepare a samplesheet with your input data that looks as follows:
+`metadata.csv`
+
+```csv
+SampleID,BiologicalGroup
+XNM001,Control
+XNM002,Treatment
+XNM003,Control
+XNM004,Treatment
+```
+
+If you have any tissue annotations, i.e. regions that you have drawn and labelled using the Xenium Explorer, you are able to add these onto the seurat object. Once the annotations are exported outside of Xenium Explorer, these will need to be reformatted so that all the annotations are in a tab-delimited file with the columns `Cell_ID` and `Tissue_annotation`. To assist with this step, we provide a script in this repository (`bin/gather_xenium_explorer_annotations.csv`) that can be used to process the exports from Xenium Explorer into the format needed by this pipeline.
+
+Additionally, this step can also be used to remove parts of a slide by labelling the region you wish to remove as `REMOVE` in Xenium Explorer. The most common use cases for this are to remove parts of sample that has folded over on itself or to remove regions that are from a different sample (NOTE: The pipeline does not currently have a way to add these regions back to the sample it belongs to)
+
+Finally, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,xenium,metadata,manual_annotation
+XNM001,/path/to/XNM001_xenium_output,/path/to/xenium_metadata.csv,/path/to/XNM001_manual_annotation.csv
+XNM002,/path/to/XNM002_xenium_output,
+XNM003,/path/to/XNM003_xenium_output,
+XNM004,/path/to/XNM003_xenium_output,/path/to/xenium_metadata.csv,/path/to/XNM004_manual_annotation.csv
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+Each row represents a directory produced by the Xenium Analyzer instrument.
 
--->
 
 Now, you can run the pipeline using:
 
-<!-- TODO: update the following command to include all required parameters for a minimal example -->
-
 ```bash
-nextflow run U-BDS/nf_xenium_analysis \
+nextflow run U-BDS/nf_xpatial \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
+   --normalization_method "area,log" \
+   --dim_Seurat "5,10,15,25" \
+   --res_Seurat "0.4,0.5,0.6,0.7" \
+   --lambda_BANKSY "0.0,0.2,0.8,0.9" \
+   --k_geom_BANKSY "15,30" \
+   --nPCs_BANKSY "20,30" \
+   --res_BANKSY "0.4,0.5,0.6,0.7,0.8,0.9,1.0" \
    --outdir <OUTDIR>
 ```
 
@@ -60,11 +101,7 @@ nextflow run U-BDS/nf_xenium_analysis \
 
 ## Credits
 
-U-BDS/nf_xenium_analysis was originally written by Nilesh Kumar, Luke Potter, Austyn Trull, Lara Ianov.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO: If applicable, make list of people who have also contributed -->
+U-BDS/nf_xpatial was originally written by Nilesh Kumar, Luke Potter, Austyn Trull, Lara Ianov.
 
 ## Contributions and Support
 
@@ -74,8 +111,6 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 <!-- TODO: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 <!-- If you use U-BDS/nf_xenium_analysis for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
