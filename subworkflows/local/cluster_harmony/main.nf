@@ -68,16 +68,16 @@ workflow CLUSTER_HARMONY {
                 }
         )
 
-        if (!skip_tsne_plot) {
-                        //
-            // MODULE: Generate a dim plot with contours for TSNE
-            //
-            TSNE_DIM_PLOT (
-                FIND_CLUSTERS.out.find_clusters_xenium_obj
-            )
+        // if (!skip_tsne_plot) {
+        //                 //
+        //     // MODULE: Generate a dim plot with contours for TSNE
+        //     //
+        //     TSNE_DIM_PLOT (
+        //         FIND_CLUSTERS.out.find_clusters_xenium_obj
+        //     )
 
-            ch_tsne_dim_plot = TSNE_DIM_PLOT.out.countour_dim_plot
-        }
+        //     ch_tsne_dim_plot = TSNE_DIM_PLOT.out.countour_dim_plot
+        // }
 
         ch_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
             .map { meta, xenium_obj ->

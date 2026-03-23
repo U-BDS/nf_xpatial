@@ -31,7 +31,7 @@ workflow NORMALIZE_DATA {
             ch_log_norm_objs = NORMALIZE_LOG.out.normalized_xenium_obj
                 .map {
                     meta, xenium_obj ->
-                        def new_meta = meta + [normalization: 'log_norm']
+                        def new_meta = meta + [normalization: 'log_norm', assay: 'Xenium']
                     [new_meta, xenium_obj]
                 }
 
@@ -44,7 +44,7 @@ workflow NORMALIZE_DATA {
                     }
                     .collect()
                     .map{
-                        [ [ 'id': 'compiled_log_norm', 'normalization': 'log_norm' ], it ]
+                        [ [ 'id': 'compiled_log_norm', 'normalization': 'log_norm', 'assay': 'Xenium' ], it ]
                     }
             )
             ch_compiled_norm_objects = ch_compiled_norm_objects.mix(COMPILE_LOG_OBJECTS.out.compiled_obj)
@@ -62,7 +62,7 @@ workflow NORMALIZE_DATA {
             ch_area_norm_objs = NORMALIZE_AREA.out.normalized_xenium_obj
                 .map {
                     meta, xenium_obj ->
-                        def new_meta = meta + [normalization: 'area_norm']
+                        def new_meta = meta + [normalization: 'area_norm', assay: 'AreaNorm']
                     [new_meta, xenium_obj]
                 }
 
@@ -75,7 +75,7 @@ workflow NORMALIZE_DATA {
                     }
                     .collect()
                     .map{
-                        [ [ 'id': 'compiled_area_norm', 'normalization': 'area_norm'], it ]
+                        [ [ 'id': 'compiled_area_norm', 'normalization': 'area_norm', 'assay': 'AreaNorm'], it ]
                     }
             )
             ch_compiled_norm_objects = ch_compiled_norm_objects.mix(COMPILE_AREA_OBJECTS.out.compiled_obj)

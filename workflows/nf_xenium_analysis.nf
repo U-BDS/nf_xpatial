@@ -224,6 +224,26 @@ workflow NF_XENIUM_ANALYSIS {
         )
 
     //
+    // SUBWORKFLOW: Perform BANKSY clustering on xenium objects using Seurat wrapper
+    //
+
+    CLUSTER_BANKSY_SEURAT_WRAPPER (
+        params.skip_banksy_vf_filter ? GET_VARIABLE_FEATURES.out.vf_xenium_obj : GET_VARIABLE_FEATURES.out.vf_subset_obj,
+        params.lambda_BANKSY.split(',').collect { it as Float },
+        params.k_geom_BANKSY.split(',').collect { it as Integer },
+        params.nPCs_BANKSY.split(',').collect { it as Integer },
+        params.res_BANKSY.split(',').collect { it as Float },
+        params.use_agf_BANKSY
+    )
+
+    ch_cluster_params = CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj
+        .map {meta, xenium_obj ->
+            def norm_method = meta.normalization
+            [norm_method, meta]
+        }
+        .distinct()
+
+    //
     // SUBWORKFLOW: Merge Harmony and BANKSY clustered xenium objects
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (

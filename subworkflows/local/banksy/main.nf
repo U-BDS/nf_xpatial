@@ -13,10 +13,9 @@ workflow BANKSY {
         ch_merged_xenium_obj    // channel: merged xenium objects
         lambda_list             // list: list of lambda values to evaluate
         k_geom_list             // list: list of k_geom values to evaluate
-        nPCs_list               // list: list of nPCs values to evaluate
+        dim_list                // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
         use_agf_BANKSY          // boolean: whether to use AGF in BANKSY
-
 
     main:
         ch_versions = Channel.empty()
@@ -51,18 +50,18 @@ workflow BANKSY {
         // MODULE: Compute BANKSY PCAs
 
         // This is to fix a race condition that occurs randomly on resumes
-        ch_lambda_npc = Channel.of(lambda_list)
+        ch_lambda_dim = Channel.of(lambda_list)
             .flatten()
             .combine(
-                Channel.of(nPCs_list).flatten().max()
+                Channel.of(dim_list).flatten().max()
             )
 
         COMPUTE_BANKSY_PCA (
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
-                .combine( ch_lambda_npc )
+                .combine( ch_lambda_dim )
                 .map {
-                    meta, spe, lambda, max_nPC ->
-                        def new_meta = meta + [lambda: lambda, max_nPC: max_nPC]
+                    meta, spe, lambda, max_dim ->
+                        def new_meta = meta + [lambda: lambda, max_dim: max_dim]
                         [new_meta, spe]
                 }
         )
@@ -70,10 +69,10 @@ workflow BANKSY {
         // MODULE: Run BANKSY Harmony
         RUN_HARMONY_BANKSY (
             COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
-                .combine ( Channel.of(nPCs_list).flatten() )
+                .combine ( Channel.of(dim_list).flatten() )
                 .map {
-                    meta, spe, nPCs ->
-                        def new_meta = meta + [nPCs: nPCs]
+                    meta, spe, dims ->
+                        def new_meta = meta + [dim: dims]
                         [new_meta, spe]
                 }
         )

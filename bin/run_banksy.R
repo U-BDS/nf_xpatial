@@ -43,7 +43,12 @@ params_list <- list(
         type="character",
         default="filtered_xenium_obj.rds",
         metavar="path",
-        help="The filtered xenium object")
+        help="The filtered xenium object"),
+    make_option(
+        c("-f", "--features"),
+        type="character",
+        default="all",
+        help="The features to use for clustering (default: all, optins: all, variable)")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -60,7 +65,7 @@ xenium_obj <- readRDS(file = opt$input)
 DefaultAssay(xenium_obj) <- opt$assay
 
 ######################
-### CLUSTER_BANKSY ###
+### RUN_BANKSY ###
 ######################
 
 xenium_obj <- RunBanksy(
@@ -68,10 +73,14 @@ xenium_obj <- RunBanksy(
     lambda = opt$lambda,
     k_geom = opt$k_geom,
     assay = opt$assay,
+    dimx = "x",
+    dimy = "y",
     slot = "data",
-    features = "variable",
-    group = "sample_id",
-    split.scale = TRUE
+    features = opt$features,
+    group = "Sample",
+    verbose = TRUE,
+    split.scale = FALSE,
+    assay_name = paste0(opt$assay, "_BANKSY")
 )
 
 #################

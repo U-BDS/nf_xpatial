@@ -22,7 +22,7 @@ process ADD_CLUSTER_DATA_TO_SEURAT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
     """
     add_cluster_data_to_seurat.R \\

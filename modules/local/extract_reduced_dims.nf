@@ -24,7 +24,7 @@ process EXTRACT_REDUCED_DIMS {
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
     def param_string_flag = meta.clustering_method == 'BANKSY' ?
         "--param_string l" + "${meta.lambda}" + "-k" + "${meta.k_geom}" + "-d" + "${meta.dim}" :

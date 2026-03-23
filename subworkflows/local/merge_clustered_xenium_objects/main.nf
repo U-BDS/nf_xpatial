@@ -19,6 +19,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         // MODULE: Extract reduced dims
         //
+
         EXTRACT_REDUCED_DIMS (
             ch_clustered_xenium_obj
                 .map{ meta, xenium_obj ->
@@ -26,7 +27,8 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         id: meta.id,
                         normalization: meta.normalization,
                         dim: meta.dim ?: meta.nPCs,
-                        clustering_method: meta.clustering_method
+                        clustering_method: meta.clustering_method,
+                        assay: meta.assay
                     ]
 
                     if (meta.clustering_method == 'BANKSY') {
@@ -53,15 +55,14 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
             ch_clustered_xenium_obj
         )
 
-        //
-        // MODULE: Merge cluster csvs
-        //
         ch_cluster_csvs = EXTRACT_CLUSTER_METADATA.out.cluster_metadata
             .branch {
                 meta, cluster_csv ->
                     banksy: meta.clustering_method == 'BANKSY'
                     harmony: meta.clustering_method == 'Harmony'
+                    banksy_seurat: meta.clustering_method == 'BANKSYSeurat'
             }
+
 
         //
         // MODULE: Merge BANKSY cluster csvs
@@ -73,7 +74,8 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         id: meta.id,
                         clustering_method: meta.clustering_method,
                         normalization: meta.normalization,
-                        lambda: meta.lambda
+                        lambda: meta.lambda,
+                        assay: meta.assay
                     ]
                     [new_meta, cluster_csv]
                 }
@@ -90,7 +92,8 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         .map { meta, cluster_csv -> 
                             def new_meta = [
                                 id: meta.id,
-                                normalization: meta.normalization
+                                normalization: meta.normalization,
+                                assay: meta.assay
                             ]
                             [new_meta, meta, cluster_csv]
                         }
@@ -121,7 +124,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 }
         )
 
-        //
+                //
         // MODULE: Merge all cluster csvs into a single csv
         //
         MERGE_CLUSTER_CSV (
@@ -137,9 +140,48 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 .groupTuple()
         )
 
+        // Create a channel of cluster csvs
+        ch_split_cluster_csvs.harmony
+            .mix( ch_split_cluster_csvs.banksy_seurat )
+            .map { meta, cluster_csv -> 
+                def new_meta = [
+                    id: meta.id,
+                    normalization: meta.normalization,
+                    assay: meta.assay.replace('_BANKSY', '')
+                ]
+                [new_meta, cluster_csv]
+            }
+            .groupTuple()
+            .set { ch_cluster_csvs }
+        
+        // Create and process the reduction csvs
+        EXTRACT_REDUCED_DIMS.out.embeddings_csv
+            .mix(EXTRACT_REDUCED_DIMS.out.loadings_csv)
+            .mix(EXTRACT_REDUCED_DIMS.out.stdev_csv)
+            .map { meta, file_list -> 
+                def new_meta = [
+                    id: meta.id,
+                    normalization: meta.normalization,
+                    assay: meta.assay.replace('_BANKSY', '')
+                ]
+                [new_meta, file_list]
+            }
+            .groupTuple()
+            .map { meta, file_list -> 
+                [meta, file_list.flatten()]
+            }
+            .multiMap { meta, files ->
+                embeddings: files.findAll { it.name.contains('embeddings') } ? [meta, files.findAll { it.name.contains('embeddings') }] : null
+                loadings: files.findAll { it.name.contains('loadings') } ? [meta, files.findAll { it.name.contains('loadings') }] : null  
+                stdev: files.findAll { it.name.contains('stdev') } ? [meta, files.findAll { it.name.contains('stdev') }] : null
+            }
+            .set { ch_reduction_csvs }
+        
         //
         // MODULE: Add Harmony cluster info to Seurat object
         //
+
+        // TODO: If the object already has cluster info, make sure to remove them
         ADD_CLUSTER_DATA_TO_SEURAT (
             ch_merged_xenium_obj
                 .join (

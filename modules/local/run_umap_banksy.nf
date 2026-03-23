@@ -30,6 +30,6 @@ process RUN_UMAP_BANKSY {
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_umap_spe.rds" \\
         --lambda "${meta.lambda}" \\
-        --nPCs "${meta.nPCs}"
+        --nPCs "${meta.dim}"
     """
 }

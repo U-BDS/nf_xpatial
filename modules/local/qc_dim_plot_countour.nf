@@ -25,21 +25,28 @@ process QC_DIM_PLOT_COUNTOUR {
 
     def embeddings_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        embeddings_flag = "--embedding BSKY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
+        embeddings_flag = "--embedding BANKSY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
             ".k" + "${meta.k_geom}" + 
-            ".d" + "${meta.nPCs}"
+            ".d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "Harmony"){
-        embeddings_flag = "--embedding HMY_umap_d" + "${meta.dim}"
+        embeddings_flag = "--embedding Harmony_umap_d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
+        embeddings_flag = "--embedding BANKSYSeurat_umap_d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
     if ("${meta.clustering_method}" == "BANKSY"){
         cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_n" + "${meta.nPCs}" + 
+            "_n" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "Harmony"){
         cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
+        cluster_flag = "--cluster_col clust_HMY_l" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     }
 

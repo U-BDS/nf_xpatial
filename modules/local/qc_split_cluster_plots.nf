@@ -22,25 +22,32 @@ process QC_SPLIT_CLUSTER_PLOTS {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
     def reductions_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        reductions_flag = "--reduction BSKY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
+        reductions_flag = "--reduction BANKSY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
             ".k" + "${meta.k_geom}" + 
-            ".d" + "${meta.nPCs}"
+            ".d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "Harmony"){
-        reductions_flag = "--reduction HMY_umap_d" + "${meta.dim}"
+        reductions_flag = "--reduction Harmony_umap_d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
+        reductions_flag = "--reduction BANKSYSeurat_umap_d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
     if ("${meta.clustering_method}" == "BANKSY"){
         cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_n" + "${meta.nPCs}" + 
-            "_r" + "${meta.res}"
+            "_d" + "${meta.dim}" + 
+            "_R" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "Harmony"){
         cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
+        cluster_flag = "--cluster_col clust_HMY_l" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     }
 
