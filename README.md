@@ -9,6 +9,17 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
+- [U-BDS/nf\_xenium\_analysis](#u-bdsnf_xenium_analysis)
+  - [Introduction](#introduction)
+  - [Pipeline Summary](#pipeline-summary)
+  - [Usage](#usage)
+  - [Outputs](#outputs)
+  - [Notes](#notes)
+  - [Credits](#credits)
+  - [Contributions and Support](#contributions-and-support)
+  - [Citations](#citations)
+
+
 ## Introduction
 
 **U-BDS/nf_xpatial** is a best-practices bioinformatics pipeline written in Nextflow that can be used to perform tertiary analysis on 10X Xenium data. It uses the output directories produced by the Xenium Analyzer instrument as input and performs quality control, filtering, normalization, and clustering, and generates configurable figures that can be reviewed individually or in the final summary report.
@@ -79,7 +90,6 @@ XNM004,/path/to/XNM003_xenium_output,/path/to/xenium_metadata.csv,/path/to/XNM00
 
 Each row represents a directory produced by the Xenium Analyzer instrument.
 
-
 Now, you can run the pipeline using:
 
 ```bash
@@ -97,7 +107,24 @@ nextflow run U-BDS/nf_xpatial \
 ```
 
 > [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; 
+> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
+
+## Outputs
+`U-BDS/nf_xpatial` produces a number of files and figures that can be used to review the quality of the data and refine parameters. However, the main output of this pipeline are `.rds` objects that contain all clustering results into a central object. An `.rds` object is created for each normalization method specified by the `--normalization_method` pipeline parameter.
+
+Because these objects contain all clustering results and all dimension reductions they can be quite large, making it prudent to filter these objects to a single (or selection) of parameter combinations. In order to do that, its important to note how data is stored on each object:
+
+1. Each normalization stores its result in a specific assay, `log_norm` stores its data in the `Xenium` assay, while `area_norm` stores its data in the `AreaNorm` assay. 
+2. The clustering calls are stored in the objects metadata with the regex `clust_HMY_d*_r*` (where d is the dimension and r is the resolution) for Seurat clusters and `clust_BSKY_l*_k*_n*_r*` (where l is lambda, k is k_geom, n is nPCs, and r is resolution) for BANKSY clusters.
+3. UMAP dimension reductions are accessible using the regex `Harmony_umap_d` (where d is the dimension) for Seurat reductions and  `BANKSY_UMAPBANKSYharmony_l*.k*.d*` (where l is lambda, k is k_geom, d is nPCs) for BANKSY reductions.
+
+To assist with filtering this object, we provided this [script](assets/filter_xenium_obj.R) (located at `assets/filter_xenium_obj.R`) to perform the filtering as well as listing some examples on how to use the provided script.
+
+For in-depth descriptions and locations of the additional outputs within the results folder, refer to this [document](assets/outputs.md) (located at `assets/outputs.md`)
+
+## Notes
+
+- This pipeline can use a gene list via the `--marker_list` flag. The marker list will be used to generate barnyard plots, as well as dot plots and violin plots for each parameter combination. The marker list needs to be a csv with column names 'group' and 'gene'. Dot plots and violin plots will group genes based on the 'group' column and will print each 'group' on a separate page in their pdf output. Both the dot plot and violin plot will split groups to prevent the plots from becoming overcrowded. By default they will separate groups if they are over 50 genes long, and will spread the group out over multiple pages if it is. This can be configured via custom config by modifying the `--max_genes_per_group <INT>` parameter for the `MARKER_DOT_PLOT` and `MARKER_VLN_PLOT` processes.
 
 ## Credits
 
