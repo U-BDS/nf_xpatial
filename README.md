@@ -26,6 +26,8 @@
 
 ## Pipeline Summary
 
+![pipeline diagram](./assets/nf_xpatial_metro.png)
+
 1. Create Seurat object from Xenium output
 2. Generate QC images for initial seurat object
    1. Cell Area QC (`Area Box Plot`, `Area Histogram Plot`, `Overlapping Histogram Plot`)
