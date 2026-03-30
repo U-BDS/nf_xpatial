@@ -29,6 +29,7 @@ process COMPILE_OBJECTS {
     library(stringr)
 
     file_list <- str_split_1("${xenium_list}", "\\\\s")
+    file_list <- sort(file_list)
     
     obj_list = list()
 
