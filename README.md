@@ -5,7 +5,6 @@
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
-[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
@@ -87,7 +86,7 @@ sample,xenium,metadata,manual_annotation
 XNM001,/path/to/XNM001_xenium_output,/path/to/xenium_metadata.csv,/path/to/XNM001_manual_annotation.csv
 XNM002,/path/to/XNM002_xenium_output,
 XNM003,/path/to/XNM003_xenium_output,
-XNM004,/path/to/XNM003_xenium_output,/path/to/xenium_metadata.csv,/path/to/XNM004_manual_annotation.csv
+XNM004,/path/to/XNM004_xenium_output,/path/to/xenium_metadata.csv,/path/to/XNM004_manual_annotation.csv
 ```
 
 Each row represents a directory produced by the Xenium Analyzer instrument.
@@ -122,7 +121,7 @@ Because these objects contain all clustering results and all dimension reduction
 
 To assist with filtering this object, we provided this [script](assets/filter_xenium_obj.R) (located at `assets/filter_xenium_obj.R`) to perform the filtering as well as listing some examples on how to use the provided script.
 
-For in-depth descriptions and locations of the additional outputs within the results folder, refer to this [document](assets/outputs.md) (located at `assets/outputs.md`)
+For in-depth descriptions and locations of the additional outputs within the results folder, refer to this [document](docs/output.md) (located at `docs/output.md`)
 
 ## Notes
 
@@ -139,14 +138,14 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 
 <!-- TODO: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use U-BDS/nf_xenium_analysis for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use U-BDS/nf_xpatial for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
-An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
-This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).
-
-> **The nf-core framework for community-curated bioinformatics pipelines.**
+This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) initative, and reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
+ 
+> The nf-core framework for community-curated bioinformatics pipelines.
 >
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+> Nat Biotechnol. 2020 Feb 13. doi: 10.1038/s41587-020-0439-x.
+
+In addition, an extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
