@@ -31,6 +31,7 @@ include { NORMALIZE_DATA                      } from '../subworkflows/local/norm
 include { GET_VARIABLE_FEATURES               } from '../subworkflows/local/get_variable_features'
 include { CLUSTER_HARMONY                     } from '../subworkflows/local/cluster_harmony/main'
 include { BANKSY                              } from '../subworkflows/local/banksy/main'
+include { CLUSTER_BANKSY_SEURAT_WRAPPER       } from '../subworkflows/local/cluster_banksy_seurat_wrapper/main'
 include { MERGE_CLUSTERED_XENIUM_OBJECTS      } from '../subworkflows/local/merge_clustered_xenium_objects/main'
 include { CLUSTER_QC                          } from '../subworkflows/local/cluster_qc/main' 
 

@@ -130,6 +130,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         MERGE_CLUSTER_CSV (
             EXTRACT_CONNECTED_CLUSTERS.out.cluster_metadata
                 .mix (ch_cluster_csvs.harmony)
+                .mix (ch_cluster_csvs.banksy_seurat)
                 .map { meta, cluster_csv -> 
                     def new_meta = [
                         id: meta.id,
@@ -139,20 +140,6 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 }
                 .groupTuple()
         )
-
-        // Create a channel of cluster csvs
-        ch_split_cluster_csvs.harmony
-            .mix( ch_split_cluster_csvs.banksy_seurat )
-            .map { meta, cluster_csv -> 
-                def new_meta = [
-                    id: meta.id,
-                    normalization: meta.normalization,
-                    assay: meta.assay.replace('_BANKSY', '')
-                ]
-                [new_meta, cluster_csv]
-            }
-            .groupTuple()
-            .set { ch_cluster_csvs }
         
         // Create and process the reduction csvs
         EXTRACT_REDUCED_DIMS.out.embeddings_csv
