@@ -23,14 +23,9 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
     main:
         ch_versions = Channel.empty()
 
-        // MODULE: Subset to Variable Features
-        SUBSET_VARIABLE_FEATURES (
-            ch_merged_xenium_obj
-        )
-
         // MODULE: Run BANKSY
         RUN_BANKSY (
-            SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
+            ch_merged_xenium_obj
                 .combine (Channel.of(lambda_list).flatten())
                 .combine (Channel.of(k_geom_list).flatten())
                 .map { 
