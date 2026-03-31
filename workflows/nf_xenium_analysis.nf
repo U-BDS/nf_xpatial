@@ -29,7 +29,7 @@ include { SPATIAL_QC as SPATIAL_QC_PREFILTER  } from '../subworkflows/local/spat
 include { SPATIAL_QC as SPATIAL_QC_POSTFILTER } from '../subworkflows/local/spatial_qc/main'
 include { NORMALIZE_DATA                      } from '../subworkflows/local/normalize_data/main'
 include { GET_VARIABLE_FEATURES               } from '../subworkflows/local/get_variable_features'
-include { CLUSTER_HARMONY                     } from '../subworkflows/local/cluster_harmony/main'
+include { CLUSTER_SEURAT                      } from '../subworkflows/local/cluster_seurat/main'
 include { BANKSY                              } from '../subworkflows/local/banksy/main'
 include { CLUSTER_BANKSY_SEURAT_WRAPPER       } from '../subworkflows/local/cluster_banksy_seurat_wrapper/main'
 include { MERGE_CLUSTERED_XENIUM_OBJECTS      } from '../subworkflows/local/merge_clustered_xenium_objects/main'
@@ -176,7 +176,7 @@ workflow NF_XENIUM_ANALYSIS {
     )
 
     //
-    // SUBWORKFLOW: Perform harmony integration on xenium objects
+    // SUBWORKFLOW: Perform Seurat clustering on xenium objects
     //
 
     // Use the user-provided start, stop, and range values to generate a list of dimensions and resolutions
@@ -188,14 +188,14 @@ workflow NF_XENIUM_ANALYSIS {
         ? (0..<( ((params.res_stop + params.res_step) - params.res_start) / params.res_step )).collect { params.res_start + it * params.res_step }
         : params.selected_res
 
-    CLUSTER_HARMONY (
+    CLUSTER_SEURAT (
         GET_VARIABLE_FEATURES.out.vf_xenium_obj,
         dim_list,
         res_list,
         params.skip_qc || params.skip_tsne_plot
     )
 
-    ch_cluster_params = CLUSTER_HARMONY.out.harmony_clustered_xenium_obj
+    ch_cluster_params = CLUSTER_SEURAT.out.seurat_clustered_xenium_obj
         .map {meta, xenium_obj ->
             def norm_method = meta.normalization
             [norm_method, meta]
@@ -245,12 +245,12 @@ workflow NF_XENIUM_ANALYSIS {
         .distinct()
 
     //
-    // SUBWORKFLOW: Merge Harmony and BANKSY clustered xenium objects
+    // SUBWORKFLOW: Merge Seurat and BANKSY clustered xenium objects
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (
         GET_VARIABLE_FEATURES.out.vf_xenium_obj,
         BANKSY.out.banksy_clustered_xenium_obj
-            .mix( CLUSTER_HARMONY.out.harmony_clustered_xenium_obj )
+            .mix( CLUSTER_SEURAT.out.seurat_clustered_xenium_obj )
     )
 
     //
@@ -368,7 +368,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'umap' &&
                     meta.normalization == 'log_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([])
@@ -378,7 +378,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'split_cluster' &&
                     meta.normalization == 'log_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([])
@@ -388,7 +388,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'dot_plot' &&
                     meta.normalization == 'log_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([])
@@ -398,7 +398,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'vln_plot' &&
                     meta.normalization == 'log_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([file('NO_VLH')])
@@ -408,7 +408,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'umap' &&
                     meta.normalization == 'area_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([])
@@ -418,7 +418,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'split_cluster' &&
                     meta.normalization == 'area_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([])
@@ -428,7 +428,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'dot_plot' &&
                     meta.normalization == 'area_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([])
@@ -438,7 +438,7 @@ workflow NF_XENIUM_ANALYSIS {
                 .filter { meta, video -> 
                     meta.plot_type == 'vln_plot' &&
                     meta.normalization == 'area_norm' &&
-                    meta.clustering_method == 'Harmony' 
+                    meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([file('NO_VAH')])

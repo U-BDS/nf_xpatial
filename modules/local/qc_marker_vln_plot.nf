@@ -31,8 +31,8 @@ process QC_MARKER_VLN_PLOT {
             "_k" + "${meta.k_geom}" + 
             "_n" + "${meta.nPCs}" + 
             "_r" + "${meta.res}"
-    } else if ("${meta.clustering_method}" == "Harmony"){
-        cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+    } else if ("${meta.clustering_method}" == "Seurat"){
+        cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     }
 

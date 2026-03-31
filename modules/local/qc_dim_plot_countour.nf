@@ -28,8 +28,8 @@ process QC_DIM_PLOT_COUNTOUR {
         embeddings_flag = "--embedding BANKSY_umap_l" + "${meta.lambda}" + 
             ".k" + "${meta.k_geom}" + 
             ".d" + "${meta.dim}"
-    } else if ( "${meta.clustering_method}" == "Harmony"){
-        embeddings_flag = "--embedding Harmony_umap_d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "Seurat"){
+        embeddings_flag = "--embedding Seurat_umap_d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
         embeddings_flag = "--embedding BANKSYSeurat_umap_d" + "${meta.dim}"
     }
@@ -40,11 +40,11 @@ process QC_DIM_PLOT_COUNTOUR {
             "_k" + "${meta.k_geom}" + 
             "_n" + "${meta.dim}" + 
             "_r" + "${meta.res}"
-    } else if ("${meta.clustering_method}" == "Harmony"){
-        cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+    } else if ("${meta.clustering_method}" == "Seurat"){
+        cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
-        cluster_flag = "--cluster_col clust_HMY_l" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_SEU_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
             "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"

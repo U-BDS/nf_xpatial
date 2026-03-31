@@ -67,13 +67,13 @@ if (class(xenium_obj) == "Seurat") {
     print(head(xenium_obj@meta.data))
     
     cluster_metadata <- data.frame()
-    if (opt$clustering_method == "Harmony") {
+    if (opt$clustering_method == "Seurat") {
         # Extract cluster data
         cluster_metadata <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
         print(head(cluster_metadata))
 
         # Rename seurat cluster column with a similar prefix to BANKSY
-        colnames(cluster_metadata) <- gsub("seurat_clusters", "clust_HMY_", colnames(cluster_metadata))
+        colnames(cluster_metadata) <- gsub("seurat_clusters", "clust_SEU_", colnames(cluster_metadata))
 
         # Add dim and res to column name
         colnames(cluster_metadata) <- paste0(colnames(cluster_metadata), opt$param_string)

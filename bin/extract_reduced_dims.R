@@ -35,7 +35,7 @@ params_list <- list(
     make_option(
         c("-c", "--clustering_method"),
         type="character",
-        help="The clustering method used (e.g., BANKSY, Harmony)"),
+        help="The clustering method used (e.g., BANKSY, Seurat)"),
     make_option(
         c("-f", "--filter"),
         type="character",

@@ -10,7 +10,7 @@ include { FIND_NEIGHBORS                        } from '../../../modules/local/f
 include { FIND_CLUSTERS                         } from '../../../modules/local/find_clusters'
 include { QC_DIM_PLOT_COUNTOUR as TSNE_DIM_PLOT } from '../../../modules/local/qc_dim_plot_countour'
 
-workflow CLUSTER_HARMONY {
+workflow CLUSTER_SEURAT {
     take:
         ch_merged_xenium_obj    // channel: merged xenium objects
         dim_list                // list: list of dimensions to evaluate
@@ -81,12 +81,12 @@ workflow CLUSTER_HARMONY {
 
         ch_clustered_xenium_obj = FIND_CLUSTERS.out.find_clusters_xenium_obj
             .map { meta, xenium_obj ->
-                def new_meta = meta + [clustering_method: 'Harmony']
+                def new_meta = meta + [clustering_method: 'Seurat']
                 [new_meta, xenium_obj]
             }
 
     emit:
         versions                     = ch_versions
-        harmony_clustered_xenium_obj = ch_clustered_xenium_obj
+        seurat_clustered_xenium_obj = ch_clustered_xenium_obj
 
 }

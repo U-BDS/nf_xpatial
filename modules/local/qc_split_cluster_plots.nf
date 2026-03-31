@@ -29,8 +29,8 @@ process QC_SPLIT_CLUSTER_PLOTS {
         reductions_flag = "--reduction BANKSY_umap_l" + "${meta.lambda}" + 
             ".k" + "${meta.k_geom}" + 
             ".d" + "${meta.dim}"
-    } else if ( "${meta.clustering_method}" == "Harmony"){
-        reductions_flag = "--reduction Harmony_umap_d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "Seurat"){
+        reductions_flag = "--reduction Seurat_umap_d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
         reductions_flag = "--reduction BANKSYSeurat_umap_d" + "${meta.dim}"
     }
@@ -41,11 +41,11 @@ process QC_SPLIT_CLUSTER_PLOTS {
             "_k" + "${meta.k_geom}" + 
             "_d" + "${meta.dim}" + 
             "_R" + "${meta.res}"
-    } else if ("${meta.clustering_method}" == "Harmony"){
-        cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+    } else if ("${meta.clustering_method}" == "Seurat"){
+        cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
-        cluster_flag = "--cluster_col clust_HMY_l" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_SEUR_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
             "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
