@@ -343,10 +343,10 @@ workflow NF_XENIUM_ANALYSIS {
         .combine ( Channel.of("${params.min_nFeature}") )
         .combine ( Channel.of("${dim_list}") )
         .combine ( Channel.of("${res_list}") )
-        .combine ( Channel.of("${params.lambda_BANKSY}") )
-        .combine ( Channel.of("${params.k_geom_BANKSY}") )
-        .combine ( Channel.of("${params.nPCs_BANKSY}") )
-        .combine ( Channel.of("${params.res_BANKSY}") )
+        .combine ( Channel.of("${params.lambda_BANKSY}").collect() )
+        .combine ( Channel.of("${params.k_geom_BANKSY}").collect() )
+        .combine ( Channel.of("${params.nPCs_BANKSY}").collect() )
+        .combine ( Channel.of("${params.res_BANKSY}").collect() )
         .combine (
             FILTER_XENIUM_OBJ.out.filtered_stats_csv
                 .map{ meta, filtered_stat -> [1, filtered_stat] }
