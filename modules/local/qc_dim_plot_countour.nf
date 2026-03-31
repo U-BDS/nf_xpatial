@@ -25,7 +25,7 @@ process QC_DIM_PLOT_COUNTOUR {
 
     def embeddings_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        embeddings_flag = "--embedding BANKSY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
+        embeddings_flag = "--embedding BANKSY_umap_l" + "${meta.lambda}" + 
             ".k" + "${meta.k_geom}" + 
             ".d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "Harmony"){

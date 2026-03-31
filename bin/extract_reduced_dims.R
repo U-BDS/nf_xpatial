@@ -149,7 +149,7 @@ if (class(xenium_obj) == "Seurat") {
 
     # Save each sample-specific data frame to a csv file
     for (reduc in reductions) {
-        file_prefix <- paste0(opt$clustering_method, "_", gsub("_","",reduc), "_", opt$param_string)
+        file_prefix <- paste0(opt$clustering_method, "_", tolower(gsub("_|BANKSY|harmony","",reduc)), "_", opt$param_string)
         reduced_dim_data <- reducedDim(xenium_obj, reduc)
 
         if (reduc == "UMAP_BANKSY_harmony") {

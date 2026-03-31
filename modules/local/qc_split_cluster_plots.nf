@@ -26,7 +26,7 @@ process QC_SPLIT_CLUSTER_PLOTS {
 
     def reductions_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        reductions_flag = "--reduction BANKSY_UMAPBANKSYharmony_l" + "${meta.lambda}" + 
+        reductions_flag = "--reduction BANKSY_umap_l" + "${meta.lambda}" + 
             ".k" + "${meta.k_geom}" + 
             ".d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "Harmony"){
