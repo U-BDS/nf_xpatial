@@ -195,8 +195,18 @@ xenium_obj <- readRDS(
 #### DIM PLOT ###
 #################
 
-# TODO: How to do colors
-# Need to get all the groups and assign them a color
+# Get the maximum number of clusters across all cluster columns to determine how many colors we need for the plot
+# This ensures that all plots will have the same color palette
+
+all_cluster_cols <- xenium_obj@meta.data[grepl("*clust*", colnames(xenium_obj@meta.data))] 
+
+max_cluster_amount <- max(
+  unlist(
+    lapply(all_cluster_cols, function (x) {length(levels(x))})
+  )
+)
+
+colors <- colorRampPalette(brewer.pal(n = 12, name = "Paired"))(max_cluster_amount)
 
 # Output the plot
 dim_plot_contour <- Dimplot_contour_ggplot(
@@ -210,6 +220,7 @@ dim_plot_contour <- Dimplot_contour_ggplot(
             plot.title = element_text(size = 32, hjust = 0.5, face = "bold")
         )
     ) + theme(plot.title = element_text(size = opt$axis_label_size, hjust = 0.5))
+     + scale_color_manual(values = colors)
 
 ###################
 ### OUTPUT PLOT ###
