@@ -219,8 +219,8 @@ dim_plot_contour <- Dimplot_contour_ggplot(
         theme = theme(
             plot.title = element_text(size = 32, hjust = 0.5, face = "bold")
         )
-    ) + theme(plot.title = element_text(size = opt$axis_label_size, hjust = 0.5))
-     + scale_color_manual(values = colors)
+    ) + theme(plot.title = element_text(size = opt$axis_label_size, hjust = 0.5)) +
+     scale_color_manual(values = colors)
 
 ###################
 ### OUTPUT PLOT ###
