@@ -237,12 +237,15 @@ workflow NF_XENIUM_ANALYSIS {
         params.use_agf_BANKSY
     )
 
-    ch_cluster_params = CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj
-        .map {meta, xenium_obj ->
-            def norm_method = meta.normalization
-            [norm_method, meta]
-        }
-        .distinct()
+    ch_cluster_params = ch_cluster_params
+        .mix (
+            CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj
+                .map {meta, xenium_obj ->
+                    def norm_method = meta.normalization
+                    [norm_method, meta]
+                }
+                .distinct()
+        )
 
     //
     // SUBWORKFLOW: Merge Seurat and BANKSY clustered xenium objects
@@ -251,6 +254,7 @@ workflow NF_XENIUM_ANALYSIS {
         GET_VARIABLE_FEATURES.out.vf_xenium_obj,
         BANKSY.out.banksy_clustered_xenium_obj
             .mix( CLUSTER_SEURAT.out.seurat_clustered_xenium_obj )
+            .mix( CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj)
     )
 
     //
@@ -339,14 +343,6 @@ workflow NF_XENIUM_ANALYSIS {
             [meta, report_template]
         }
         .combine ( Channel.of(file("$baseDir/assets/style.css")) )
-        .combine ( Channel.of("${params.min_nCount}") )
-        .combine ( Channel.of("${params.min_nFeature}") )
-        .combine ( Channel.of("${dim_list}") )
-        .combine ( Channel.of("${res_list}") )
-        .combine ( Channel.of("${params.lambda_BANKSY}").collect() )
-        .combine ( Channel.of("${params.k_geom_BANKSY}").collect() )
-        .combine ( Channel.of("${params.nPCs_BANKSY}").collect() )
-        .combine ( Channel.of("${params.res_BANKSY}").collect() )
         .combine (
             FILTER_XENIUM_OBJ.out.filtered_stats_csv
                 .map{ meta, filtered_stat -> [1, filtered_stat] }
@@ -371,7 +367,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_ULS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -381,7 +377,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_SLS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -391,7 +387,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_DLS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -401,7 +397,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([file('NO_VLH')])
+                .ifEmpty([file('NO_VLS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -411,7 +407,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_UAS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -421,7 +417,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_SAS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -431,7 +427,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_DAS')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -441,7 +437,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'Seurat' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([file('NO_VAH')])
+                .ifEmpty([file('NO_VAS')])
         )        
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -451,7 +447,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_ULB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -461,7 +457,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_SLB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -471,7 +467,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_DLB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -491,7 +487,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_UAB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -501,7 +497,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_SAB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -511,7 +507,7 @@ workflow NF_XENIUM_ANALYSIS {
                     meta.clustering_method == 'BANKSY' 
                 }
                 .map {meta, video -> [video]}
-                .ifEmpty([])
+                .ifEmpty([file('NO_DAB')])
         )
         .combine (
             COMPILE_IMAGES_TO_VIDEO.out.image_video
@@ -522,7 +518,15 @@ workflow NF_XENIUM_ANALYSIS {
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([file('NO_VAB')])
-        )
+        ),
+        params.min_nCount,
+        params.min_nFeature,
+        dim_list,
+        res_list,
+        params.lambda_BANKSY,
+        params.k_geom_BANKSY,
+        params.nPCs_BANKSY,
+        params.res_BANKSY,
     )
 
     //

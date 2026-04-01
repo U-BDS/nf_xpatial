@@ -67,23 +67,24 @@ if (class(xenium_obj) == "Seurat") {
     print(head(xenium_obj@meta.data))
     
     cluster_metadata <- data.frame()
-    if (opt$clustering_method == "Seurat") {
+
+    if (opt$clustering_method == "BANKSY") {
+        # Clusters added by Banksy alread have the param string in the column name, so we just need to extract them
+        cluster_metadata <- xenium_obj@meta.data[grepl(paste0("^clust_BSKY_",opt$param_string), colnames(xenium_obj@meta.data))]
+        print(head(cluster_metadata))
+    } else {
+        clust_prefix <- ifelse(opt$clustering_method == "Seurat", "clust_SEU_", "clust_BSKYSEU_")
+
         # Extract cluster data
         cluster_metadata <- xenium_obj@meta.data[grepl("seurat_clusters", colnames(xenium_obj@meta.data))]
         print(head(cluster_metadata))
 
         # Rename seurat cluster column with a similar prefix to BANKSY
-        colnames(cluster_metadata) <- gsub("seurat_clusters", "clust_SEU_", colnames(cluster_metadata))
+        colnames(cluster_metadata) <- gsub("seurat_clusters", clust_prefix, colnames(cluster_metadata))
 
         # Add dim and res to column name
         colnames(cluster_metadata) <- paste0(colnames(cluster_metadata), opt$param_string)
-
-    } else {
-        # Clusters added by Banksy alread have the param string in the column name, so we just need to extract them
-        cluster_metadata <- xenium_obj@meta.data[grepl(paste0("^clust_BSKY_",opt$param_string), colnames(xenium_obj@meta.data))]
-        print(head(cluster_metadata))
     }
-
     # Create a column for the cell ids
     cluster_metadata$Index <- rownames(cluster_metadata)
     rownames(cluster_metadata) <- NULL

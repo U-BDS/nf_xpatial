@@ -59,7 +59,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
             .branch {
                 meta, cluster_csv ->
                     banksy: meta.clustering_method == 'BANKSY'
-                    harmony: meta.clustering_method == 'Harmony'
+                    seurat: meta.clustering_method == 'Seurat'
                     banksy_seurat: meta.clustering_method == 'BANKSYSeurat'
             }
 
@@ -129,12 +129,13 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         MERGE_CLUSTER_CSV (
             EXTRACT_CONNECTED_CLUSTERS.out.cluster_metadata
-                .mix (ch_cluster_csvs.harmony)
+                .mix (ch_cluster_csvs.seurat)
                 .mix (ch_cluster_csvs.banksy_seurat)
                 .map { meta, cluster_csv -> 
                     def new_meta = [
                         id: meta.id,
                         normalization: meta.normalization,
+                        assay: meta.assay
                     ]
                     [new_meta, cluster_csv]
                 }
@@ -165,48 +166,22 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
             .set { ch_reduction_csvs }
         
         //
-        // MODULE: Add Harmony cluster info to Seurat object
+        // MODULE: Add all cluster and dimension reductions to Seurat object
         //
-
-        // TODO: If the object already has cluster info, make sure to remove them
         ADD_CLUSTER_DATA_TO_SEURAT (
             ch_merged_xenium_obj
                 .join (
                     MERGE_CLUSTER_CSV.out.merged_cluster_csv
                 )
                 .join (
-                    EXTRACT_REDUCED_DIMS.out.embeddings_csv
-                        .map { meta, e_file_list -> 
-                            def new_meta = [id: meta.id, normalization: meta.normalization]
-                            [new_meta, e_file_list]
-                        }
-                        .groupTuple()
-                        .map{ meta, e_file_list -> 
-                            [meta, e_file_list.flatten().sort { it.toString() }]
-                        }
+                    ch_reduction_csvs.embeddings
                 )
                 .join (
-                    EXTRACT_REDUCED_DIMS.out.loadings_csv
-                        .map { meta, l_file_list -> 
-                            def new_meta = [id: meta.id, normalization: meta.normalization]
-                            [new_meta, l_file_list]
-                        }
-                        .groupTuple()
-                        .map{ meta, l_file_list -> 
-                            [meta, l_file_list.flatten().sort { it.toString() }]
-                        }
+                    ch_reduction_csvs.loadings
                 )
                 .join (
-                    EXTRACT_REDUCED_DIMS.out.stdev_csv
-                        .map { meta, s_file_list -> 
-                            def new_meta = [id: meta.id, normalization: meta.normalization]
-                            [new_meta, s_file_list]
-                        }
-                        .groupTuple()
-                        .map{ meta, s_file_list -> 
-                            [meta, s_file_list.flatten().sort { it.toString() }]
-                        }
-                    )
+                    ch_reduction_csvs.stdev
+                )
         )
 
     emit:

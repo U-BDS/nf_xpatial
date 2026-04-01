@@ -13,14 +13,6 @@ process RENDER_SUMMARY_REPORT {
     tuple val(meta),
         path(report_template),
         path(css_file),
-        val(min_ncount),
-        val(min_nfeature),
-        val(seurat_dim_params),
-        val(seurat_res_params),
-        val(banksy_lambda_params),
-        val(banksy_kgeom_params),
-        val(banksy_npc_params),
-        val(banksy_res_params),
         path(filtered_stats_file),
         path(filtered_dim_plot),
         path(filtered_vln_plot),
@@ -48,6 +40,14 @@ process RENDER_SUMMARY_REPORT {
         path(area_norm_banksy_split_cluster_video),
         path(area_norm_banksy_dot_video),
         path(area_norm_banksy_vln_video)
+    val min_ncount
+    val min_nfeature
+    val seurat_dim_params
+    val seurat_res_params
+    val banksy_lambda_params
+    val banksy_kgeom_params
+    val banksy_npc_params
+    val banksy_res_params
 
     output:
     tuple val(meta), path("*.html"), emit: summary_report
