@@ -29,10 +29,15 @@ process QC_MARKER_VLN_PLOT {
     if ("${meta.clustering_method}" == "BANKSY"){
         cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_n" + "${meta.nPCs}" + 
+            "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "Seurat"){
         cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
+        cluster_flag = "--cluster_col clust_BSKYSEU_l" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     }
 

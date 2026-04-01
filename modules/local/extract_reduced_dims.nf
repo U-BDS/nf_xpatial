@@ -26,7 +26,7 @@ process EXTRACT_REDUCED_DIMS {
 
     def assay_flag = "--assay ${meta.assay}"
 
-    def param_string_flag = meta.clustering_method == 'BANKSY' ?
+    def param_string_flag = meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSYSeurat' ?
         "--param_string l" + "${meta.lambda}" + "-k" + "${meta.k_geom}" + "-d" + "${meta.dim}" :
         "--param_string d" + "${meta.dim}"
 

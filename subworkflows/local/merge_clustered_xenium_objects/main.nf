@@ -31,7 +31,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                         assay: meta.assay
                     ]
 
-                    if (meta.clustering_method == 'BANKSY') {
+                    if (meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSYSeurat') {
                         new_meta = new_meta + [
                             lambda: meta.lambda,
                             k_geom: meta.k_geom
@@ -124,7 +124,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                 }
         )
 
-                //
+        //
         // MODULE: Merge all cluster csvs into a single csv
         //
         MERGE_CLUSTER_CSV (
@@ -135,7 +135,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
                     def new_meta = [
                         id: meta.id,
                         normalization: meta.normalization,
-                        assay: meta.assay
+                        assay: meta.assay.replace('_BANKSY', '')
                     ]
                     [new_meta, cluster_csv]
                 }
@@ -156,7 +156,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
             }
             .groupTuple()
             .map { meta, file_list -> 
-                [meta, file_list.flatten()]
+                [meta, file_list.flatten().sort { it.toString() }]
             }
             .multiMap { meta, files ->
                 embeddings: files.findAll { it.name.contains('embeddings') } ? [meta, files.findAll { it.name.contains('embeddings') }] : null
@@ -168,6 +168,7 @@ workflow MERGE_CLUSTERED_XENIUM_OBJECTS {
         //
         // MODULE: Add all cluster and dimension reductions to Seurat object
         //
+
         ADD_CLUSTER_DATA_TO_SEURAT (
             ch_merged_xenium_obj
                 .join (

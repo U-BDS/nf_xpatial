@@ -31,20 +31,22 @@ process QC_DIM_PLOT_COUNTOUR {
     } else if ( "${meta.clustering_method}" == "Seurat"){
         embeddings_flag = "--embedding Seurat_umap_d" + "${meta.dim}"
     } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
-        embeddings_flag = "--embedding BANKSYSeurat_umap_d" + "${meta.dim}"
+        embeddings_flag = "--embedding BANKSYSeurat_umap_l" + "${meta.lambda}" + 
+            ".k" + "${meta.k_geom}" + 
+            ".d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
     if ("${meta.clustering_method}" == "BANKSY"){
         cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_n" + "${meta.dim}" + 
+            "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "Seurat"){
         cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
-        cluster_flag = "--cluster_col clust_SEU_l" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_BSKYSEU_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
             "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
