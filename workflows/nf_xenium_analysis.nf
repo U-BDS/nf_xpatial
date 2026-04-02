@@ -175,86 +175,94 @@ workflow NF_XENIUM_ANALYSIS {
         params.skip_banksy_vf_filter
     )
 
+    def cluster_methods = params.clustering_methods.split(',').collect { it.trim() }
     //
     // SUBWORKFLOW: Perform Seurat clustering on xenium objects
     //
 
-    // Use the user-provided start, stop, and range values to generate a list of dimensions and resolutions
-    def dim_list = params.selected_dim < 0
-        ? (0..<( ((params.dim_stop + params.dim_step) - params.dim_start) / params.dim_step )).collect {params.dim_start + it * params.dim_step}
-        : params.selected_dim
+    ch_cluster_params = channel.empty()
+    ch_seurat_clustered_objs = channel.empty()
+    if (cluster_methods.contains('Seurat')) {
+        CLUSTER_SEURAT (
+            GET_VARIABLE_FEATURES.out.vf_xenium_obj,
+            params.dim_Seurat.split(',').collect { it as Integer },
+            params.res_Seurat.split(',').collect { it as Float },
+            params.skip_qc || params.skip_tsne_plot
+        )
 
-    def res_list = params.selected_res < 0
-        ? (0..<( ((params.res_stop + params.res_step) - params.res_start) / params.res_step )).collect { params.res_start + it * params.res_step }
-        : params.selected_res
-
-    CLUSTER_SEURAT (
-        GET_VARIABLE_FEATURES.out.vf_xenium_obj,
-        dim_list,
-        res_list,
-        params.skip_qc || params.skip_tsne_plot
-    )
-
-    ch_cluster_params = CLUSTER_SEURAT.out.seurat_clustered_xenium_obj
-        .map {meta, xenium_obj ->
-            def norm_method = meta.normalization
-            [norm_method, meta]
-        }
-        .distinct()
+        ch_cluster_params = CLUSTER_SEURAT.out.seurat_clustered_xenium_obj
+            .map {meta, xenium_obj ->
+                def norm_method = meta.normalization
+                [norm_method, meta]
+            }
+            .distinct()
+        
+        ch_seurat_clustered_objs = CLUSTER_SEURAT.out.seurat_clustered_xenium_obj
+    }
 
     //
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects
     //
-    BANKSY (
-        params.skip_banksy_vf_filter ? GET_VARIABLE_FEATURES.out.vf_xenium_obj : GET_VARIABLE_FEATURES.out.vf_subset_obj,
-        params.lambda_BANKSY.split(',').collect { it as Float },
-        params.k_geom_BANKSY.split(',').collect { it as Integer },
-        params.nPCs_BANKSY.split(',').collect { it as Integer },
-        params.res_BANKSY.split(',').collect { it as Float },
-        params.use_agf_BANKSY
-    )
-
-    ch_cluster_params = ch_cluster_params
-        .mix (
-            BANKSY.out.banksy_clustered_xenium_obj
-                .map {meta, xenium_obj ->
-                    def norm_method = meta.normalization
-                    [norm_method, meta]
-                }
-                .distinct()
+    ch_banksy_clustered_objs = channel.empty()
+    if (cluster_methods.contains('BANKSY')) {
+        BANKSY (
+            params.skip_banksy_vf_filter ? GET_VARIABLE_FEATURES.out.vf_xenium_obj : GET_VARIABLE_FEATURES.out.vf_subset_obj,
+            params.lambda_BANKSY.split(',').collect { it as Float },
+            params.k_geom_BANKSY.split(',').collect { it as Integer },
+            params.nPCs_BANKSY.split(',').collect { it as Integer },
+            params.res_BANKSY.split(',').collect { it as Float },
+            params.use_agf_BANKSY
         )
+
+        ch_cluster_params = ch_cluster_params
+            .mix (
+                BANKSY.out.banksy_clustered_xenium_obj
+                    .map {meta, xenium_obj ->
+                        def norm_method = meta.normalization
+                        [norm_method, meta]
+                    }
+                    .distinct()
+            )
+        
+        ch_banksy_clustered_objs = BANKSY.out.banksy_clustered_xenium_obj
+    }
 
     //
     // SUBWORKFLOW: Perform BANKSY clustering on xenium objects using Seurat wrapper
     //
 
-    CLUSTER_BANKSY_SEURAT_WRAPPER (
-        params.skip_banksy_vf_filter ? GET_VARIABLE_FEATURES.out.vf_xenium_obj : GET_VARIABLE_FEATURES.out.vf_subset_obj,
-        params.lambda_BANKSY.split(',').collect { it as Float },
-        params.k_geom_BANKSY.split(',').collect { it as Integer },
-        params.nPCs_BANKSY.split(',').collect { it as Integer },
-        params.res_BANKSY.split(',').collect { it as Float },
-        params.use_agf_BANKSY
-    )
-
-    ch_cluster_params = ch_cluster_params
-        .mix (
-            CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj
-                .map {meta, xenium_obj ->
-                    def norm_method = meta.normalization
-                    [norm_method, meta]
-                }
-                .distinct()
+    ch_banksy_seurat_clustered_objs = channel.empty()
+    if (cluster_methods.contains('BANKSYSeurat')) {
+        CLUSTER_BANKSY_SEURAT_WRAPPER (
+            params.skip_banksy_vf_filter ? GET_VARIABLE_FEATURES.out.vf_xenium_obj : GET_VARIABLE_FEATURES.out.vf_subset_obj,
+            params.lambda_BANKSY.split(',').collect { it as Float },
+            params.k_geom_BANKSY.split(',').collect { it as Integer },
+            params.nPCs_BANKSY.split(',').collect { it as Integer },
+            params.res_BANKSY.split(',').collect { it as Float },
+            params.use_agf_BANKSY
         )
+
+        ch_cluster_params = ch_cluster_params
+            .mix (
+                CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj
+                    .map {meta, xenium_obj ->
+                        def norm_method = meta.normalization
+                        [norm_method, meta]
+                    }
+                    .distinct()
+            )
+        
+        ch_banksy_seurat_clustered_objs = CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj
+    }
 
     //
     // SUBWORKFLOW: Merge Seurat and BANKSY clustered xenium objects
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (
         GET_VARIABLE_FEATURES.out.vf_xenium_obj,
-        BANKSY.out.banksy_clustered_xenium_obj
-            .mix( CLUSTER_SEURAT.out.seurat_clustered_xenium_obj )
-            .mix( CLUSTER_BANKSY_SEURAT_WRAPPER.out.clustered_xenium_obj)
+        ch_banksy_clustered_objs.ifEmpty([])
+            .mix( ch_seurat_clustered_objs.ifEmpty([]) )
+            .mix( ch_banksy_seurat_clustered_objs.ifEmpty([]) )
     )
 
     //

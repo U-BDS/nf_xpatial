@@ -146,11 +146,18 @@
             "description": "",
             "default": "",
             "properties": {
+                "clustering_methods": {
+                    "type": "string",
+                    "description": "This lets you choose the clustering methods to use for your data",
+                    "pattern": "^(Seurat|BANKSY|BANKSYSeurat)(,(Seurat|BANKSY|BANKSYSeurat))*$",
+                    "default": "Seurat,BANKSY"
+                },
                 "skip_qc": {
                     "type": "boolean",
                     "description": "Skip all QC Plots"
                 }
-            }
+            },
+            "required": ["clustering_methods"]
         },
         "manual_annotation_options": {
             "title": "Manual Annotation Options",
@@ -376,7 +383,7 @@
                 "min_nFeature": {
                     "type": "number",
                     "description": "The minimum nFeature threshold for nFeature filtering",
-                    "default": 10
+                    "default": 10.0
                 },
                 "max_nFeature": {
                     "type": "number",
@@ -389,7 +396,7 @@
                 "min_nCount": {
                     "type": "number",
                     "description": "The minimum nCount threshold for nCount filtering",
-                    "default": 10
+                    "default": 10.0
                 },
                 "max_nCount": {
                     "type": "number",
@@ -443,44 +450,18 @@
             "description": "",
             "default": "",
             "properties": {
-                "dim_start": {
-                    "type": "number",
-                    "description": "The lowest dimension to test"
-                },
-                "dim_stop": {
-                    "type": "number",
-                    "description": "The highest dimension to test"
-                },
-                "dim_step": {
-                    "type": "number",
-                    "description": "The amount to increase dimensions by"
-                },
-                "res_start": {
-                    "type": "number",
-                    "description": "The lowest resolution to test"
-                },
-                "res_stop": {
-                    "type": "number",
-                    "description": "The highest resolution to test"
-                },
-                "res_step": {
-                    "type": "number",
-                    "description": "The amount to increase resolution by"
-                },
-                "selected_res": {
-                    "type": "number",
-                    "description": "Use this to specify a single resolution to explore",
-                    "default": -1
-                },
-                "selected_dim": {
-                    "type": "number",
-                    "description": "Use this to specify a single dimension to explore",
-                    "default": -1
-                },
                 "skip_tsne_plot": {
                     "type": "boolean",
                     "description": "Use this to specify to skip producing a tsne plot",
                     "default": true
+                },
+                "dim_Seurat": {
+                    "type": "string",
+                    "description": "The comma-delimited list of dimensions to use for Seurat clustering"
+                },
+                "res_Seurat": {
+                    "type": "string",
+                    "description": "The comma-delimited list of resolutions to use for Seurat clustering"
                 }
             },
             "fa_icon": "fas fa-object-group"
@@ -498,7 +479,7 @@
                 "vf_nfeatures": {
                     "type": "number",
                     "description": "The number of variable features to keep if filtering by variable feature is enabled",
-                    "default": 2000
+                    "default": 2000.0
                 },
                 "lambda_BANKSY": {
                     "type": "string",
