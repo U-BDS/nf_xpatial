@@ -260,9 +260,9 @@ workflow NF_XENIUM_ANALYSIS {
     //
     MERGE_CLUSTERED_XENIUM_OBJECTS (
         GET_VARIABLE_FEATURES.out.vf_xenium_obj,
-        ch_banksy_clustered_objs.ifEmpty([])
-            .mix( ch_seurat_clustered_objs.ifEmpty([]) )
-            .mix( ch_banksy_seurat_clustered_objs.ifEmpty([]) )
+        ch_banksy_clustered_objs
+            .mix( ch_seurat_clustered_objs )
+            .mix( ch_banksy_seurat_clustered_objs)
     )
 
     //
@@ -529,8 +529,8 @@ workflow NF_XENIUM_ANALYSIS {
         ),
         params.min_nCount,
         params.min_nFeature,
-        dim_list,
-        res_list,
+        params.dim_Seurat,
+        params.res_Seurat,
         params.lambda_BANKSY,
         params.k_geom_BANKSY,
         params.nPCs_BANKSY,
