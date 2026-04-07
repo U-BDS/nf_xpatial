@@ -6,8 +6,8 @@ process CREATE_XENIUM_OBJ {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'docker://uabbds/nf_xenium_analysis:0.0.4' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.4' 
         }"
 
     input:
