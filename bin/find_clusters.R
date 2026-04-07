@@ -39,16 +39,26 @@ params_list <- list(
         default=NULL,
         help="The assay to operate on"),
     make_option(
+        c("-c", "--clustering_algorithm"),
+        type="character",
+        default="louvain",
+        help="The clustering algorithm to use. Options include: louvain, louvain_multilevel, slm, leiden"),
+    make_option(
+        c("-m", "--leiden_method"),
+        type="character",
+        default="leidenbase",
+        help="Choose which package to run leiden clustering with. Options include: leidenbase, igraph"),
+    make_option(
         c("-r", "--resolution"),
         type="double",
-        help="The resolution to use for FindClusters"
-    ),
+        help="The resolution to use for FindClusters"),
     make_option(
         c("-o", "--outfile"),
         type="character",
         default="find_clusters_xenium_obj.rds",
         metavar="path",
-        help="The output name for the xenium object"))
+        help="The output name for the xenium object")
+    )
 
 opt_parser <- OptionParser(option_list=params_list)
 opt <- parse_args(opt_parser)
@@ -62,6 +72,17 @@ if (is.null(opt$assay)) {
     print_help(opt_parser)
     stop("Please provide the assay to integrate on as input.", call. = FALSE)
 }
+
+#################
+### CONSTANTS ###
+#################
+
+CLUST_ALGORITHMS <- c(
+    "louvain",
+    "louvain_multilevel",
+    "slm",
+    "leiden"
+)
 
 ###################
 ### LOAD INPUTS ###
@@ -77,6 +98,7 @@ xenium_obj <- readRDS(file = opt$input)
 DefaultAssay(xenium_obj) <- opt$assay
 xenium_obj <- FindClusters(
     xenium_obj,
+    algorithm = match(opt$clustering_algorithm, CLUST_ALGORITHMS),
     resolution = opt$resolution
 )
 
