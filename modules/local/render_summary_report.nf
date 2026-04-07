@@ -39,7 +39,15 @@ process RENDER_SUMMARY_REPORT {
         path(area_norm_banksy_umap_video),
         path(area_norm_banksy_split_cluster_video),
         path(area_norm_banksy_dot_video),
-        path(area_norm_banksy_vln_video)
+        path(area_norm_banksy_vln_video),
+        path(log_norm_banksyseurat_umap_video),
+        path(log_norm_banksyseurat_split_cluster_video),
+        path(log_norm_banksyseurat_dot_video),
+        path(log_norm_banksyseurat_vln_video),
+        path(area_norm_banksyseurat_umap_video),
+        path(area_norm_banksyseurat_split_cluster_video),
+        path(area_norm_banksyseurat_dot_video),
+        path(area_norm_banksyseurat_vln_video)
     val min_ncount
     val min_nfeature
     val seurat_dim_params
@@ -100,7 +108,15 @@ process RENDER_SUMMARY_REPORT {
             log_norm_banksy_dot_video = "${log_norm_banksy_dot_video}",
             area_norm_banksy_umap_video = "${area_norm_banksy_umap_video}",
             area_norm_banksy_split_cluster_video = "${area_norm_banksy_split_cluster_video}",
-            area_norm_banksy_dot_video = "${area_norm_banksy_dot_video}"
+            area_norm_banksy_dot_video = "${area_norm_banksy_dot_video}",
+            log_norm_banksyseurat_umap_video = "${log_norm_banksyseurat_umap_video}",
+            log_norm_banksyseurat_split_cluster_video = "${log_norm_banksyseurat_split_cluster_video}",
+            log_norm_banksyseurat_dot_video = "${log_norm_banksyseurat_dot_video}",
+            log_norm_banksyseurat_vln_video = "${log_norm_banksyseurat_vln_video}",
+            area_norm_banksyseurat_umap_video = "${area_norm_banksyseurat_umap_video}",
+            area_norm_banksyseurat_split_cluster_video = "${area_norm_banksyseurat_split_cluster_video}",
+            area_norm_banksyseurat_dot_video = "${area_norm_banksyseurat_dot_video}",
+            area_norm_banksyseurat_vln_video = "${area_norm_banksyseurat_vln_video}"
         ),
         output_file = "${prefix}.html"
     )

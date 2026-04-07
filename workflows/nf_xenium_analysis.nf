@@ -526,6 +526,86 @@ workflow NF_XENIUM_ANALYSIS {
                 }
                 .map {meta, video -> [video]}
                 .ifEmpty([file('NO_VAB')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'umap' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_ULBS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'split_cluster' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_SLBS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'dot_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_DLBS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'log_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_VLBS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'umap' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_UABS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'split_cluster' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_SABS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'dot_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_DABS')])
+        )
+        .combine (
+            COMPILE_IMAGES_TO_VIDEO.out.image_video
+                .filter { meta, video -> 
+                    meta.plot_type == 'vln_plot' &&
+                    meta.normalization == 'area_norm' &&
+                    meta.clustering_method == 'BANKSYSeurat' 
+                }
+                .map {meta, video -> [video]}
+                .ifEmpty([file('NO_VABS')])
         ),
         params.min_nCount,
         params.min_nFeature,
