@@ -5,7 +5,7 @@ process ADD_METADATA {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.4' :
+            'library://atrull314/uabbds/nf_xpatial:0.0.4' :
             'docker.io/uabbds/nf_xenium_analysis:0.0.4' 
         }"
 
