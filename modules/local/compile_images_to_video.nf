@@ -38,7 +38,7 @@ process COMPILE_IMAGES_TO_VIDEO {
         plots_png <- lapply(
             file_list,
             function(x) {
-                pdf_convert(x, format = "png", pages = NULL, dpi = 300, filenames = gsub("pdf", "png", x))
+                pdf_convert(x, format = "png", pages = 1, dpi = 300, filenames = gsub("pdf", "png", x))
             }
         )
     }
