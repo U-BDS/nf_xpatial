@@ -85,7 +85,7 @@ pdf(
 )
 
 for (group_name in unique(marker_list$group)) {
-    genes <- marker_list[marker_list$group == group_name,]$gene
+    genes <- unique(marker_list[marker_list$group == group_name,]$gene)
 
     # We need to split the gene list to avoid overcrowding the plot
     gene_groups <- split(genes, ceiling(seq_along(genes) / opt$max_gene_per_group))
