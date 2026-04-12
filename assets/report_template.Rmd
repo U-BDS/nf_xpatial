@@ -76,6 +76,13 @@ knitr::opts_chunk$set(
 	include = TRUE
 )
 
+# Helper function to check if a file exists and is not NA or empty string
+file_exists <- function(file_name) {
+  return (!is.na(file_name) &&
+    file_name != '' &&
+    file.exists(file_name))
+}
+
 ```
 
 ```{css, echo = FALSE}
@@ -174,11 +181,11 @@ DT::datatable(post_filtered_stats_df, options = list (scrollX = TRUE))
 ```
 
 ```{r eval-show-filterqcs-header-start, results='asis', echo=FALSE}
-if ((is.na(params$filtered_dim_plot) || params$filtered_dim_plot == '') &&
-  (is.na(params$filtered_vln_plot) || params$filtered_vln_plot == '') &&
-  (is.na(params$filtered_feature_scatter_plot) || params$filtered_feature_scatter_plot == '') &&
-  (is.na(params$filtered_nfeature_plot) || params$filtered_nfeature_plot == '') &&
-  (is.na(params$filtered_ncount_plot) || params$filtered_ncount_plot == '')) {
+if (!file_exists(params$filtered_dim_plot) &&
+  !file_exists(params$filtered_vln_plot) &&
+  !file_exists(params$filtered_feature_scatter_plot) &&
+  !file_exists.na(params$filtered_nfeature_plot) &&
+  !file_exists.na(params$filtered_ncount_plot)) {
   cat("<!---")
 }
 ```
@@ -186,17 +193,17 @@ if ((is.na(params$filtered_dim_plot) || params$filtered_dim_plot == '') &&
 ## Post-Filtering QC's {.tabset .tabset-pills}
 
 ```{r eval-show-filterqcs-header-end, results='asis', echo=FALSE}
-if ((is.na(params$filtered_dim_plot) || params$filtered_dim_plot == '') &&
-  (is.na(params$filtered_vln_plot) || params$filtered_vln_plot == '') &&
-  (is.na(params$filtered_feature_scatter_plot) || params$filtered_feature_scatter_plot == '') &&
-  (is.na(params$filtered_nfeature_plot) || params$filtered_nfeature_plot == '') &&
-  (is.na(params$filtered_ncount_plot) || params$filtered_ncount_plot == '')) {
+if (!file_exists(params$filtered_dim_plot) &&
+  !file_exists(params$filtered_vln_plot) &&
+  !file_exists(params$filtered_feature_scatter_plot) &&
+  !file_exists(params$filtered_nfeature_plot)  &&
+  !file_exists(params$filtered_ncount_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-dim-plot-start, results='asis', echo=FALSE}
-if (is.na(params$filtered_dim_plot) || params$filtered_dim_plot == '') {
+if (!file_exists(params$filtered_dim_plot)) {
   cat("<!---")
 }
 ```
@@ -206,13 +213,13 @@ if (is.na(params$filtered_dim_plot) || params$filtered_dim_plot == '') {
 ![](`r params$filtered_dim_plot`)
 
 ```{r eval-show-dim-plot-end, results='asis', echo=FALSE}
-if (is.na(params$filtered_dim_plot) || params$filtered_dim_plot == '') {
+if (!file_exists(params$filtered_dim_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-vln-plot-start, results='asis', echo=FALSE}
-if (is.na(params$filtered_vln_plot) || params$filtered_vln_plot == '') {
+if (!file_exists(params$filtered_vln_plot)) {
   cat("<!---")
 }
 ```
@@ -222,13 +229,13 @@ if (is.na(params$filtered_vln_plot) || params$filtered_vln_plot == '') {
 ![](`r params$filtered_vln_plot`)
 
 ```{r eval-show-vln-plot-end, results='asis', echo=FALSE}
-if (is.na(params$filtered_vln_plot) || params$filtered_vln_plot == '') {
+if (!file_exists(params$filtered_vln_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-featurescatter-plot-start, results='asis', echo=FALSE}
-if (is.na(params$filtered_feature_scatter_plot) || params$filtered_feature_scatter_plot == '') {
+if (!file_exists(params$filtered_feature_scatter_plot)) {
   cat("<!---")
 }
 ```
@@ -238,13 +245,13 @@ if (is.na(params$filtered_feature_scatter_plot) || params$filtered_feature_scatt
 ![](`r params$filtered_feature_scatter_plot`)
 
 ```{r eval-show-featurescatter-plot-end, results='asis', echo=FALSE}
-if (is.na(params$filtered_feature_scatter_plot) || params$filtered_feature_scatter_plot == '') {
+if (!file_exists(params$filtered_feature_scatter_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-nfeature-plot-start, results='asis', echo=FALSE}
-if (is.na(params$filtered_nfeature_plot) || params$filtered_nfeature_plot == '') {
+if (!file_exists(params$filtered_nfeature_plot)) {
   cat("<!---")
 }
 ```
@@ -254,13 +261,13 @@ if (is.na(params$filtered_nfeature_plot) || params$filtered_nfeature_plot == '')
 ![](`r params$filtered_nfeature_plot`)
 
 ```{r eval-show-nfeature-plot-end, results='asis', echo=FALSE}
-if (is.na(params$filtered_nfeature_plot) || params$filtered_nfeature_plot == '') {
+if (!file_exists(params$filtered_nfeature_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-ncount-plot-start, results='asis', echo=FALSE}
-if (is.na(params$filtered_ncount_plot) || params$filtered_ncount_plot == '') {
+if (!file_exists(params$filtered_ncount_plot)) {
   cat("<!---")
 }
 ```
@@ -270,18 +277,17 @@ if (is.na(params$filtered_ncount_plot) || params$filtered_ncount_plot == '') {
 ![](`r params$filtered_ncount_plot`)
 
 ```{r eval-show-ncount-plot-end, results='asis', echo=FALSE}
-if (is.na(params$filtered_ncount_plot) || params$filtered_ncount_plot == '') {
+if (!file_exists(params$filtered_ncount_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-cell-segm-section-start, results='asis', echo=FALSE}
-if ((is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_plot == '') && 
-  (is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_plot == '')  &&
-  (is.na(params$cell_segmentation_proportion_plot) || params$cell_segmentation_proportion_plot == '') && 
-  (is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '') &&
-  (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plot == '') &&
-  (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compiled_filtered_overlapping_histogram_plot == ''))
+if (!file_exists(params$cell_shape_proportion_plot) && 
+  !file_exists(params$cell_segmentation_proportion_plot) && 
+  !file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
   {
   cat("<!---")
 }
@@ -290,19 +296,18 @@ if ((is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_pl
 ## Cell Segmentation QC {.tabset .tabset-pills}
 
 ```{r eval-show-cell-segm-section-end, results='asis', echo=FALSE}
-if ((is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_plot == '') && 
-  (is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_plot == '')  &&
-  (is.na(params$cell_segmentation_proportion_plot) || params$cell_segmentation_proportion_plot == '') && 
-  (is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '') &&
-  (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plot == '') &&
-  (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compiled_filtered_overlapping_histogram_plot == ''))
+if (!file_exists(params$cell_shape_proportion_plot) && 
+  !file_exists(params$cell_segmentation_proportion_plot) && 
+  !file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
   {
   cat("--->")
 }
 ```
 
 ```{r eval-show-cell-shape-section-start, results='asis', echo=FALSE}
-if (is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_plot == '') {
+if (!file_exists(params$cell_shape_proportion_plot)) {
   cat("<!---")
 }
 ```
@@ -314,13 +319,13 @@ Each cell is classified into 'Circular', 'Elongated', and 'Polygonal'. The amoun
 ![](`r params$cell_shape_proportion_plot`)
 
 ```{r eval-show-cell-shape-section-end, results='asis', echo=FALSE}
-if (is.na(params$cell_shape_proportion_plot) || params$cell_shape_proportion_plot == '') {
+if (!file_exists(params$cell_shape_proportion_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-cell-segm-plot-start, results='asis', echo=FALSE}
-if (is.na(params$cell_segmentation_proportion_plot) || params$cell_segmentation_proportion_plot == '') {
+if (!file_exists(params$cell_segmentation_proportion_plot)) {
   cat("<!---")
 }
 ```
@@ -332,15 +337,15 @@ The Xenium software uses three different methods to segment cells. We expect tha
 ![](`r params$cell_segmentation_proportion_plot`)
 
 ```{r eval-show-cell-segm-plot-end, results='asis', echo=FALSE}
-if (is.na(params$cell_segmentation_proportion_plot) || params$cell_segmentation_proportion_plot == '') {
+if (!file_exists(params$cell_segmentation_proportion_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-cell-area-qc-section-start, results='asis', echo=FALSE}
-if ((is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '') &&
-  (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plot == '') &&
-  (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compiled_filtered_overlapping_histogram_plot == ''))
+if (!file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
   {
   cat("<!---")
 }
@@ -351,16 +356,16 @@ if ((is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == 
 Each cell has its area calculated with the areas for each cell within a sample listed below. We expect that in most cases, the areas to be consistent across all samples. Deviations from these assumptions can indicate issues with cell segmentation or that tissue sections are too dissimilar.
 
 ```{r eval-show-cell-area-qc-section-end, results='asis', echo=FALSE}
-if ((is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '') &&
-  (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plot == '') &&
-  (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compiled_filtered_overlapping_histogram_plot == ''))
+if (!file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
   {
   cat("--->")
 }
 ```
 
 ```{r eval-show-histogram-plot-start, results='asis', echo=FALSE}
-if (is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '') {
+if (!file_exists(params$compiled_histogram_plot)) {
   cat("<!---")
 }
 ```
@@ -370,13 +375,13 @@ if (is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '
 ![](`r params$compiled_histogram_plot`)
 
 ```{r eval-show-histogram-plot-end, results='asis', echo=FALSE}
-if (is.na(params$compiled_histogram_plot) || params$compiled_histogram_plot == '') {
+if (!file_exists(params$compiled_histogram_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-box-plot-start, results='asis', echo=FALSE}
-if (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plot == '') {
+if (!file_exists(params$compiled_filtered_box_plot)) {
   cat("<!---")
 }
 ```
@@ -386,13 +391,13 @@ if (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plo
 ![](`r params$compiled_filtered_box_plot`)
 
 ```{r eval-show-box-plot-end, results='asis', echo=FALSE}
-if (is.na(params$compiled_filtered_box_plot) || params$compiled_filtered_box_plot == '') {
+if (!file_exists(params$compiled_filtered_box_plot)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-overlap-histogram-plot-start, results='asis', echo=FALSE}
-if (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compiled_filtered_overlapping_histogram_plot == '') {
+if (!file_exists(params$compiled_filtered_overlapping_histogram_plot)) {
   cat("<!---")
 }
 ```
@@ -402,7 +407,7 @@ if (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compile
 ![](`r params$compiled_filtered_overlapping_histogram_plot`)
 
 ```{r eval-show-overlap-histogram-plot-end, results='asis', echo=FALSE}
-if (is.na(params$compiled_filtered_overlapping_histogram_plot) || params$compiled_filtered_overlapping_histogram_plot == '') {
+if (!file_exists(params$compiled_filtered_overlapping_histogram_plot)) {
   cat("--->")
 }
 ```
@@ -413,9 +418,110 @@ There are currently two normalization methods implemented in this pipeline: cell
 
 **NOTE**: Log and Area normalization are performed separately, resulting in two normalized Seurat objects: One containing only log normalized counts (accessible via the `Xenium` assay) and another containing the cell area normalized counts (accessible via the `AreaNorm` assay). Past this point, all processing is performed separately on the objects for parallelisation.
 
+```{r eval-show-clustering-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video) &&
+  !file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
 # Single-Cell and Spatial Clustering {#single-cell-and-spatial-clustering .tabset .tabset-pills}
 
+```{r eval-show-clustering-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video) &&
+  !file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+```{r eval-show-area-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
 ## Area Norm
+
+```{r eval-show-area-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-seurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video)) {
+  cat("<!---")
+}
+```
 
 ### Seurat (Single-Cell Clustering) {.tabset .tabset-pills}
 
@@ -430,8 +536,17 @@ Further, due to the high number of genes from the marker list, the gene-expressi
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
+```{r eval-show-area-seurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video)) {
+  cat("--->")
+}
+```
+
 ```{r eval-show-area-seurat-umap-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_umap_video) || params$area_norm_seurat_umap_video == '') {
+if (!file_exists(params$area_norm_seurat_umap_video)) {
   cat("<!---")
 }
 ```
@@ -441,13 +556,13 @@ if (is.na(params$area_norm_seurat_umap_video) || params$area_norm_seurat_umap_vi
 ![](`r params$area_norm_seurat_umap_video`){width="75%"}
 
 ```{r eval-show-area-seurat-umap-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_umap_video) || params$area_norm_seurat_umap_video == '') {
+if (!file_exists(params$area_norm_seurat_umap_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-seurat-split-cluster-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_split_cluster_video) || params$area_norm_seurat_split_cluster_video == '') {
+if (!file_exists(params$area_norm_seurat_split_cluster_video)) {
   cat("<!---")
 }
 ```
@@ -457,13 +572,13 @@ if (is.na(params$area_norm_seurat_split_cluster_video) || params$area_norm_seura
 ![](`r params$area_norm_seurat_split_cluster_video`){width="75%"}
 
 ```{r eval-show-area-seurat-split-cluster-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_split_cluster_video) || params$area_norm_seurat_split_cluster_video == '') {
+if (!file_exists(params$area_norm_seurat_split_cluster_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-seurat-dot-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_dot_video) || params$area_norm_seurat_dot_video == '') {
+if (!file_exists(params$area_norm_seurat_dot_video)) {
   cat("<!---")
 }
 ```
@@ -473,13 +588,13 @@ if (is.na(params$area_norm_seurat_dot_video) || params$area_norm_seurat_dot_vide
 ![](`r params$area_norm_seurat_dot_video`){width="75%"}
 
 ```{r eval-show-area-seurat-dot-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_dot_video) || params$area_norm_seurat_dot_video == '') {
+if (!file_exists(params$area_norm_seurat_dot_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-seurat-vln-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_vln_video) || params$area_norm_seurat_vln_video == '') {
+if (!file_exists(params$area_norm_seurat_vln_video)) {
   cat("<!---")
 }
 ```
@@ -489,8 +604,17 @@ if (is.na(params$area_norm_seurat_vln_video) || params$area_norm_seurat_vln_vide
 ![](`r params$area_norm_seurat_vln_video`){width="75%"}
 
 ```{r eval-show-area-seurat-vln-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_seurat_vln_video) || params$area_norm_seurat_vln_video == '') {
+if (!file_exists(params$area_norm_seurat_vln_video)) {
   cat("--->")
+}
+```
+
+```{r eval-show-area-banksy-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video)) {
+  cat("<!---")
 }
 ```
 
@@ -509,8 +633,17 @@ To learn more about BANKSY, please read the following publication: <https://www.
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
+```{r eval-show-area-banksy-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video)) {
+  cat("--->")
+}
+```
+
 ```{r eval-show-area-banksy-umap-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_umap_video) || params$area_norm_banksy_umap_video == '') {
+if (!file_exists(params$area_norm_banksy_umap_video)) {
   cat("<!---")
 }
 ```
@@ -520,13 +653,13 @@ if (is.na(params$area_norm_banksy_umap_video) || params$area_norm_banksy_umap_vi
 ![](`r params$area_norm_banksy_umap_video`){width="75%"}
 
 ```{r eval-show-area-banksy-umap-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_umap_video) || params$area_norm_banksy_umap_video == '') {
+if (!file_exists(params$area_norm_banksy_umap_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-banksy-split-cluster-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_split_cluster_video) || params$area_norm_banksy_split_cluster_video == '') {
+if (!file_exists(params$area_norm_banksy_split_cluster_video)) {
   cat("<!---")
 }
 ```
@@ -536,13 +669,13 @@ if (is.na(params$area_norm_banksy_split_cluster_video) || params$area_norm_banks
 ![](`r params$area_norm_banksy_split_cluster_video`){width="75%"}
 
 ```{r eval-show-area-banksy-split-cluster-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_split_cluster_video) || params$area_norm_banksy_split_cluster_video == '') {
+if (!file_exists(params$area_norm_banksy_split_cluster_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-banksy-dot-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_dot_video) || params$area_norm_banksy_dot_video == '') {
+if (!file_exists(params$area_norm_banksy_dot_video)) {
   cat("<!---")
 }
 ```
@@ -552,13 +685,13 @@ if (is.na(params$area_norm_banksy_dot_video) || params$area_norm_banksy_dot_vide
 ![](`r params$area_norm_banksy_dot_video`){width="75%"}
 
 ```{r eval-show-area-banksy-dot-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_dot_video) || params$area_norm_banksy_dot_video == '') {
+if (!file_exists(params$area_norm_banksy_dot_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-banksy-vln-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_vln_video) || params$area_norm_banksy_vln_video == '') {
+if (!file_exists(params$area_norm_banksy_vln_video)) {
   cat("<!---")
 }
 ```
@@ -568,14 +701,23 @@ if (is.na(params$area_norm_banksy_vln_video) || params$area_norm_banksy_vln_vide
 ![](`r params$area_norm_banksy_vln_video`){width="75%"}
 
 ```{r eval-show-area-banksy-vln-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksy_vln_video) || params$area_norm_banksy_vln_video == '') {
+if (!file_exists(params$area_norm_banksy_vln_video)) {
   cat("--->")
+}
+```
+
+```{r eval-show-area-banksyseurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("<!---")
 }
 ```
 
 ### BANKSY Seurat Wrapper (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper. BANKSY clustering was executed using the following parameters:
+BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
@@ -588,8 +730,17 @@ To learn more about BANKSY, please read the following publication: <https://www.
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
+```{r eval-show-area-banksyseurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
 ```{r eval-show-area-banksyseurat-umap-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_umap_video) || params$area_norm_banksyseurat_umap_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_umap_video)) {
   cat("<!---")
 }
 ```
@@ -599,13 +750,13 @@ if (is.na(params$area_norm_banksyseurat_umap_video) || params$area_norm_banksyse
 ![](`r params$area_norm_banksyseurat_umap_video`){width="75%"}
 
 ```{r eval-show-area-banksyseurat-umap-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_umap_video) || params$area_norm_banksyseurat_umap_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_umap_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-banksyseurat-split-cluster-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_split_cluster_video) || params$area_norm_banksyseurat_split_cluster_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_split_cluster_video)) {
   cat("<!---")
 }
 ```
@@ -615,13 +766,13 @@ if (is.na(params$area_norm_banksyseurat_split_cluster_video) || params$area_norm
 ![](`r params$area_norm_banksyseurat_split_cluster_video`){width="75%"}
 
 ```{r eval-show-area-banksyseurat-split-cluster-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_split_cluster_video) || params$area_norm_banksyseurat_split_cluster_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_split_cluster_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-banksyseurat-dot-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_dot_video) || params$area_norm_banksyseurat_dot_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_dot_video)) {
   cat("<!---")
 }
 ```
@@ -631,13 +782,13 @@ if (is.na(params$area_norm_banksyseurat_dot_video) || params$area_norm_banksyseu
 ![](`r params$area_norm_banksyseurat_dot_video`){width="75%"}
 
 ```{r eval-show-area-banksyseurat-dot-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_dot_video) || params$area_norm_banksyseurat_dot_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_dot_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-area-banksyseurat-vln-start, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_vln_video) || params$area_norm_banksyseurat_vln_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_vln_video)) {
   cat("<!---")
 }
 ```
@@ -647,12 +798,55 @@ if (is.na(params$area_norm_banksyseurat_vln_video) || params$area_norm_banksyseu
 ![](`r params$area_norm_banksyseurat_vln_video`){width="75%"}
 
 ```{r eval-show-area-banksyseurat-vln-end, results='asis', echo=FALSE}
-if (is.na(params$area_norm_banksyseurat_vln_video) || params$area_norm_banksyseurat_vln_video == '') {
+if (!file_exists(params$area_norm_banksyseurat_vln_video)) {
   cat("--->")
 }
 ```
 
+```{r eval-show-log-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
 ## Log Norm
+
+```{r eval-show-log-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-seurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video)) {
+  cat("<!---")
+}
+```
 
 ### Seurat (Single Cell Clustering) {.tabset .tabset-pills}
 
@@ -665,24 +859,33 @@ Note that seurat-based clustering only takes into account gene expression, and d
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
+```{r eval-show-log-seurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video)) {
+  cat("--->")
+}
+```
+
 ```{r eval-show-log-seurat-umap-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_umap_video) || params$log_norm_seurat_umap_video == '') {
+if (!file_exists(params$log_norm_seurat_umap_video)) {
   cat("<!---")
 }
 ```
 
-### UMAP
+#### UMAP
 
 ![](`r params$log_norm_seurat_umap_video`){width="75%"}
 
 ```{r eval-show-log-seurat-umap-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_umap_video) || params$log_norm_seurat_umap_video == '') {
+if (!file_exists(params$log_norm_seurat_umap_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-seurat-split-cluster-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_split_cluster_video) || params$log_norm_seurat_split_cluster_video == '') {
+if (!file_exists(params$log_norm_seurat_split_cluster_video)) {
   cat("<!---")
 }
 ```
@@ -692,13 +895,13 @@ if (is.na(params$log_norm_seurat_split_cluster_video) || params$log_norm_seurat_
 ![](`r params$log_norm_seurat_split_cluster_video`){width="75%"}
 
 ```{r eval-show-log-seurat-split-cluster-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_split_cluster_video) || params$log_norm_seurat_split_cluster_video == '') {
+if (!file_exists(params$log_norm_seurat_split_cluster_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-seurat-dot-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_dot_video) || params$log_norm_seurat_dot_video == '') {
+if (!file_exists(params$log_norm_seurat_dot_video)) {
   cat("<!---")
 }
 ```
@@ -708,13 +911,13 @@ if (is.na(params$log_norm_seurat_dot_video) || params$log_norm_seurat_dot_video 
 ![](`r params$log_norm_seurat_dot_video`){width="75%"}
 
 ```{r eval-show-log-seurat-dot-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_dot_video) || params$log_norm_seurat_dot_video == '') {
+if (!file_exists(params$log_norm_seurat_dot_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-seurat-vln-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_vln_video) || params$log_norm_seurat_vln_video == '') {
+if (!file_exists(params$log_norm_seurat_vln_video)) {
   cat("<!---")
 }
 ```
@@ -724,8 +927,17 @@ if (is.na(params$log_norm_seurat_vln_video) || params$log_norm_seurat_vln_video 
 ![](`r params$log_norm_seurat_vln_video`){width="75%"}
 
 ```{r eval-show-log-seurat-vln-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_seurat_vln_video) || params$log_norm_seurat_vln_video == '') {
+if (!file_exists(params$log_norm_seurat_vln_video)) {
   cat("--->")
+}
+```
+
+```{r eval-show-log-banksy-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video)) {
+  cat("<!---")
 }
 ```
 
@@ -742,8 +954,17 @@ Note the lambda parameter controls how much spatial information is incorporated 
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
+```{r eval-show-log-banksy-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video)) {
+  cat("--->")
+}
+```
+
 ```{r eval-show-log-banksy-umap-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_umap_video) || params$log_norm_banksy_umap_video == '') {
+if (!file_exists(params$log_norm_banksy_umap_video)) {
   cat("<!---")
 }
 ```
@@ -753,13 +974,13 @@ if (is.na(params$log_norm_banksy_umap_video) || params$log_norm_banksy_umap_vide
 ![](`r params$log_norm_banksy_umap_video`){width="75%"}
 
 ```{r eval-show-log-banksy-umap-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_umap_video) || params$log_norm_banksy_umap_video == '') {
+if (!file_exists(params$log_norm_banksy_umap_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-banksy-split-cluster-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_split_cluster_video) || params$log_norm_banksy_split_cluster_video == '') {
+if (!file_exists(params$log_norm_banksy_split_cluster_video)) {
   cat("<!---")
 }
 ```
@@ -769,13 +990,13 @@ if (is.na(params$log_norm_banksy_split_cluster_video) || params$log_norm_banksy_
 ![](`r params$log_norm_banksy_split_cluster_video`){width="75%"}
 
 ```{r eval-show-log-banksy-split-cluster-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_split_cluster_video) || params$log_norm_banksy_split_cluster_video == '') {
+if (!file_exists(params$log_norm_banksy_split_cluster_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-banksy-dot-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_dot_video) || params$log_norm_banksy_dot_video == '') {
+if (!file_exists(params$log_norm_banksy_dot_video)) {
   cat("<!---")
 }
 ```
@@ -785,13 +1006,13 @@ if (is.na(params$log_norm_banksy_dot_video) || params$log_norm_banksy_dot_video 
 ![](`r params$log_norm_banksy_dot_video`){width="75%"}
 
 ```{r eval-show-log-banksy-dot-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_dot_video) || params$log_norm_banksy_dot_video == '') {
+if (!file_exists(params$log_norm_banksy_dot_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-banksy-vln-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_vln_video) || params$log_norm_banksy_vln_video == '') {
+if (!file_exists(params$log_norm_banksy_vln_video)) {
   cat("<!---")
 }
 ```
@@ -801,14 +1022,23 @@ if (is.na(params$log_norm_banksy_vln_video) || params$log_norm_banksy_vln_video 
 ![](`r params$log_norm_banksy_vln_video`){width="75%"}
 
 ```{r eval-show-log-banksy-vln-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksy_vln_video) || params$log_norm_banksy_vln_video == '') {
+if (!file_exists(params$log_norm_banksy_vln_video)) {
   cat("--->")
+}
+```
+
+```{r eval-show-log-banksyseurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
 }
 ```
 
 ### BANKSY Seurat Wrapper (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat Clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper. BANKSY clustering was executed using the following parameters:
+BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
@@ -819,8 +1049,17 @@ Note the lambda parameter controls how much spatial information is incorporated 
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
+```{r eval-show-log-banksyseurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
 ```{r eval-show-log-banksyseurat-umap-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_umap_video) || params$log_norm_banksyseurat_umap_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_umap_video)) {
   cat("<!---")
 }
 ```
@@ -830,13 +1069,13 @@ if (is.na(params$log_norm_banksyseurat_umap_video) || params$log_norm_banksyseur
 ![](`r params$log_norm_banksyseurat_umap_video`){width="75%"}
 
 ```{r eval-show-log-banksyseurat-umap-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_umap_video) || params$log_norm_banksyseurat_umap_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_umap_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-banksyseurat-split-cluster-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_split_cluster_video) || params$log_norm_banksyseurat_split_cluster_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_split_cluster_video)) {
   cat("<!---")
 }
 ```
@@ -846,13 +1085,13 @@ if (is.na(params$log_norm_banksyseurat_split_cluster_video) || params$log_norm_b
 ![](`r params$log_norm_banksyseurat_split_cluster_video`){width="75%"}
 
 ```{r eval-show-log-banksyseurat-split-cluster-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_split_cluster_video) || params$log_norm_banksyseurat_split_cluster_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_split_cluster_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-banksyseurat-dot-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_dot_video) || params$log_norm_banksyseurat_dot_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_dot_video)) {
   cat("<!---")
 }
 ```
@@ -862,13 +1101,13 @@ if (is.na(params$log_norm_banksyseurat_dot_video) || params$log_norm_banksyseura
 ![](`r params$log_norm_banksyseurat_dot_video`){width="75%"}
 
 ```{r eval-show-log-banksyseurat-dot-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_dot_video) || params$log_norm_banksyseurat_dot_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_dot_video)) {
   cat("--->")
 }
 ```
 
 ```{r eval-show-log-banksyseurat-vln-start, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_vln_video) || params$log_norm_banksyseurat_vln_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_vln_video)) {
   cat("<!---")
 }
 ```
@@ -878,7 +1117,7 @@ if (is.na(params$log_norm_banksyseurat_vln_video) || params$log_norm_banksyseura
 ![](`r params$log_norm_banksyseurat_vln_video`){width="75%"}
 
 ```{r eval-show-log-banksyseurat-vln-end, results='asis', echo=FALSE}
-if (is.na(params$log_norm_banksyseurat_vln_video) || params$log_norm_banksyseurat_vln_video == '') {
+if (!file_exists(params$log_norm_banksyseurat_vln_video)) {
   cat("--->")
 }
 ```
