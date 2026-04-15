@@ -118,7 +118,7 @@ ggsave(
     filename = opt$outfile,
     plot = plot,
     width = opt$width,
-    height = opt$width,
+    height = opt$height,
     dpi = opt$dpi
 )
 
