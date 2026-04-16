@@ -211,6 +211,10 @@
                 "skip_post_marker_barnyard_plot": {
                     "type": "boolean",
                     "description": "Skip generating Barnyard Plot for the post-filtered data"
+                },
+                "skip_gene_pair_stats_filter": {
+                    "type": "boolean",
+                    "description": "This will skip filtering gene pairs by their spearman r, spearman p, and gini index values."
                 }
             },
             "fa_icon": "fas fa-dna"

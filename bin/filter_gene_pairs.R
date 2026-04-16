@@ -47,10 +47,14 @@ params_list <- list(
     make_option(
         c("--max_gene_pair_count"),
         type="integer",
-        default=50,
-        help="The maximum number of genes"
-    )
-    )
+        default=10,
+        help="The maximum number of genes"),
+    make_option(
+        c("--skip_gene_pair_stats_filter"),
+        action="store_true",
+        default=FALSE,
+        help="Skip filtering data by the spearman r, spearman p, and gini index values")
+)
 
 opt_parser <- OptionParser(option_list=params_list)
 opt <- parse_args(opt_parser)
@@ -70,17 +74,26 @@ gene_pair_stats_df <- read.csv(opt$gene_pair_stats, sep = ",")
 ### FILTER GENE PAIRS ###
 #########################
 
-filter_gene_pair_df <- gene_pair_stats_df %>%
-    # Filter by spearman correlation
-    filter(
-        spearman_p < opt$max_spearman_p,
-        spearman_r < opt$max_spearman_r
-    ) %>%
-    # Filter by Gini index
-    filter(
-        gini_gene1 > opt$min_gini,
-        gini_gene2 > opt$min_gini
-    ) %>%
+filter_gene_pair_df <- data.frame()
+
+if (opt$skip_gene_pair_stats_filter) {
+    filter_gene_pair_df <- gene_pair_stats_df
+
+} else {
+    filter_gene_pair_df <- gene_pair_stats_df %>%
+        # Filter by spearman correlation
+        filter(
+            spearman_p < opt$max_spearman_p,
+            spearman_r < opt$max_spearman_r
+        ) %>%
+        # Filter by Gini index
+        filter(
+            gini_gene1 > opt$min_gini,
+            gini_gene2 > opt$min_gini
+        )
+}
+
+filter_gene_pair_df <- filter_gene_pair_df %>%
     # Sort by spearman correlation (most negative first)
     arrange(spearman_r) %>%
     # Select top gene pairs
