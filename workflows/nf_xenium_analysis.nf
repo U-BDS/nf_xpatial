@@ -28,6 +28,7 @@ include { MANUAL_ANNOTATIONS_QC               } from '../subworkflows/local/manu
 include { SPATIAL_QC as SPATIAL_QC_PREFILTER  } from '../subworkflows/local/spatial_qc/main'
 include { SPATIAL_QC as SPATIAL_QC_POSTFILTER } from '../subworkflows/local/spatial_qc/main'
 include { NORMALIZE_DATA                      } from '../subworkflows/local/normalize_data/main'
+include { MARKER_GENE_PAIRS_QC                } from '../subworkflows/local/marker_gene_pairs_qc/main'
 include { GET_VARIABLE_FEATURES               } from '../subworkflows/local/get_variable_features'
 include { CLUSTER_SEURAT                      } from '../subworkflows/local/cluster_seurat/main'
 include { BANKSY                              } from '../subworkflows/local/banksy/main'
@@ -94,10 +95,6 @@ workflow NF_XENIUM_ANALYSIS {
         //
         SPATIAL_QC_PREFILTER (
             MANUAL_ANNOTATIONS_QC.out.annotated_xenium_obj,
-            params.marker_gene_list,
-            params.skip_gene_list_filtering,
-            params.skip_pre_marker_gene_qc,
-            params.skip_pre_marker_barnyard_plot,
             params.skip_pre_cell_shape_qc,
             params.skip_pre_cell_shape_prop_plot,
             params.skip_pre_cell_segm_prop_plot,
@@ -127,10 +124,6 @@ workflow NF_XENIUM_ANALYSIS {
         //
         SPATIAL_QC_POSTFILTER (
             FILTER_XENIUM_OBJ.out.filtered_xenium_obj,
-            params.marker_gene_list,
-            params.skip_gene_list_filtering,
-            params.skip_post_marker_gene_qc,
-            params.skip_post_marker_barnyard_plot,
             params.skip_post_cell_shape_qc,
             params.skip_post_cell_shape_prop_plot,
             params.skip_post_cell_segm_prop_plot,
@@ -156,6 +149,19 @@ workflow NF_XENIUM_ANALYSIS {
         params.skip_qc || params.skip_norm_ncount,
         params.skip_qc || params.skip_norm_nfeature
     )
+
+    //
+    // SUBWORKFLOW: Generate qc plots for all marker gene pairings
+    //
+    if (!params.skip_marker_gene_qc) {
+        MARKER_GENE_PAIRS_QC (
+            ch_xenium_obj,
+            params.marker_gene_list,
+            params.skip_gene_list_filtering,
+            params.skip_marker_barnyard_plot
+        )
+        ch_versions = ch_versions.mix(MARKER_GENE_PAIRS_QC.out.versions)
+    }
 
     //
     // MODULE: Add tissue coordiates to metadata

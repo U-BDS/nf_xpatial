@@ -1,5 +1,4 @@
 #!/usr/bin/env nextflow
-include { MARKER_GENE_PAIRS_QC  } from '../../../subworkflows/local/marker_gene_pairs_qc/main'
 include { CELL_SHAPE_QC         } from '../../../subworkflows/local/cell_shape_qc/main'
 include { GENERAL_QC            } from '../../../subworkflows/local/general_qc/main'
 include { CELL_AREA_QC          } from '../../../subworkflows/local/cell_area_qc/main'
@@ -7,10 +6,6 @@ include { CELL_AREA_QC          } from '../../../subworkflows/local/cell_area_qc
 workflow SPATIAL_QC {
     take:
         ch_xenium_obj                    // channel: xenium objects
-        marker_gene_list                 // file: marker gene list
-        skip_gene_list_filtering         // bool: whether to filter gene list used for marker gene pair qc
-        skip_marker_gene_pair_qc         // bool: whether to skip the marker gene pair qc plots
-        skip_marker_barnyard_plot        // bool: whether to skip the barnyard qc plots for marker gene pair qc,
         skip_cell_shape_qc               // bool: whether to skip the cell shape qc plots
         skip_cell_shape_prop_plot        // bool: whether to skip the cell shape proportion qc plots
         skip_cell_segm_prop_plot         // bool: whether to skip the cell segmentation proportion qc plots
@@ -27,19 +22,6 @@ workflow SPATIAL_QC {
 
     main:
         ch_versions = Channel.empty()
-
-        //
-        // SUBWORKFLOW: Generate qc plots for all marker gene pairings
-        //
-        if (!skip_marker_gene_pair_qc) {
-            MARKER_GENE_PAIRS_QC (
-                ch_xenium_obj,
-                marker_gene_list,
-                skip_gene_list_filtering,
-                skip_marker_barnyard_plot
-            )
-            ch_versions = ch_versions.mix(MARKER_GENE_PAIRS_QC.out.versions)
-        }
 
         //
         // SUBWORKFLOW: Generate qc plots for cell shapes
