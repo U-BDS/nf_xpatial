@@ -38,7 +38,7 @@ workflow MARKER_GENE_PAIRS_QC {
         )
         ch_versions = ch_versions.mix ( GENERATE_GENE_PAIR_STATS.out.versions )
 
-        ch_gene_list = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
+        ch_gene_stats = GENERATE_GENE_PAIR_STATS.out.gene_pair_stats
         if (!skip_gene_list_filtering) {
             //
             // MODULE: Determine mutually exclusive gene pairs
@@ -48,7 +48,7 @@ workflow MARKER_GENE_PAIRS_QC {
             )
             ch_versions = ch_versions.mix ( FILTER_GENE_PAIRS.out.versions )
 
-            ch_gene_list = FILTER_GENE_PAIRS.out.filtered_gene_pair_stats
+            ch_gene_stats = FILTER_GENE_PAIRS.out.filtered_gene_pair_stats
         }
 
         ch_marker_barnyard = Channel.empty()
@@ -57,7 +57,7 @@ workflow MARKER_GENE_PAIRS_QC {
             // MODULE: Generate Barnyard Plot
             //
             QC_BARNYARD_PLOT (
-                ch_xenium_data.join ( ch_gene_list )
+                ch_xenium_data.join ( ch_gene_stats )
             )
 
             ch_marker_barnyard = QC_BARNYARD_PLOT.out.barnyard_plot
