@@ -18,8 +18,8 @@ LABEL org.opencontainers.image.category="Xenium"
 # pals, tools
 
 # Installing CRAN with install.packages as install.packages()
-RUN R --no-restore --no-save -e "install.packages(c('arrow', 'av', 'data.table', 'dplyr', 'DT', 'geometry', 'ggplot2', 'ggplotify'))"
-RUN R --no-restore --no-save -e "install.packages(c('jsonlite', 'knitr', 'optparse', 'patchwork', 'pdftools', 'Polychrome', 'progressr'))"
+RUN R --no-restore --no-save -e "install.packages(c('arrow', 'av', 'data.table', 'dplyr', 'DT', 'geometry', 'ggExtra', 'ggplot2', 'ggplotify'))"
+RUN R --no-restore --no-save -e "install.packages(c('jsonlite', 'knitr', 'leidenbase', 'optparse', 'patchwork', 'pdftools', 'Polychrome', 'progressr'))"
 RUN R --no-restore --no-save -e "install.packages(c('purrr', 'RColorBrewer', 'remotes', 'R.utils', 'scales', 'SpatialExperiment'))"
 RUN R --no-restore --no-save -e "install.packages(c('stringr', 'SummarizedExperiment', 'tidyr', 'tidyverse'))"
 
