@@ -235,7 +235,8 @@ apply(gene_pair_stats_df, 1, function(gene_pair_stat) {
         plot = barnyard_plot,
         width = opt$width,
         height = opt$height,
-        units = "px"
+        units = "px",
+        bg = "white"
     )
 })
 
