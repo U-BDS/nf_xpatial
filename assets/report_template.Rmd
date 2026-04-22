@@ -49,8 +49,8 @@ params:
   
 title: "`r params$report_title`"
 author: 
-  - name: "Austyn Trull  | <agtrull@uabmc.edu> | <https://www.uab.edu/cores/ircp/bds>"
-  - name: "Lara Ianov, Ph.D. | <lianov@uab.edu> | <https://www.uab.edu/cores/ircp/bds>"
+  - name: "UAB Biological Data Science Core | <https://www.uab.edu/cores/ircp/bds>"
+  - name: "Luke Potter, Nilesh Kumar, Austyn Trull, Lara Ianov"
 date: |
       | Report Date: `r format(Sys.time(), '%B %d, %Y')`
 output:
@@ -332,7 +332,7 @@ if (!file_exists(params$cell_segmentation_proportion_plot)) {
 
 ### Cell Segmentation Method QC
 
-The Xenium software uses three different methods to segment cells. We expect that segmentation by interior stain should be the most abundant, and this should be consistent across all samples. Deviations from either assumption would indicate an issue with cell segmentation.
+The Xenium software uses three different methods to segment cells when multimodal segmentation is applied. We expect that segmentation by interior stain should be the most abundant, and this should be consistent across all samples. Deviations from either assumption would indicate an issue with cell segmentation.
 
 ![](`r params$cell_segmentation_proportion_plot`)
 
@@ -532,8 +532,6 @@ Seurat Clustering is a standard practice in single-cell workflows, clustering ce
 
 Note that Seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
 
-Further, due to the high number of genes from the marker list, the gene-expression plots below use a subsetted list of markers (1-2 genes from each category). However, you may visualize any gene directly in the Seurat object we provide as long as it was within the Xenium panel.
-
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
 ```{r eval-show-area-seurat-end, results='asis', echo=FALSE}
@@ -620,7 +618,7 @@ if (!file_exists(params$area_norm_banksy_umap_video) &&
 
 ### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
@@ -717,7 +715,7 @@ if (!file_exists(params$area_norm_banksyseurat_umap_video) &&
 
 ### BANKSY Seurat Wrapper (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
@@ -855,7 +853,7 @@ Seurat Clustering is a standard practice in single-cell workflows, clustering ce
 -   dimensions: `r params$seurat_dim_params`
 -   resolutions: `r params$seurat_res_params`
 
-Note that seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
+Note that Seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
@@ -943,7 +941,7 @@ if (!file_exists(params$log_norm_banksy_umap_video) &&
 
 ### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat Clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat Clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
@@ -951,6 +949,8 @@ BANKSY is a tool that is used for spatial domain identification. This tool allow
 -   resolutions: `r params$banksy_res_params`
 
 Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
@@ -1038,7 +1038,7 @@ if (!file_exists(params$log_norm_banksyseurat_umap_video) &&
 
 ### BANKSY Seurat Wrapper (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a tool that is used for spatial domain identification. This tool allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
@@ -1046,6 +1046,8 @@ BANKSY is a tool that is used for spatial domain identification. This tool allow
 -   resolutions: `r params$banksy_res_params`
 
 Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
 
 > `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
 
@@ -1130,7 +1132,11 @@ The final R objects can be found in the results directory at the following path:
 
 `<results>/compiled/*.rds`
 
-**We've written the following function in R that can be used to filter the combined Seurat Objects:**
+## Filtering the Objects
+
+Given that the objects provided by nf_xpatial compiles all parameter sweeps into a single object, we recommend to filter this object to only retain the clustering results which will be used for downstream analysis (after an initial evaluation of the results provided by any parameter sweeps).
+
+To facilitate this task **we've written the following function named `filter_xenium_obj` in R that can be used to filter the combined Seurat Objects:**
 
 ``` r
 
@@ -1231,10 +1237,9 @@ filter_xenium_obj <- function(
   }
 ```
 
-A couple examples of how to run the function are listed below.
+A couple of examples of how to run the function are listed below.
 
 ``` r
-
 # This will grab all the BANKSY cluster and reductions, filtering out the Seurat cluster results
 only_banksy_obj <- filter_xenium_obj(
   input = full_object,
