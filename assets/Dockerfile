@@ -3,7 +3,6 @@ FROM rocker/rstudio:4.4.2
 FROM bioconductor/bioconductor_docker:RELEASE_3_20
 
 # Author:	Austyn Trull
-# Data:		February 10,2026
 
 # LABEL adds metadata to an image:
 LABEL maintainer="Austyn Trull <atrull@uab.edu>"
@@ -12,7 +11,6 @@ LABEL org.opencontainers.image.title="nf_xpatial"
 LABEL org.opencontainers.image.description="Environment which contains tools used by the nf_xpatial pipeline"
 LABEL org.opencontainers.image.version="0.0.4"
 LABEL org.opencontainers.image.authors="Austyn Trull <atrull@uab.edu>"
-LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.category="Xenium"
 
 # pals, tools
@@ -40,5 +38,3 @@ ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ## Set env variables
 ENV PLATFORM=${TARGETPLATFORM}
 
-# docker run -it nf_xenium_analysis:0.0.4
-# docker run -e PASSWORD=abc -p 8787:8787 nf_xenium_analysis:0.0.4

@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/U-BDS/nf_xenium_analysis/main/nextflow_schema.json",
-    "title": "U-BDS/nf_xenium_analysis pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/U-BDS/nf_xpatial/main/nextflow_schema.json",
+    "title": "U-BDS/nf_xpatial pipeline parameters",
     "description": "This pipeline is used to automate analysis of Xenium data",
     "type": "object",
     "$defs": {

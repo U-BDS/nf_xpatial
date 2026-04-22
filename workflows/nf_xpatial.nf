@@ -42,7 +42,7 @@ include { CLUSTER_QC                          } from '../subworkflows/local/clus
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow NF_XENIUM_ANALYSIS {
+workflow NF_XPATIAL {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
@@ -629,7 +629,7 @@ workflow NF_XENIUM_ANALYSIS {
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name:  'nf_xenium_analysis_software_'  + 'versions.yml',
+            name:  'nf_xpatial_software_'  + 'versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }

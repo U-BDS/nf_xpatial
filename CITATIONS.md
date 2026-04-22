@@ -1,4 +1,4 @@
-# U-BDS/nf_xenium_analysis: Citations
+# U-BDS/nf_xpatial: Citations
 
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 

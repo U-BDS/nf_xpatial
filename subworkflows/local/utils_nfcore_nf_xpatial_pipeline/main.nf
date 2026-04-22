@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the U-BDS/nf_xenium_analysis pipeline
+// Subworkflow with functionality specific to the U-BDS/nf_xpatial pipeline
 //
 
 /*

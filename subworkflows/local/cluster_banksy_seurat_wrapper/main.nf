@@ -1,13 +1,13 @@
 #!/usr/bin/env nextflow
 
 
-include { SUBSET_VARIABLE_FEATURES        } from '../../../modules/local/subset_variable_features'
-include { RUN_BANKSY     } from '../../../modules/local/run_banksy'
-include { RUN_PCA        } from '../../../modules/local/run_pca'
-include { RUN_UMAP       } from '../../../modules/local/run_umap'
-include { RUN_HARMONY    } from '../../../modules/local/run_harmony'
-include { FIND_NEIGHBORS } from '../../../modules/local/find_neighbors'
-include { FIND_CLUSTERS  } from '../../../modules/local/find_clusters'
+include { SUBSET_VARIABLE_FEATURES } from '../../../modules/local/subset_variable_features'
+include { RUN_BANKSY               } from '../../../modules/local/run_banksy'
+include { RUN_PCA                  } from '../../../modules/local/run_pca'
+include { RUN_UMAP                 } from '../../../modules/local/run_umap'
+include { RUN_HARMONY              } from '../../../modules/local/run_harmony'
+include { FIND_NEIGHBORS           } from '../../../modules/local/find_neighbors'
+include { FIND_CLUSTERS            } from '../../../modules/local/find_clusters'
 
 
 workflow CLUSTER_BANKSY_SEURAT_WRAPPER {

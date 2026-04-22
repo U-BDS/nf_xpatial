@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    U-BDS/nf_xenium_analysis
+    U-BDS/nf_xpatial
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/U-BDS/nf_xenium_analysis
+    Github : https://github.com/U-BDS/nf_xpatial
 ----------------------------------------------------------------------------------------
 */
 
@@ -13,9 +13,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { NF_XENIUM_ANALYSIS  } from './workflows/nf_xenium_analysis'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_nf_xenium_analysis_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_nf_xenium_analysis_pipeline'
+include { NF_XPATIAL              } from './workflows/nf_xpatial'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_nf_xpatial_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_nf_xpatial_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -25,7 +25,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_nf_x
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow UBDS_NF_XENIUM_ANALYSIS {
+workflow UBDS_NF_XPATIAL {
 
     take:
     samplesheet // channel: samplesheet read in from --input
@@ -35,7 +35,7 @@ workflow UBDS_NF_XENIUM_ANALYSIS {
     //
     // WORKFLOW: Run pipeline
     //
-    NF_XENIUM_ANALYSIS (
+    NF_XPATIAL (
         samplesheet
     )
 }
@@ -63,7 +63,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    UBDS_NF_XENIUM_ANALYSIS (
+    UBDS_NF_XPATIAL (
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //

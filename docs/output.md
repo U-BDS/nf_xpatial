@@ -1,4 +1,4 @@
-# U-BDS/nf_xenium_analysis: Output
+# U-BDS/nf_xpatial: Output
 
 ## Introduction
 
