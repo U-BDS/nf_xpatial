@@ -73,7 +73,7 @@ if (is.null(opt$input)) {
 # Read in xenium_obj
 xenium_obj <- readRDS(file = opt$input)
 
-# Read in teh marker list
+# Read in the marker list
 marker_list <- read.csv(opt$marker_list, sep = ",")
 
 #######################
@@ -99,12 +99,13 @@ for (group_name in unique(marker_list$group)) {
         dot_plot_title <- paste0(dot_plot_title, ifelse(length(gene_groups) > 1, paste0(" - ", group_num), ""))
 
         # Check if the input was a list of objects or a single object
+        # colors are colorblind friendly
         dot_plot <- DotPlot(
             xenium_obj,
             features = genes,
             group.by = opt$cluster_col,
             assay = opt$assay,
-            cols = c("red", "blue")
+            cols = c("#D55E00", "#0072B2")
         ) + RotatedAxis() + ggtitle(dot_plot_title)
 
         # Output the plot

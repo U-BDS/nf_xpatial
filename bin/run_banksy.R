@@ -37,7 +37,7 @@ params_list <- list(
         c("--k_geom"),
         type="integer",
         default=NULL,
-        help="nPCs values for Banksy clustering"),
+        help="Number of neighbors to use for Banksy"),
     make_option(
         c("-o", "--outfile"),
         type="character",
@@ -47,8 +47,8 @@ params_list <- list(
     make_option(
         c("-f", "--features"),
         type="character",
-        default="all",
-        help="The features to use for clustering (default: all, optins: all, variable)")
+        default="variable",
+        help="The features to use for clustering (default: all, options: all, variable)")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
