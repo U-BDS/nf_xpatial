@@ -23,6 +23,8 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
     main:
         ch_versions = Channel.empty()
 
+        // MODULE: Convert seurat object to spatial experiment object
+
         // MODULE: Run BANKSY
         RUN_BANKSY (
             ch_merged_xenium_obj
@@ -30,7 +32,8 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
                 .combine (Channel.of(k_geom_list).flatten())
                 .map { 
                     meta, xenium_obj, lambda, k_geom ->
-                        def new_meta = meta + [lambda: lambda, k_geom: k_geom]
+                        def agf_val = use_agf_BANKSY ? 1 : 0
+                        def new_meta = meta + [agf: agf_val, lambda: lambda, k_geom: k_geom]
                         [new_meta, xenium_obj]
                 }
         )

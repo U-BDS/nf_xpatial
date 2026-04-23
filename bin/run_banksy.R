@@ -39,6 +39,11 @@ params_list <- list(
         default=NULL,
         help="Number of neighbors to use for Banksy"),
     make_option(
+        c("--agf"),
+        action="store_true",
+        default=FALSE,
+        help="Whether to use the adaptive Gaussian filter (AGF) in Banksy clustering"),
+    make_option(
         c("-o", "--outfile"),
         type="character",
         default="filtered_xenium_obj.rds",
@@ -80,7 +85,8 @@ xenium_obj <- RunBanksy(
     group = "Sample",
     verbose = TRUE,
     split.scale = FALSE,
-    assay_name = paste0(opt$assay, "_BANKSY")
+    assay_name = paste0(opt$assay, "_BANKSY"),
+    use_agf = opt$agf
 )
 
 #################
