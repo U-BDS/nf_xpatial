@@ -99,6 +99,7 @@ DefaultAssay(xenium_obj) <- opt$assay
 xenium_obj <- FindClusters(
     xenium_obj,
     algorithm = match(opt$clustering_algorithm, CLUST_ALGORITHMS),
+    leiden_method = opt$leiden_method,
     resolution = opt$resolution
 )
 
