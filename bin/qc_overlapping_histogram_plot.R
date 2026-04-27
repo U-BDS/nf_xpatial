@@ -31,7 +31,7 @@ params_list <- list(
     make_option(
         c("-o", "--outfile"),
         type="character",
-        default="vln_plot.png",
+        default="overlap_hist_plot.png",
         metavar="path",
         help="The output name for the image"),
     make_option(

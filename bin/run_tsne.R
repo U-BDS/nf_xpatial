@@ -88,6 +88,7 @@ xenium_obj <- RunTSNE(
     xenium_obj,
     reduction = opt$reduction,
     dims = 1:opt$dim,
+    check_duplicates = FALSE
 )
 
 #################

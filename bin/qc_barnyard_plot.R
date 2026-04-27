@@ -180,6 +180,11 @@ params_list <- list(
         default=0.1,
         help="Size of the points"),
     make_option(
+        c("-a", "--assay"),
+        type="character",
+        default="Xenium",
+        help="The assay name to be merged"),
+    make_option(
         c("--alpha"),
         type="double",
         default=0.5,
@@ -206,6 +211,9 @@ xenium_objs <- readRDS(
 # Read in gene pair stats if provided
 gene_pair_stats_df <- read.csv(opt$gene_pair_stats, sep = ",")
 
+# Set the default assay on the xenium object
+DefaultAssay(xenium_objs) <- opt$assay
+
 #####################
 ### BARNYARD PLOT ###
 #####################
@@ -222,11 +230,11 @@ apply(gene_pair_stats_df, 1, function(gene_pair_stat) {
         genes_of_interest = c(gene1, gene2),
         x_lab = gene1,
         y_lab = gene2,
-        colors = c("#000000", "#0072B2", "#D55E00", "#CC79A7"), # color blind friendly choices
+        colors = c("#000000", "#0072B2", "#D55E00", "#CC79A7"),
         ignore_none = TRUE,
         legend = FALSE,
         plot_types = "density",
-        layer = "counts",
+        layer = "data",
         annotate_plot = FALSE
     )
 
@@ -235,7 +243,8 @@ apply(gene_pair_stats_df, 1, function(gene_pair_stat) {
         plot = barnyard_plot,
         width = opt$width,
         height = opt$height,
-        units = "px"
+        units = "px",
+        bg = "white"
     )
 })
 

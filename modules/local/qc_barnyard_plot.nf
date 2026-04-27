@@ -5,8 +5,8 @@ process QC_BARNYARD_PLOT {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -22,10 +22,12 @@ process QC_BARNYARD_PLOT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
     qc_barnyard_plot.R \\
         $args \\
+        $assay_flag \\
         --input "$xenium_obj" \\
         --gene_pair_stats $gene_pair_stats \\
         --outfile ${prefix}_barnyard_plot.png

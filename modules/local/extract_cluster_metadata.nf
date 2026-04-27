@@ -5,8 +5,8 @@ process EXTRACT_CLUSTER_METADATA {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -22,10 +22,10 @@ process EXTRACT_CLUSTER_METADATA {
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
-    def param_string_flag = meta.clustering_method == 'BANKSY' ?
-        "--param_string l" + "${meta.lambda}" + "_k" + "${meta.k_geom}" + "_n" + "${meta.nPCs}" + "_r" + "${meta.res}" :
+    def param_string_flag = meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSYSeurat' ?
+        "--param_string l" + "${meta.lambda}" + "_k" + "${meta.k_geom}" + "_d" + "${meta.dim}" + "_r" + "${meta.res}" :
         "--param_string d" + "${meta.dim}" + "_r" + "${meta.res}"
 
     """
@@ -33,6 +33,7 @@ process EXTRACT_CLUSTER_METADATA {
         $args \\
         $assay_flag \\
         $param_string_flag \\
+        --clustering_method "${meta.clustering_method}" \\
         --input "$spe_obj" \\
         --outfile "${prefix}_clusts.tsv"
     """
