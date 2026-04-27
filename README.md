@@ -96,7 +96,7 @@ gmjbldbh-1	c
 cjfbfjmn-1	b
 ```
 
-Case where cells below will be removed from any downstream processing"
+Case where cells below will be removed from any downstream processing
 
 ```csv
 Cell_ID	Tissue_annotation
@@ -185,7 +185,7 @@ Because these objects contain all clustering results and all dimension reduction
 
 ## Credits
 
-U-BDS/nf_xpatial was originally written by Luke Potter, Nilesh Kumar, Austyn Trull, Lara Ianov.
+U-BDS/nf_xpatial was originally written by [Luke Potter](https://github.com/LPotter21), [Nilesh Kumar](https://github.com/nilesh-iiita), [Austyn Trull](https://github.com/atrull314), [Lara Ianov](https://github.com/lianov).
 
 We would also like to thank the following people and groups for their support, including financial support:
 

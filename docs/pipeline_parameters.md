@@ -187,11 +187,4 @@ Less common options for the pipeline, typically set in a config file.
 | `version` | Display version and exit. | `boolean` |  |  | True |                                                                                                                            
 | `publish_dir_mode` | Method used to save pipeline results to output directory. (accepted: `symlink`\|`rellink`\|`link`\|`copy`\|`copyNoFollow`\|`move`)                                     
 <details><summary>Help</summary><small>The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method
-should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.</small></details>| `string` | copy |  | True |              
-| `monochrome_logs` | Do not use coloured log outputs. | `boolean` |  |  | True |                                                                                                             
-| `validate_params` | Boolean whether to validate parameters against the schema at runtime | `boolean` | True |  | True |                                                                     
-| `pipelines_testdata_base_path` | Base URL or local path to location of pipeline test dataset files | `string` |  |  | True |                                                                
-| `trace_report_suffix` | Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss. | `string` |  |  | True |                               
-                                                                                                                                                                                              
-
-
+should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.</small></details>
