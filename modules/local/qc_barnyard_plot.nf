@@ -22,6 +22,7 @@ process QC_BARNYARD_PLOT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
     """
     qc_barnyard_plot.R \\
