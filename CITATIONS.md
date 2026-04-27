@@ -68,7 +68,7 @@
 
   > Dario Righelli, Lukas M Weber, Helena L Crowell, Brenda Pardo, Leonardo Collado-Torres, Shila Ghazanfar, Aaron T L Lun, Stephanie C Hicks, Davide Risso, SpatialExperiment: infrastructure for spatially-resolved transcriptomics data in R using Bioconductor, Bioinformatics, Volume 38, Issue 11, June 2022, Pages 3128–3131, <https://doi.org/10.1093/bioinformatics/btac299>
 
-- [SummarizedExperiment](doi:10.18129/B9.bioc.SummarizedExperiment)
+- [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment)
 
   > Morgan M, Obenchain V, Hester J, Pagès H (2025). SummarizedExperiment: A container (S4 class) for matrix-like assays. <https://bioconductor.org/packages/SummarizedExperiment>
 

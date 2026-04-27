@@ -41,8 +41,7 @@ Define where the pipeline should find input data and save output data.
 |-----------|-----------|-----------|-----------|-----------|-----------|                                                                                                                     
 | `skip_filtering` | Skip filtering alltogether | `boolean` |  |  |  |                                                                                                                        
 | `skip_column_removal` | Skip unneeded column removal | `boolean` |  |  |  |                                                                                                                 
-| `columns_to_remove` | A comma-delimited list of unnecessary columns to remove from the xenium object | `string` |                                                                           
-nCount_BlankCodeword,nFeature_BlankCodeword,nCount_ControlCodeword,nFeature_ControlCodeword,nCount_ControlProbe,nFeature_ControlProbe |  |  |                                                 
+| `columns_to_remove` | A comma-delimited list of unnecessary columns to remove from the xenium object | `string` | nCount_BlankCodeword,<br>nFeature_BlankCodeword,<br>nCount_ControlCodeword,<br>nFeature_ControlCodeword,<br>nCount_ControlProbe,<br>nFeature_ControlProbe |  |  |                                                 
 | `skip_percentile_filtering` | Skip the percentile based filtering where cells are filtered based on nFeature percentiles instead of absolute nFeature value | `boolean` | True |  |  |      
 | `min_percentile` | The minimum percentile threshold for nFeature percentile based filtering | `number` |  |  |  |                                                                           
 | `max_percentile` | The maximum percentile threshold for nFeature percentile based filtering | `number` |  |  |  |                                                                           
