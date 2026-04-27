@@ -525,7 +525,7 @@ if (!file_exists(params$area_norm_seurat_umap_video) &&
 
 ### Seurat (Single-Cell Clustering) {.tabset .tabset-pills}
 
-Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used in the current analysis:
+Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used:
 
 -   dimensions: `r params$seurat_dim_params`
 -   resolutions: `r params$seurat_res_params`
@@ -941,7 +941,7 @@ if (!file_exists(params$log_norm_banksy_umap_video) &&
 
 ### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
 
-BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat Clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
 
 -   lambda: `r params$banksy_lambda_params`
 -   k_geom: `r params$banksy_kgeom_params`
