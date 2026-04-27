@@ -212,7 +212,7 @@ xenium_objs <- readRDS(
 gene_pair_stats_df <- read.csv(opt$gene_pair_stats, sep = ",")
 
 # Set the default assay on the xenium object
-DefaultAssay(xenium_obj) <- opt$assay
+DefaultAssay(xenium_objs) <- opt$assay
 
 #####################
 ### BARNYARD PLOT ###

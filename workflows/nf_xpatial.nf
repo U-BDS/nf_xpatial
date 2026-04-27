@@ -155,7 +155,7 @@ workflow NF_XPATIAL {
     //
     if (!params.skip_marker_gene_qc) {
         MARKER_GENE_PAIRS_QC (
-            ch_xenium_obj,
+            NORMALIZE_DATA.out.normalized_objects,
             params.marker_gene_list,
             params.skip_gene_list_filtering,
             params.skip_marker_barnyard_plot

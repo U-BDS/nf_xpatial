@@ -27,6 +27,7 @@ process QC_BARNYARD_PLOT {
     """
     qc_barnyard_plot.R \\
         $args \\
+        $assay_flag \\
         --input "$xenium_obj" \\
         --gene_pair_stats $gene_pair_stats \\
         --outfile ${prefix}_barnyard_plot.png
