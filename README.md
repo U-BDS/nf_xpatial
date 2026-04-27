@@ -1,7 +1,6 @@
 ![nf_xpatial](./assets/nf_xpatial_logo_transparent.png)
 
-[![GitHub Actions CI Status](https://github.com/U-BDS/nf_xpatial/actions/workflows/ci.yml/badge.svg)](https://github.com/U-BDS/nf_xpatial/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/U-BDS/nf_xpatial/actions/workflows/linting.yml/badge.svg)](https://github.com/U-BDS/nf_xpatial/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
@@ -12,6 +11,7 @@
   - [Pipeline Summary](#pipeline-summary)
   - [Usage](#usage)
   - [Outputs](#outputs)
+  - [Detailed outputs](#detailed-outputs)
   - [Notes](#notes)
   - [Credits](#credits)
   - [Contributions and Support](#contributions-and-support)
@@ -49,7 +49,7 @@ Notably, for cases where the raw data no longer follows the Xenium Onboard Analy
    4. Run UMAP
    5. Find Neighbors
    6. Find Clusters
-9. Perform [BANKSY](https://github.com/prabhakarlab/Banksy) clustering for single-cell and/or spatial-domain clustering
+9. Perform [BANKSY](https://github.com/prabhakarlab/Banksy) clustering for single-cell and/or spatial-domain clustering (**Note**: this can be executed with BANKSY or with the BANKSY Seurat Wrapper)
    1. Convert to Spatial Experiment
    2. Stagger Spatial Coordinates
    3. Compute BANKSY Matrix
@@ -84,7 +84,7 @@ Additionally, this step can also be used to remove parts of a slide by labelling
 
 An example file format for the cases described above is presented below:
 
-Case where specific cells map to regions in slide called `a`, `b`, `c`"
+Case where specific cells map to regions in slide called `a`, `b`, `c`
 
 ```csv
 Cell_ID	Tissue_annotation
@@ -174,13 +174,14 @@ For more details on enabling additional parameters, or usage please refer the ad
 Because these objects contain all clustering results and all dimension reductions they can be quite large, making it prudent to filter these objects to a single (or selection) of parameter combinations. In order to do that, it's important to note how the data is stored on each object:
 
 1. Each normalization stores its result in a specific assay, `log_norm` stores its data in the `Xenium` assay, while `area_norm` stores its data in the `AreaNorm` assay. 
-2. The clustering calls are stored in the objects metadata with the regex `clust_HMY_d*_r*` (where d is the dimension and r is the resolution) for Seurat clusters and `clust_BSKY_l*_k*_n*_r*` (where l is lambda, k is k_geom, n is nPCs, and r is resolution) for BANKSY clusters.
-3. UMAP dimension reductions are accessible using the regex `Harmony_umap_d` (where d is the dimension) for Seurat reductions and  `BANKSY_UMAPBANKSYharmony_l*.k*.d*` (where l is lambda, k is k_geom, d is nPCs) for BANKSY reductions.
+2. The clustering calls are stored in the objects metadata with the following format: `clust_[method]_[clustering parameters]`. `method` may be one of 1. `SEU` (Seurat clustering) 2. `BSKY` (BANKSY clustering) 3. `BSKYSEU`(BANSKY’s Seurat wrapper). `clustering parameters` may be `d` (PCA dimensions) , `r` (resolution), `l` (lambda), `k` (k_geom).
+3. UMAP dimension reductions follow a similar format to clustering, specifically `[method]_[reduction]_[clustering parameters]`. `method` is the same as described above, `reduction` may be one of 1. `pca` 2. `harmony`, 3. `umap` and the `parameters` option match those described above, with the exception that reductions are calculated prior to clustering, so there are no resolution (`r`) parameters in their names.
 
-To assist with filtering this object, we provided this [script](assets/filter_xenium_obj.R) (located at `assets/filter_xenium_obj.R`) to perform the filtering as well as listing some examples on how to use the provided script.
+### Detailed outputs
 
-For in-depth descriptions and locations of the additional outputs within the results folder, refer to this [document](docs/output.md) (located at `docs/output.md`)
+1. For in-depth descriptions and locations of the additional outputs within the results folder, refer to this [document](docs/output.md) (located at `docs/output.md`)
 
+2. We provide a brief guide that details the naviation of the compiled objects which are produced by `nf_xpatial`. [This guide can be found here](/docs/nf_xpatial_navigation.md). To assist with filtering the object(s), we provided this [script](assets/filter_xenium_obj.R) (located at `assets/filter_xenium_obj.R`) to perform the filtering as well as listing some examples on how to use the provided script.
 
 ## Credits
 
@@ -197,7 +198,9 @@ We would also like to thank the following people and groups for their support, i
    - Health Services Foundation’s General Endowment Fund
    - University of Alabama at Birmingham Biological Data Science Core (U-BDS), RRID:SCR_021766, <https://github.com/U-BDS>
    - Civitan International Research Center
+   - UAB Office of Research
    - 3P30CA013148-48S8
+   - UM1TR004771
    - UAB MULTIPI8110 and Dr. Worthey's start-up funds
 
 ## Contributions and Support
