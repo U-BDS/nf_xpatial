@@ -2,12 +2,12 @@ process CLASSIFY_CELL_SHAPE{
     tag "$meta.id"
     label 'process_low'
 
-    //container "nf_xenium_analysis_0.0.4.sif"
+    //container "nf_xenium_analysis_0.0.5.sif"
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'library://atrull314/uabbds/nf_xpatial:0.0.4' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.4' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:

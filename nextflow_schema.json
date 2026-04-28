@@ -204,7 +204,7 @@
                     "type": "boolean",
                     "description": "Skip generating Barnyard Plots for gene pairs"
                 },
-                "skip_gene_pair_stats_filter": {
+                "skip_gene_pair_stats_filtering": {
                     "type": "boolean",
                     "description": "This will skip filtering gene pairs by their spearman r, spearman p, and gini index values."
                 }
