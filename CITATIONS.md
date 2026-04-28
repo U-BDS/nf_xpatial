@@ -8,6 +8,10 @@
 
 > Di Tommaso P, Chatzou M, Floden EW, Barja PP, Palumbo E, Notredame C. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017 Apr 11;35(4):316-319. doi: 10.1038/nbt.3820. PubMed PMID: 28398311.
 
+## nf_xpatial
+
+> Luke Potter, Nilesh Kumar, Austyn Trull, Lara Ianov, U-BDS/nf_xpatial, [10.5281/zenodo.19861933](https://doi.org/10.5281/zenodo.19861933)
+
 ## Pipeline tools
 
 ## Software packaging/containerisation tools
