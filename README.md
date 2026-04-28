@@ -110,7 +110,7 @@ mbohjhae-1	REMOVE
 
 ### Create a samplesheet.csv (required)
 
-Finally, prepare a samplesheet with your input data that looks as follows:
+Finally, prepare a samplesheet with your input data that looks as follows, and note that the samplesheet does need the column names `sample`, `xenium`, `metadata`, `manual_annotation`:
 
 `samplesheet.csv`:
 
@@ -126,7 +126,7 @@ Each row represents a directory produced by the Xenium Onboard Analysis.
 
 ### Create a gene marker list (recommended)
 
-A marker list is recommended to support the evaluation of the single-cell and spatial clusters. This list should be a 2 column csv file such as the example below and provided to the `--marker_gene_list` option of nf_xpatial:
+A marker list is recommended to support the evaluation of the single-cell and spatial clusters. This list should be a 2 column csv file, and does need to contain the columns `group` and `gene`. An example is below and this file should be provided to the `--marker_gene_list` option of nf_xpatial:
 
 ```csv
 group,gene
