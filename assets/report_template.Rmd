@@ -523,7 +523,7 @@ if (!file_exists(params$area_norm_seurat_umap_video) &&
 }
 ```
 
-### Seurat (Single-Cell Clustering) {.tabset .tabset-pills}
+### Seurat (Single Cell Clustering) {.tabset .tabset-pills}
 
 Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used:
 
