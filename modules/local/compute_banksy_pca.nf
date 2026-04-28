@@ -5,8 +5,8 @@ process COMPUTE_BANKSY_PCA {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -30,6 +30,6 @@ process COMPUTE_BANKSY_PCA {
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_pca_spe.rds" \\
         --lambda "${meta.lambda}" \\
-        --nPCs "${meta.max_nPC}"
+        --nPCs "${meta.max_dim}"
     """
 }

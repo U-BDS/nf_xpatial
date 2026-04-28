@@ -5,8 +5,8 @@ process CLUSTER_BANKSY {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -30,7 +30,7 @@ process CLUSTER_BANKSY {
         --input "$spe_obj" \\
         --outfile "${prefix}_banksy_pca_spe.rds" \\
         --lambda "${meta.lambda}" \\
-        --nPCs "${meta.nPCs}" \\
+        --nPCs "${meta.dim}" \\
         --res "${meta.res}"
     """
 }

@@ -49,8 +49,18 @@ params_list <- list(
         type="character",
         default="split_cluster_plot.png",
         metavar="path",
-        help="The output name for the image")
-    )
+        help="The output name for the image"),
+    make_option(
+        c("--width"),
+        type="integer",
+        default=22,
+        help="Width of the plot"),
+    make_option(
+        c("--height"),
+        type="integer",
+        default=18,
+        help="Height of the plot")
+)
 
 opt_parser <- OptionParser(option_list=params_list)
 opt <- parse_args(opt_parser)
@@ -164,7 +174,7 @@ plotCountsProportionsSingle <- function(input_obj,
     return(plot)
 }
 
-generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, output_file, assay_name, gene_list, return_plot = FALSE) {
+generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, output_file, assay_name, gene_list, width, height, return_plot = FALSE) {
     
     colnames(seurat_object@meta.data)
     seurat_object@meta.data[[cname]] <- as.factor(seurat_object@meta.data[[cname]])
@@ -291,8 +301,8 @@ generate_seurat_plots <- function(cname, reduction, seurat_object, clust_df, out
     ggsave(
         filename = file.path(output_file),
         plot = combined_plot,
-        width = 22,       # adjust as needed
-        height = 18       # adjust as needed
+        width = width,
+        height = height
     )
     # Optionally return the plot
     if (return_plot) {
@@ -318,7 +328,9 @@ Plot <- generate_seurat_plots(
     output_file = opt$outfile,  # Directory to save plots
     return_plot = FALSE,  # Set to TRUE to return the combined plot
     assay_name = opt$assay,
-    gene_list = opt$gene_list
+    gene_list = opt$gene_list,
+    width = opt$width,
+    height = opt$height
 )
 
 ####################

@@ -5,8 +5,8 @@ process COMPILE_OBJECTS {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -29,6 +29,7 @@ process COMPILE_OBJECTS {
     library(stringr)
 
     file_list <- str_split_1("${xenium_list}", "\\\\s")
+    file_list <- sort(file_list)
     
     obj_list = list()
 

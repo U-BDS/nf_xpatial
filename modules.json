@@ -1,6 +1,6 @@
 {
-    "name": "U-BDS/nf_xenium_analysis",
-    "homePage": "https://github.com/U-BDS/nf_xenium_analysis",
+    "name": "U-BDS/nf_xpatial",
+    "homePage": "https://github.com/U-BDS/nf_xpatial",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

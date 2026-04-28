@@ -36,7 +36,7 @@ params_list <- list(
     make_option(
         c("-n", "--nfeatures"),
         type="integer",
-        default=0,
+        default=2000,
         help="The number of variable features to select"
     ),
     make_option(

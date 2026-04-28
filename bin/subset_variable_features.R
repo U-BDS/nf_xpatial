@@ -40,7 +40,13 @@ params_list <- list(
         c("-a", "--assay"),
         type="character",
         default="Xenium",
-        help="The assay name to be merged")
+        help="The assay name to be merged"),
+    make_option(
+        c("-w", "--whitelist"),
+        type="character",
+        default="",
+        metavar="path",
+        help="The list of features/genes to keep in addition to variable features")
     )
 
 opt_parser <- OptionParser(option_list=params_list)
@@ -65,7 +71,16 @@ DefaultAssay(xenium_obj) <- opt$assay
 ### SUBSET VARIABLE FEATURES ###
 ################################
 
-xenium_obj <- subset(xenium_obj, features = sort(VariableFeatures(xenium_obj)))
+features_keep <- sort(VariableFeatures(xenium_obj))
+
+# Read in the whitelist of features to keep, if provided
+if (opt$whitelist != "") {
+    features_whitelist <- readLines(opt$whitelist)
+
+    features_keep <- sort(unique(c(features_keep, features_whitelist)))
+}
+
+xenium_obj <- subset(xenium_obj, features = features_keep)
 
 #################
 ### SAVE DATA ###

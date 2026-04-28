@@ -1,0 +1,1264 @@
+---
+params:
+  report_title: ""
+  nf_version: "24.04.3"
+  css_file: ""
+  filtered_stats_files: ""
+  min_ncount: 0
+  min_nfeature: 0
+  filtered_dim_plot: ""
+  filtered_vln_plot: ""
+  filtered_feature_scatter_plot: ""
+  filtered_nfeature_plot: ""
+  filtered_ncount_plot: ""
+  cell_shape_proportion_plot: ""
+  cell_segmentation_proportion_plot: ""
+  compiled_histogram_plot: ""
+  compiled_filtered_box_plot: ""
+  compiled_filtered_overlapping_histogram_plot: ""
+  seurat_dim_params: ""
+  seurat_res_params: ""
+  banksy_lambda_params: ""
+  banksy_kgeom_params: ""
+  banksy_npc_params: ""
+  banksy_res_params: ""
+  log_norm_seurat_umap_video: ""
+  log_norm_seurat_split_cluster_video: ""
+  log_norm_seurat_vln_video: ""
+  log_norm_seurat_dot_video: ""
+  log_norm_banksy_umap_video: ""
+  log_norm_banksy_split_cluster_video: ""
+  log_norm_banksy_vln_video: ""
+  log_norm_banksy_dot_video: ""
+  log_norm_banksyseurat_umap_video: ""
+  log_norm_banksyseurat_split_cluster_video: ""
+  log_norm_banksyseurat_vln_video: ""
+  log_norm_banksyseurat_dot_video: ""
+  area_norm_seurat_umap_video: ""
+  area_norm_seurat_split_cluster_video: ""
+  area_norm_seurat_vln_video: ""
+  area_norm_seurat_dot_video: ""
+  area_norm_banksy_umap_video: ""
+  area_norm_banksy_split_cluster_video: ""
+  area_norm_banksy_vln_video: ""
+  area_norm_banksy_dot_video: ""
+  area_norm_banksyseurat_umap_video: ""
+  area_norm_banksyseurat_split_cluster_video: ""
+  area_norm_banksyseurat_vln_video: ""
+  area_norm_banksyseurat_dot_video: ""
+  
+title: "`r params$report_title`"
+author: 
+  - name: "UAB Biological Data Science Core | <https://www.uab.edu/cores/ircp/bds>"
+  - name: "Luke Potter, Nilesh Kumar, Austyn Trull, Lara Ianov"
+date: |
+      | Report Date: `r format(Sys.time(), '%B %d, %Y')`
+output:
+  html_document:
+    code_folding: show
+    css: "`r params$css_file`"
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+
+library(av)
+library(dplyr)
+library(DT)
+library(stringr)
+
+knitr::opts_chunk$set(
+	fig.align = "center",
+	message = FALSE,
+	warning = FALSE,
+	echo = FALSE,
+	include = TRUE
+)
+
+# Helper function to check if a file exists and is not NA or empty string
+file_exists <- function(file_name) {
+  return (!is.na(file_name) &&
+    file_name != '' &&
+    file.exists(file_name))
+}
+
+```
+
+```{css, echo = FALSE}
+
+.nav-pills>li>a {
+    color: white;
+}
+
+.nav-pills>li>a,
+.nav-pills>li>a:hover,
+.nav-pills>li>a:focus {
+   background-color: #144B39; /* Red for default links */
+}
+
+.nav-pills>li.active>a,
+.nav-pills>li.active>a:hover,
+.nav-pills>li.active>a:focus {
+   background-color: #88C408; /* Green for active links */
+}
+
+.nav-pills>li>a:hover, .nav-pills>li>a:focus {
+    background-color: #808285;
+    color: #FFD602;
+}
+
+```
+
+## Software Versions
+
+The data was processed using the U-BDS Nextflow xpatial pipeline, using Nextflow version `r params$nf_version`
+
+The versions of all software and packages used by the pipeline to process the data can be found in `sessionInfo.txt`. All analyses were performed using Singularity containers derived from custom built Docker images.
+
+# Preliminary QCs
+
+## Sample Statistics {.tabset .tabset-pills}
+
+### Pre-Filtering Cell Counts {.active}
+
+```{r pre-filtering-cell-counts}
+filtered_stats_files_list <- str_split_1(params$filtered_stats_files, ",")
+
+filtered_stats_df <- data.frame()
+
+for (filter_stats_csv in filtered_stats_files_list) {
+  filtered_stats_df <- rbind(
+    filtered_stats_df,
+    read.csv(paste0(filter_stats_csv))
+  )
+}
+
+pre_filtered_stats_df <- filtered_stats_df %>%
+  select("sample_name"|contains("pre"))
+
+DT::datatable(pre_filtered_stats_df, options = list (scrollX = TRUE))
+```
+
+### Post-Filtering Cell Counts
+
+The pipeline provides a number of ways to filter cells, the filters that were used for this dataset are below. If filtering was not applied, this section will be blank
+
+```{r eval-show-ncount-filter-start, results='asis', echo=FALSE}
+if (params$min_ncount <= 0) {
+  cat("<!---")
+}
+```
+
+-   minimum nCount = `r params$min_ncount`
+
+```{r eval-show-ncount-filter-end, results='asis', echo=FALSE}
+if (params$min_ncount <= 0) {
+  cat("--->")
+}
+```
+
+```{r eval-show-nfeature-filter-start, results='asis', echo=FALSE}
+if (params$min_nfeature <= 0) {
+  cat("<!---")
+}
+```
+
+-   minimum nFeature = `r params$min_nfeature`
+
+```{r eval-show-nfeature-filter-end, results='asis', echo=FALSE}
+if (params$min_nfeature <= 0) {
+  cat("--->")
+}
+```
+
+```{r post-filtering-cell-counts}
+
+post_filtered_stats_df <- filtered_stats_df %>%
+  select("sample_name"|!(contains("pre")))
+
+DT::datatable(post_filtered_stats_df, options = list (scrollX = TRUE))
+```
+
+```{r eval-show-filterqcs-header-start, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_dim_plot) &&
+  !file_exists(params$filtered_vln_plot) &&
+  !file_exists(params$filtered_feature_scatter_plot) &&
+  !file_exists.na(params$filtered_nfeature_plot) &&
+  !file_exists.na(params$filtered_ncount_plot)) {
+  cat("<!---")
+}
+```
+
+## Post-Filtering QC's {.tabset .tabset-pills}
+
+```{r eval-show-filterqcs-header-end, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_dim_plot) &&
+  !file_exists(params$filtered_vln_plot) &&
+  !file_exists(params$filtered_feature_scatter_plot) &&
+  !file_exists(params$filtered_nfeature_plot)  &&
+  !file_exists(params$filtered_ncount_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-dim-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_dim_plot)) {
+  cat("<!---")
+}
+```
+
+### Dim Plot {.active}
+
+![](`r params$filtered_dim_plot`)
+
+```{r eval-show-dim-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_dim_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-vln-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_vln_plot)) {
+  cat("<!---")
+}
+```
+
+### Violin Plot
+
+![](`r params$filtered_vln_plot`)
+
+```{r eval-show-vln-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_vln_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-featurescatter-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_feature_scatter_plot)) {
+  cat("<!---")
+}
+```
+
+### Feature Scatter Plot
+
+![](`r params$filtered_feature_scatter_plot`)
+
+```{r eval-show-featurescatter-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_feature_scatter_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-nfeature-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_nfeature_plot)) {
+  cat("<!---")
+}
+```
+
+### nFeature Image Feature Plot
+
+![](`r params$filtered_nfeature_plot`)
+
+```{r eval-show-nfeature-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_nfeature_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-ncount-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_ncount_plot)) {
+  cat("<!---")
+}
+```
+
+### nCount Image Feature Plot
+
+![](`r params$filtered_ncount_plot`)
+
+```{r eval-show-ncount-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$filtered_ncount_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-cell-segm-section-start, results='asis', echo=FALSE}
+if (!file_exists(params$cell_shape_proportion_plot) && 
+  !file_exists(params$cell_segmentation_proportion_plot) && 
+  !file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
+  {
+  cat("<!---")
+}
+```
+
+## Cell Segmentation QC {.tabset .tabset-pills}
+
+```{r eval-show-cell-segm-section-end, results='asis', echo=FALSE}
+if (!file_exists(params$cell_shape_proportion_plot) && 
+  !file_exists(params$cell_segmentation_proportion_plot) && 
+  !file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
+  {
+  cat("--->")
+}
+```
+
+```{r eval-show-cell-shape-section-start, results='asis', echo=FALSE}
+if (!file_exists(params$cell_shape_proportion_plot)) {
+  cat("<!---")
+}
+```
+
+### Cell Shape QC {.active}
+
+Each cell is classified into 'Circular', 'Elongated', and 'Polygonal'. The amount of each category should be consistent across all samples, deviation from this can indicate samples are too dissimilate from one another which can cause issues with integration and clustering or there is an issue with cell segmentation.
+
+![](`r params$cell_shape_proportion_plot`)
+
+```{r eval-show-cell-shape-section-end, results='asis', echo=FALSE}
+if (!file_exists(params$cell_shape_proportion_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-cell-segm-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$cell_segmentation_proportion_plot)) {
+  cat("<!---")
+}
+```
+
+### Cell Segmentation Method QC
+
+The Xenium software uses three different methods to segment cells when multimodal segmentation is applied. We expect that segmentation by interior stain should be the most abundant, and this should be consistent across all samples. Deviations from either assumption would indicate an issue with cell segmentation.
+
+![](`r params$cell_segmentation_proportion_plot`)
+
+```{r eval-show-cell-segm-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$cell_segmentation_proportion_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-cell-area-qc-section-start, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
+  {
+  cat("<!---")
+}
+```
+
+### Cell Area QC {.tabset .tabset-pills}
+
+Each cell has its area calculated with the areas for each cell within a sample listed below. We expect that in most cases, the areas to be consistent across all samples. Deviations from these assumptions can indicate issues with cell segmentation or that tissue sections are too dissimilar.
+
+```{r eval-show-cell-area-qc-section-end, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_histogram_plot) &&
+  !file_exists(params$compiled_filtered_box_plot) &&
+  !file_exists(params$compiled_filtered_overlapping_histogram_plot))
+  {
+  cat("--->")
+}
+```
+
+```{r eval-show-histogram-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_histogram_plot)) {
+  cat("<!---")
+}
+```
+
+#### Histogram Plot {.active}
+
+![](`r params$compiled_histogram_plot`)
+
+```{r eval-show-histogram-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_histogram_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-box-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_filtered_box_plot)) {
+  cat("<!---")
+}
+```
+
+#### Box Plot
+
+![](`r params$compiled_filtered_box_plot`)
+
+```{r eval-show-box-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_filtered_box_plot)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-overlap-histogram-plot-start, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_filtered_overlapping_histogram_plot)) {
+  cat("<!---")
+}
+```
+
+#### Overlapping Histogram Plot
+
+![](`r params$compiled_filtered_overlapping_histogram_plot`)
+
+```{r eval-show-overlap-histogram-plot-end, results='asis', echo=FALSE}
+if (!file_exists(params$compiled_filtered_overlapping_histogram_plot)) {
+  cat("--->")
+}
+```
+
+# Normalization {.tabset .tabset-pills}
+
+There are currently two normalization methods implemented in this pipeline: cell area normalization and log normalization. Log Normalization is the traditional normalization method in single-cell data, scaling gene counts by library size. Cell area (or cell volume) normalization instead scales counts based on the physical size of cells, and is a common method for normalizing spatial data. To learn more about cell area normalization, we encourage reading of the following publication: <https://link.springer.com/article/10.1186/s13059-024-03303-w>
+
+**NOTE**: Log and Area normalization are performed separately, resulting in two normalized Seurat objects: One containing only log normalized counts (accessible via the `Xenium` assay) and another containing the cell area normalized counts (accessible via the `AreaNorm` assay). Past this point, all processing is performed separately on the objects for parallelisation.
+
+```{r eval-show-clustering-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video) &&
+  !file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+# Single-Cell and Spatial Clustering {#single-cell-and-spatial-clustering .tabset .tabset-pills}
+
+```{r eval-show-clustering-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video) &&
+  !file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+```{r eval-show-area-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+## Area Norm
+
+```{r eval-show-area-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video) &&
+  !file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video) &&
+  !file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-seurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+### Seurat (Single Cell Clustering) {.tabset .tabset-pills}
+
+Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used:
+
+-   dimensions: `r params$seurat_dim_params`
+-   resolutions: `r params$seurat_res_params`
+
+Note that Seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+```{r eval-show-area-seurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video) &&
+  !file_exists(params$area_norm_seurat_split_cluster_video) &&
+  !file_exists(params$area_norm_seurat_dot_video) &&
+  !file_exists(params$area_norm_seurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-seurat-umap-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video)) {
+  cat("<!---")
+}
+```
+
+#### UMAP
+
+![](`r params$area_norm_seurat_umap_video`){width="75%"}
+
+```{r eval-show-area-seurat-umap-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_umap_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-seurat-split-cluster-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_split_cluster_video)) {
+  cat("<!---")
+}
+```
+
+#### Split Cluster Plot
+
+![](`r params$area_norm_seurat_split_cluster_video`){width="75%"}
+
+```{r eval-show-area-seurat-split-cluster-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_split_cluster_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-seurat-dot-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_dot_video)) {
+  cat("<!---")
+}
+```
+
+#### Dot Plots
+
+![](`r params$area_norm_seurat_dot_video`){width="75%"}
+
+```{r eval-show-area-seurat-dot-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_dot_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-seurat-vln-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+#### Vln Plots
+
+![](`r params$area_norm_seurat_vln_video`){width="75%"}
+
+```{r eval-show-area-seurat-vln-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_seurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksy-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video)) {
+  cat("<!---")
+}
+```
+
+### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
+
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+
+-   lambda: `r params$banksy_lambda_params`
+-   k_geom: `r params$banksy_kgeom_params`
+-   PCs: `r params$banksy_npc_params`
+-   resolutions: `r params$banksy_res_params`
+
+Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+```{r eval-show-area-banksy-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_umap_video) &&
+  !file_exists(params$area_norm_banksy_split_cluster_video) &&
+  !file_exists(params$area_norm_banksy_dot_video) &&
+  !file_exists(params$area_norm_banksy_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksy-umap-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_umap_video)) {
+  cat("<!---")
+}
+```
+
+#### UMAP
+
+![](`r params$area_norm_banksy_umap_video`){width="75%"}
+
+```{r eval-show-area-banksy-umap-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_umap_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksy-split-cluster-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_split_cluster_video)) {
+  cat("<!---")
+}
+```
+
+#### Split Cluster Plot
+
+![](`r params$area_norm_banksy_split_cluster_video`){width="75%"}
+
+```{r eval-show-area-banksy-split-cluster-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_split_cluster_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksy-dot-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_dot_video)) {
+  cat("<!---")
+}
+```
+
+#### Dot Plots
+
+![](`r params$area_norm_banksy_dot_video`){width="75%"}
+
+```{r eval-show-area-banksy-dot-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_dot_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksy-vln-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_vln_video)) {
+  cat("<!---")
+}
+```
+
+#### Vln Plots
+
+![](`r params$area_norm_banksy_vln_video`){width="75%"}
+
+```{r eval-show-area-banksy-vln-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksy_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksyseurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+### BANKSY Seurat Wrapper (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
+
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
+
+-   lambda: `r params$banksy_lambda_params`
+-   k_geom: `r params$banksy_kgeom_params`
+-   PCs: `r params$banksy_npc_params`
+-   resolutions: `r params$banksy_res_params`
+
+Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Area Normalization. For Log Normalization, change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+```{r eval-show-area-banksyseurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_umap_video) &&
+  !file_exists(params$area_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$area_norm_banksyseurat_dot_video) &&
+  !file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksyseurat-umap-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_umap_video)) {
+  cat("<!---")
+}
+```
+
+#### UMAP
+
+![](`r params$area_norm_banksyseurat_umap_video`){width="75%"}
+
+```{r eval-show-area-banksyseurat-umap-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_umap_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksyseurat-split-cluster-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_split_cluster_video)) {
+  cat("<!---")
+}
+```
+
+#### Split Cluster Plot
+
+![](`r params$area_norm_banksyseurat_split_cluster_video`){width="75%"}
+
+```{r eval-show-area-banksyseurat-split-cluster-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_split_cluster_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksyseurat-dot-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_dot_video)) {
+  cat("<!---")
+}
+```
+
+#### Dot Plots
+
+![](`r params$area_norm_banksyseurat_dot_video`){width="75%"}
+
+```{r eval-show-area-banksyseurat-dot-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_dot_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-area-banksyseurat-vln-start, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+#### Vln Plots
+
+![](`r params$area_norm_banksyseurat_vln_video`){width="75%"}
+
+```{r eval-show-area-banksyseurat-vln-end, results='asis', echo=FALSE}
+if (!file_exists(params$area_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+## Log Norm
+
+```{r eval-show-log-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video) &&
+  !file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video) &&
+  !file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-seurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+### Seurat (Single Cell Clustering) {.tabset .tabset-pills}
+
+Seurat Clustering is a standard practice in single-cell workflows, clustering cells based on gene expression. This workflow is executed with a number of parameters combinations, with the following parameters being used:
+
+-   dimensions: `r params$seurat_dim_params`
+-   resolutions: `r params$seurat_res_params`
+
+Note that Seurat-based clustering only takes into account gene expression, and does not factor in any of the spatial data. For spatial-based clustering, refer to the BANKSY sections.
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+```{r eval-show-log-seurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video) &&
+  !file_exists(params$log_norm_seurat_split_cluster_video) &&
+  !file_exists(params$log_norm_seurat_dot_video) &&
+  !file_exists(params$log_norm_seurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-seurat-umap-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video)) {
+  cat("<!---")
+}
+```
+
+#### UMAP
+
+![](`r params$log_norm_seurat_umap_video`){width="75%"}
+
+```{r eval-show-log-seurat-umap-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_umap_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-seurat-split-cluster-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_split_cluster_video)) {
+  cat("<!---")
+}
+```
+
+#### Split Cluster Plot
+
+![](`r params$log_norm_seurat_split_cluster_video`){width="75%"}
+
+```{r eval-show-log-seurat-split-cluster-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_split_cluster_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-seurat-dot-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_dot_video)) {
+  cat("<!---")
+}
+```
+
+#### Dot Plots
+
+![](`r params$log_norm_seurat_dot_video`){width="75%"}
+
+```{r eval-show-log-seurat-dot-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_dot_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-seurat-vln-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+#### Vln Plots
+
+![](`r params$log_norm_seurat_vln_video`){width="75%"}
+
+```{r eval-show-log-seurat-vln-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_seurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksy-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video)) {
+  cat("<!---")
+}
+```
+
+### BANKSY (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
+
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. BANKSY clustering was executed using the following parameters:
+
+-   lambda: `r params$banksy_lambda_params`
+-   k_geom: `r params$banksy_kgeom_params`
+-   PCs: `r params$banksy_npc_params`
+-   resolutions: `r params$banksy_res_params`
+
+Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+```{r eval-show-log-banksy-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_umap_video) &&
+  !file_exists(params$log_norm_banksy_split_cluster_video) &&
+  !file_exists(params$log_norm_banksy_dot_video) &&
+  !file_exists(params$log_norm_banksy_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksy-umap-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_umap_video)) {
+  cat("<!---")
+}
+```
+
+#### UMAP
+
+![](`r params$log_norm_banksy_umap_video`){width="75%"}
+
+```{r eval-show-log-banksy-umap-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_umap_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksy-split-cluster-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_split_cluster_video)) {
+  cat("<!---")
+}
+```
+
+#### Split Cluster Plot
+
+![](`r params$log_norm_banksy_split_cluster_video`){width="75%"}
+
+```{r eval-show-log-banksy-split-cluster-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_split_cluster_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksy-dot-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_dot_video)) {
+  cat("<!---")
+}
+```
+
+#### Dot Plots
+
+![](`r params$log_norm_banksy_dot_video`){width="75%"}
+
+```{r eval-show-log-banksy-dot-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_dot_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksy-vln-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_vln_video)) {
+  cat("<!---")
+}
+```
+
+#### Vln Plots
+
+![](`r params$log_norm_banksy_vln_video`){width="75%"}
+
+```{r eval-show-log-banksy-vln-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksy_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksyseurat-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+### BANKSY Seurat Wrapper (Single Cell and Spatial Clustering) {.tabset .tabset-pills}
+
+BANKSY is a method that is used for spatial domain identification. This approach allows cells to be clustered spatially or by gene expression, as opposed to Seurat clustering which is limited purely to expression based clustering. This specific implementation uses the BANKSY Seurat Wrapper, which begins by modifying the data using a function made by the BANKSY authors and then proceeds with clustering using Seurat functions. This clustering was executed using the following parameters:
+
+-   lambda: `r params$banksy_lambda_params`
+-   k_geom: `r params$banksy_kgeom_params`
+-   PCs: `r params$banksy_npc_params`
+-   resolutions: `r params$banksy_res_params`
+
+Note the lambda parameter controls how much spatial information is incorporated when performing clustering. Lower lambda values will result in more single cell-based clustering, while higher lambda values result in more spatial- or domain-based clustering.
+
+To learn more about BANKSY, please read the following publication: <https://www.nature.com/articles/s41588-024-01664-3>
+
+> `r fontawesome::fa("triangle-exclamation", fill = "#d408b5")` Reminder: You are currently viewing clustering for Log Normalization. For Area Normalization change methods at [Single-Cell and Spatial Clustering](#single-cell-and-spatial-clustering)
+
+```{r eval-show-log-banksyseurat-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_umap_video) &&
+  !file_exists(params$log_norm_banksyseurat_split_cluster_video) &&
+  !file_exists(params$log_norm_banksyseurat_dot_video) &&
+  !file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksyseurat-umap-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_umap_video)) {
+  cat("<!---")
+}
+```
+
+#### UMAP
+
+![](`r params$log_norm_banksyseurat_umap_video`){width="75%"}
+
+```{r eval-show-log-banksyseurat-umap-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_umap_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksyseurat-split-cluster-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_split_cluster_video)) {
+  cat("<!---")
+}
+```
+
+#### Split Cluster Plot
+
+![](`r params$log_norm_banksyseurat_split_cluster_video`){width="75%"}
+
+```{r eval-show-log-banksyseurat-split-cluster-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_split_cluster_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksyseurat-dot-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_dot_video)) {
+  cat("<!---")
+}
+```
+
+#### Dot Plots
+
+![](`r params$log_norm_banksyseurat_dot_video`){width="75%"}
+
+```{r eval-show-log-banksyseurat-dot-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_dot_video)) {
+  cat("--->")
+}
+```
+
+```{r eval-show-log-banksyseurat-vln-start, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("<!---")
+}
+```
+
+#### Vln Plots
+
+![](`r params$log_norm_banksyseurat_vln_video`){width="75%"}
+
+```{r eval-show-log-banksyseurat-vln-end, results='asis', echo=FALSE}
+if (!file_exists(params$log_norm_banksyseurat_vln_video)) {
+  cat("--->")
+}
+```
+
+# Final Objects
+
+This pipeline produces a final R object for each normalization method used by this workflow. The final R objects contain all processing done by the pipeline, i.e. filtering, normalization, integration, etc. and contain all the clustering and dimension reduction results for every parameter combination across both Seurat and BANKSY clustering workflows. As a result, these objects can be large but can be filtered to contain only the clustering parameters you want to proceed forward with.
+
+The final R objects can be found in the results directory at the following path:
+
+`<results>/compiled/*.rds`
+
+## Filtering the Objects
+
+Given that the objects provided by nf_xpatial compiles all parameter sweeps into a single object, we recommend to filter this object to only retain the clustering results which will be used for downstream analysis (after an initial evaluation of the results provided by any parameter sweeps).
+
+To facilitate this task **we've written the following function named `filter_xenium_obj` in R that can be used to filter the combined Seurat Objects:**
+
+``` r
+
+library(Seurat)     # Main analysis package
+
+#' This function filters a Seurat object processed by the nf_xpatial pipeline
+#' 
+#' @param input The Seurat object to filter
+#' @param assays A character vector of assays to keep. Values: ("Xenium", "AreaNorm")
+#' @param clustering_method A character vector of clustering methods to keep. Values ("Seurat", "BANKSY")
+#' @param hmy_dims A double vector of dimensions used for Seurat clustering to keep. Leave empty to include all dimensions.
+#' @param hmy_res A double vector of resolutions used for Seurat clustering to keep. Leave empty to include all resolutions.
+#' @param bsky_dims A double vector of dimensions used for BANKSY clustering to keep. Leave empty to include all dimensions.
+#' @param bsky_res A double vector of resolutions used for BANKSY clustering to keep. Leave empty to include all resolutions.
+#' @param bsky_lambda A double vector of lambdas used for BANKSY clustering to keep. Leave empty to include all lambdas.
+#' @param bsky_kgeom A double vector of kgeom used for BANKSY clustering to keep. Leave empty to include all k_geoms.
+#'
+#' @returns A Seurat object containing only the assays, reductions, and clusters listed above.
+
+filter_xenium_obj <- function(
+    input = NULL,
+    assays = "Xenium",
+    clustering_method = vector(),
+    hmy_dims = vector(),
+    hmy_res = vector(),
+    bsky_dims = vector(),
+    bsky_res = vector(),
+    bsky_lambda = vector(),
+    bsky_kgeom = vector() ) {
+
+    metadata_cols <- colnames(input@meta.data)
+    cluster_cols_keep <- metadata_cols[!grepl("^clust_", metadata_cols)]
+    
+    reductions_keep <- c()
+    
+    # Helper: build parameter patterns for regex matching
+    add_param_to_keep <- function(prefix, param_list = vector() ) {
+      
+        suffix <- ifelse(length(param_list), param_list, ".*" )
+        
+        return(
+          apply(expand.grid(prefix, suffix), 1, function(x) paste(x, collapse = ""))
+        )
+    }
+    
+    if ("Seurat" %in% clustering_method) {
+      # Get the Cluster columns
+      srt_clusts <- c("clust_HMY")
+
+      srt_clusts <- add_param_to_keep(paste0(srt_clusts, "_d"), hmy_dims)
+      srt_clusts <- add_param_to_keep(paste0(srt_clusts, "_r"), hmy_res)
+      
+      cluster_cols_keep <- c(cluster_cols_keep, srt_clusts)
+      
+      # Get the reductions
+      reductions_keep <- c(reductions_keep, add_param_to_keep("Harmony_.*_d", hmy_dims))
+      
+    }
+    
+    if ("BANKSY" %in% clustering_method) {
+      # Get the Cluster columns
+      bsky_clusts <- c("clust_BSKY_AGF1")
+      
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_L"), bsky_lambda)
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_k"), bsky_kgeom)
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_d"), bsky_dims)
+      bsky_clusts <- add_param_to_keep(paste0(bsky_clusts, "_R"), bsky_res)
+      
+      cluster_cols_keep <- c(cluster_cols_keep, bsky_clusts)
+      
+      # Get the reductions
+      reductions_keep <- c(reductions_keep, add_param_to_keep("BANKSY_.*_d", bsky_dims))
+    }
+    
+    filtered_seurat <- input
+    
+    # Build regex patterns
+    reductions_keep_regex <- paste(reductions_keep, collapse = "|")
+    cluster_keep_regex <- paste(cluster_cols_keep, collapse = "|")
+    
+    # Filter reductions
+    all_reductions <- Reductions(input)
+    reductions_to_remove <- all_reductions[!grepl(reductions_keep_regex, all_reductions)]
+    
+    for (reduction in reductions_to_remove) {
+      filtered_seurat[[reduction]] <- NULL
+    }
+    
+    # Filter metadata columns
+    cols_to_remove <- metadata_cols[!grepl(cluster_keep_regex, metadata_cols)]
+    
+    for (col in cols_to_remove) {
+      filtered_seurat[[col]] <- NULL
+    }
+
+    return(filtered_seurat)
+    
+  }
+```
+
+A couple of examples of how to run the function are listed below.
+
+``` r
+# This will grab all the BANKSY cluster and reductions, filtering out the Seurat cluster results
+only_banksy_obj <- filter_xenium_obj(
+  input = full_object,
+  clustering_method = c("BANKSY")
+)
+
+# This will grab only the Seurat cluster and reductions for dimension 20 and resolution 0.4
+single_seurat <- filter_xenium_obj(
+  input = full_object,
+  clustering_method = c("Seurat"),
+  hmy_dims = c(20),
+  hmy_res = c(0.4)
+)
+
+# This will grab only the Seurat cluster and reductions for dimension 20, 25,and 30 and resolution 0.4
+mutliple_dims_seurat <- filter_xenium_obj(
+  input = full_object,
+  clustering_method = c("Seurat"),
+  hmy_dims = c(20,25,30),
+  hmy_res = c(0.4)
+)
+```

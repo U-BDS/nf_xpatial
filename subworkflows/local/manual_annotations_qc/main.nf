@@ -7,8 +7,9 @@ include { COMPILE_OBJECTS as COMPILE_MANUAL_ANNOTATIONS       } from '../../../m
 
 workflow MANUAL_ANNOTATIONS_QC {
     take:
-        ch_samplesheet   // channel: samplesheet read in from --input
-        ch_xenium_obj    // channel: xenium object generated from samplesheet inputs
+        ch_samplesheet        // channel: samplesheet read in from --input
+        ch_xenium_obj         // channel: xenium object generated from samplesheet inputs
+        skip_man_ann_dim_plot // bool: whether to skip the image dimension plot for manual annotations
 
     main:
         ch_versions = Channel.empty()
@@ -64,17 +65,22 @@ workflow MANUAL_ANNOTATIONS_QC {
         )
         //ch_versions = ch_versions.mix(COMPILE_MANUAL_ANNOTATIONS.out.versions)
 
-        //
-        // MODULE: Plot the manual annotations
-        //
-        MANUAL_ANNOTATION_IMG_DIM_PLOT (
-            COMPILE_MANUAL_ANNOTATIONS.out.compiled_obj
-        )
-        ch_versions = ch_versions.mix(MANUAL_ANNOTATION_IMG_DIM_PLOT.out.versions)
+        ch_man_ann_dim_plot = Channel.empty()
+        if (!skip_man_ann_dim_plot) {
+            //
+            // MODULE: Plot the manual annotations
+            //
+            MANUAL_ANNOTATION_IMG_DIM_PLOT (
+                COMPILE_MANUAL_ANNOTATIONS.out.compiled_obj
+            )
+
+            ch_man_ann_dim_plot = MANUAL_ANNOTATION_IMG_DIM_PLOT.out.image_dim_plot
+            ch_versions = ch_versions.mix(MANUAL_ANNOTATION_IMG_DIM_PLOT.out.versions)
+        }
 
         emit:
             annotated_xenium_obj     = ch_annotated_xenium_obj
-            annotated_image_dim_plot = MANUAL_ANNOTATION_IMG_DIM_PLOT.out.image_dim_plot
+            annotated_image_dim_plot = ch_man_ann_dim_plot
             versions                 = ch_versions
 }
 

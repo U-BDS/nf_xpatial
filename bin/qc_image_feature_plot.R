@@ -40,10 +40,10 @@ params_list <- list(
         default=NULL,
         help="The assay to use for plotting (if applicable)"),
     make_option(
-      c("--dark_background"),
-      type="character",
-      default="F",
-      help="Whether the plot has a dark background"),
+        c("--dark_background"),
+        type="character",
+        default="F",
+        help="Whether the plot has a dark background"),
     make_option(
         c("--width"),
         type="integer",

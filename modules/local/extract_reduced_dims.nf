@@ -5,8 +5,8 @@ process EXTRACT_REDUCED_DIMS {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -24,9 +24,11 @@ process EXTRACT_REDUCED_DIMS {
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
-    def param_string_flag = '--param_string d' + "${meta.dim}"
+    def param_string_flag = meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSYSeurat' ?
+        "--param_string l" + "${meta.lambda}" + "-k" + "${meta.k_geom}" + "-d" + "${meta.dim}" :
+        "--param_string d" + "${meta.dim}"
 
     """
     extract_reduced_dims.R \\

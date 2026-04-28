@@ -1,7 +1,6 @@
 #!/usr/bin/env nextflow
 
 include { CONVERT_SEURAT_TO_SPE           } from '../../../modules/local/convert_seurat_to_spe'
-include { SUBSET_VARIABLE_FEATURES        } from '../../../modules/local/subset_variable_features'
 include { STAGGER_SPATIAL_COORDS          } from '../../../modules/local/stagger_spatial_coords'
 include { COMPUTE_BANKSY_MATRIX           } from '../../../modules/local/compute_banksy_matrix'
 include { COMPUTE_BANKSY_PCA              } from '../../../modules/local/compute_banksy_pca'
@@ -14,29 +13,16 @@ workflow BANKSY {
         ch_merged_xenium_obj    // channel: merged xenium objects
         lambda_list             // list: list of lambda values to evaluate
         k_geom_list             // list: list of k_geom values to evaluate
-        nPCs_list               // list: list of nPCs values to evaluate
+        dim_list                // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
         use_agf_BANKSY          // boolean: whether to use AGF in BANKSY
-        skip_banksy_vf_filter   // boolean: whether to skip filtering to variable features
-
 
     main:
         ch_versions = Channel.empty()
 
-        ch_vf_xenium_obj = ch_merged_xenium_obj
-        if (!skip_banksy_vf_filter) {
-            // MODULE: Subset to Variable Features
-            SUBSET_VARIABLE_FEATURES (
-                ch_merged_xenium_obj
-            )
-
-            ch_vf_xenium_obj = SUBSET_VARIABLE_FEATURES.out.vf_subset_xenium_obj
-
-        }
-
         // MODULE: Convert seurat object to spatial experiment object
         CONVERT_SEURAT_TO_SPE (
-            ch_vf_xenium_obj
+            ch_merged_xenium_obj
                 .map { meta, xenium_obj ->
                     def agf_val = use_agf_BANKSY == true ? 1 : 0
                     def new_meta = meta + [agf: agf_val]
@@ -64,18 +50,18 @@ workflow BANKSY {
         // MODULE: Compute BANKSY PCAs
 
         // This is to fix a race condition that occurs randomly on resumes
-        ch_lambda_npc = Channel.of(lambda_list)
+        ch_lambda_dim = Channel.of(lambda_list)
             .flatten()
             .combine(
-                Channel.of(nPCs_list).flatten().max()
+                Channel.of(dim_list).flatten().max()
             )
 
         COMPUTE_BANKSY_PCA (
             COMPUTE_BANKSY_MATRIX.out.banksy_mtx_spe_obj
-                .combine( ch_lambda_npc )
+                .combine( ch_lambda_dim )
                 .map {
-                    meta, spe, lambda, max_nPC ->
-                        def new_meta = meta + [lambda: lambda, max_nPC: max_nPC]
+                    meta, spe, lambda, max_dim ->
+                        def new_meta = meta + [lambda: lambda, max_dim: max_dim]
                         [new_meta, spe]
                 }
         )
@@ -83,10 +69,10 @@ workflow BANKSY {
         // MODULE: Run BANKSY Harmony
         RUN_HARMONY_BANKSY (
             COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
-                .combine ( Channel.of(nPCs_list).flatten() )
+                .combine ( Channel.of(dim_list).flatten() )
                 .map {
-                    meta, spe, nPCs ->
-                        def new_meta = meta + [nPCs: nPCs]
+                    meta, spe, dims ->
+                        def new_meta = meta + [dim: dims]
                         [new_meta, spe]
                 }
         )

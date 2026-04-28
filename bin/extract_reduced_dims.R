@@ -35,7 +35,7 @@ params_list <- list(
     make_option(
         c("-c", "--clustering_method"),
         type="character",
-        help="The clustering method used (e.g., BANKSY, Harmony)"),
+        help="The clustering method used (e.g., BANKSY, Seurat)"),
     make_option(
         c("-f", "--filter"),
         type="character",
@@ -81,7 +81,7 @@ if (class(xenium_obj) == "Seurat") {
     # Save each reduction-specific data frame to a csv file
     for (reduc in reductions) {
         
-        file_prefix <- paste0("HMY_", gsub("_","",reduc), "_", opt$param_string)
+        file_prefix <- paste0(opt$clustering_method, "_", gsub("_","",reduc), "_", opt$param_string)
 
         # Extract embeddings
         extracted_embeddings <- Embeddings(xenium_obj, reduction = reduc)
@@ -149,7 +149,7 @@ if (class(xenium_obj) == "Seurat") {
 
     # Save each sample-specific data frame to a csv file
     for (reduc in reductions) {
-        file_prefix <- paste0("BSKY_", gsub("_","",reduc), "_", opt$param_string)
+        file_prefix <- paste0(opt$clustering_method, "_", tolower(gsub("_|BANKSY|harmony","",reduc)), "_", opt$param_string)
         reduced_dim_data <- reducedDim(xenium_obj, reduc)
 
         if (reduc == "UMAP_BANKSY_harmony") {

@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/U-BDS/nf_xenium_analysis/main/assets/schema_input.json",
-    "title": "U-BDS/nf_xenium_analysis pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/U-BDS/nf_xpatial/main/assets/schema_input.json",
+    "title": "U-BDS/nf_xpatial pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {

@@ -1,12 +1,12 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/U-BDS/nf_xenium_analysis/main/nextflow_schema.json",
-    "title": "U-BDS/nf_xenium_analysis pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/U-BDS/nf_xpatial/main/nextflow_schema.json",
+    "title": "U-BDS/nf_xpatial pipeline parameters",
     "description": "This pipeline is used to automate analysis of Xenium data",
     "type": "object",
     "$defs": {
         "input_output_options": {
-            "title": "Input/output options",
+            "title": "Input/output Options",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
@@ -19,8 +19,8 @@
                     "schema": "assets/schema_input.json",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
-                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
+                    "description": "Path to samplesheet.csv",
+                    "help_text": "Path to `samplesheet.csv`",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -31,134 +31,50 @@
                 },
                 "marker_gene_list": {
                     "type": "string",
-                    "description": "The list of marker genes to evaluat",
+                    "description": "The list of marker genes to evaluate and plot",
                     "pattern": "^\\S+\\.csv$",
                     "format": "file-path",
                     "mimetype": "text/csv"
+                },
+                "gene_whitelist": {
+                    "type": "string",
+                    "description": "A list of features to always keep if you subset by variable features.",
+                    "pattern": "^\\S+\\.csv$",
+                    "format": "file-path"
                 }
             }
         },
-        "institutional_config_options": {
-            "title": "Institutional config options",
-            "type": "object",
-            "fa_icon": "fas fa-university",
-            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
-            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
-            "properties": {
-                "custom_config_version": {
-                    "type": "string",
-                    "description": "Git commit id for Institutional configs.",
-                    "default": "master",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
-                },
-                "custom_config_base": {
-                    "type": "string",
-                    "description": "Base directory for Institutional configs.",
-                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
-                    "hidden": true,
-                    "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
-                    "fa_icon": "fas fa-users-cog"
-                },
-                "config_profile_name": {
-                    "type": "string",
-                    "description": "Institutional config name.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
-                },
-                "config_profile_description": {
-                    "type": "string",
-                    "description": "Institutional config description.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
-                },
-                "config_profile_contact": {
-                    "type": "string",
-                    "description": "Institutional config contact information.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
-                },
-                "config_profile_url": {
-                    "type": "string",
-                    "description": "Institutional config URL link.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
-                }
-            }
-        },
-        "generic_options": {
-            "title": "Generic options",
-            "type": "object",
-            "fa_icon": "fas fa-file-import",
-            "description": "Less common options for the pipeline, typically set in a config file.",
-            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
-            "properties": {
-                "version": {
-                    "type": "boolean",
-                    "description": "Display version and exit.",
-                    "fa_icon": "fas fa-question-circle",
-                    "hidden": true
-                },
-                "publish_dir_mode": {
-                    "type": "string",
-                    "default": "copy",
-                    "description": "Method used to save pipeline results to output directory.",
-                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
-                    "fa_icon": "fas fa-copy",
-                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
-                    "hidden": true
-                },
-                "monochrome_logs": {
-                    "type": "boolean",
-                    "description": "Do not use coloured log outputs.",
-                    "fa_icon": "fas fa-palette",
-                    "hidden": true
-                },
-                "validate_params": {
-                    "type": "boolean",
-                    "description": "Boolean whether to validate parameters against the schema at runtime",
-                    "default": true,
-                    "fa_icon": "fas fa-check-square",
-                    "hidden": true
-                },
-                "pipelines_testdata_base_path": {
-                    "type": "string",
-                    "fa_icon": "far fa-check-circle",
-                    "description": "Base URL or local path to location of pipeline test dataset files",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
-                    "hidden": true
-                },
-                "trace_report_suffix": {
-                    "type": "string",
-                    "fa_icon": "far calendar",
-                    "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
-                    "hidden": true
-                }
-            }
-        },
-        "marker_gene_qc_options": {
-            "title": "Marker Gene QC Options",
+        "general_pipeline_options": {
+            "title": "General Pipeline Options",
             "type": "object",
             "description": "",
             "default": "",
             "properties": {
-                "max_spearman_p": {
-                    "type": "number",
-                    "description": "The maximum spearman p value to determine if two genes are co-expressed",
-                    "default": 0.05
+                "clustering_methods": {
+                    "type": "string",
+                    "description": "This lets you choose the clustering methods to use for your data",
+                    "pattern": "^(Seurat|BANKSY|BANKSYSeurat)(,(Seurat|BANKSY|BANKSYSeurat))*$",
+                    "default": "Seurat,BANKSY",
+                    "help_text": "Options are: Seurat,BANKSY,BANKSYSeurat"
                 },
-                "max_spearman_r": {
-                    "type": "number",
-                    "description": "The maximum spearman r value to determine if two genes are co-expressed",
-                    "default": -0.2
-                },
-                "min_gini": {
-                    "type": "number",
-                    "description": "The minimum gini score to determine if two genes are co-expressed",
-                    "default": 0.7
+                "skip_qc": {
+                    "type": "boolean",
+                    "description": "Skip all QC Plots"
                 }
             },
-            "fa_icon": "fas fa-dna"
+            "required": ["clustering_methods"]
+        },
+        "manual_annotation_options": {
+            "title": "Manual Annotation Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_man_ann_dim_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Manual Annotation Dim Plot"
+                }
+            }
         },
         "filtering_options": {
             "title": "Filtering Options",
@@ -250,58 +166,41 @@
                     "pattern": "^(area|log)(,(area|log))*$",
                     "description": "Choose the normalization method to use (log, and/or area). Multiple options can be chosen in a comma delimited list",
                     "default": "log"
+                },
+                "skip_norm_ncount": {
+                    "type": "boolean",
+                    "description": "Skip generating the nCount plot for normalized data"
+                },
+                "skip_norm_nfeature": {
+                    "type": "boolean",
+                    "description": "Skip generating the nFeature plot for normalized data"
                 }
             }
         },
-        "integration_options": {
-            "title": "Integration options",
+        "seurat_clustering_options": {
+            "title": "Seurat Clustering Options",
             "type": "object",
             "description": "",
             "default": "",
             "properties": {
-                "dim_start": {
-                    "type": "number",
-                    "description": "The lowest dimension to test"
-                },
-                "dim_stop": {
-                    "type": "number",
-                    "description": "The highest dimension to test"
-                },
-                "dim_step": {
-                    "type": "number",
-                    "description": "The amount to increase dimensions by"
-                },
-                "res_start": {
-                    "type": "number",
-                    "description": "The lowest resolution to test"
-                },
-                "res_stop": {
-                    "type": "number",
-                    "description": "The highest resolution to test"
-                },
-                "res_step": {
-                    "type": "number",
-                    "description": "The amount to increase resolution by"
-                },
-                "selected_res": {
-                    "type": "number",
-                    "description": "Use this to specify a single resolution to explore",
-                    "default": -1
-                },
-                "selected_dim": {
-                    "type": "number",
-                    "description": "Use this to specify a single dimension to explore",
-                    "default": -1
-                },
                 "skip_tsne_plot": {
                     "type": "boolean",
-                    "description": "Use this to specify to skip producing a tsne plot"
+                    "description": "Use this to specify to skip producing a tsne plot",
+                    "default": true
+                },
+                "dim_Seurat": {
+                    "type": "string",
+                    "description": "The comma-delimited list of dimensions to use for Seurat clustering"
+                },
+                "res_Seurat": {
+                    "type": "string",
+                    "description": "The comma-delimited list of resolutions to use for Seurat clustering"
                 }
             },
             "fa_icon": "fas fa-object-group"
         },
-        "banksy_options": {
-            "title": "BANKSY options",
+        "banksy_clustering_options": {
+            "title": "BANKSY Clustering Options",
             "type": "object",
             "description": "",
             "default": "",
@@ -333,12 +232,303 @@
                 },
                 "use_agf_BANKSY": {
                     "type": "boolean",
-                    "description": "Whether or not to use agf for BANKSY"
+                    "description": "Whether or not to use agf for BANKSY",
+                    "default": true
                 },
                 "max_iter_BANKSY": {
                     "type": "integer",
                     "description": "The maximum number of iterations to use for BANKSY",
                     "default": 60
+                }
+            }
+        },
+        "general_qc_options": {
+            "title": "General QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_pre_general_qc": {
+                    "type": "boolean",
+                    "description": "Skip the General QC steps for pre-filtered data"
+                },
+                "skip_pre_general_dim_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating dim plot for pre-filtered data"
+                },
+                "skip_pre_general_vln_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating vln plot for pre-filtered data"
+                },
+                "skip_pre_general_scatter_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature/nCount scatter plot for pre-filtered data"
+                },
+                "skip_pre_general_nfeature_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature plot for pre-filtered data"
+                },
+                "skip_pre_general_ncount_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nCount plot for pre-filtered data"
+                },
+                "skip_post_general_qc": {
+                    "type": "boolean",
+                    "description": "Skip the General QC steps for post-filtered data"
+                },
+                "skip_post_general_dim_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating dim plot for post-filtered data"
+                },
+                "skip_post_general_vln_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating vln plot for post-filtered data"
+                },
+                "skip_post_general_scatter_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature/nCount scatter plot for post-filtered data"
+                },
+                "skip_post_general_nfeature_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nFeature plot for post-filtered data"
+                },
+                "skip_post_general_ncount_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating nCount plot for post-filtered data"
+                }
+            }
+        },
+        "marker_gene_qc_options": {
+            "title": "Marker Gene QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "max_spearman_p": {
+                    "type": "number",
+                    "description": "The maximum spearman p value to determine if two genes are co-expressed",
+                    "default": 0.05
+                },
+                "max_spearman_r": {
+                    "type": "number",
+                    "description": "The maximum spearman r value to determine if two genes are co-expressed",
+                    "default": -0.2
+                },
+                "min_gini": {
+                    "type": "number",
+                    "description": "The minimum gini score to determine if two genes are co-expressed",
+                    "default": 0.7
+                },
+                "skip_gene_list_filtering": {
+                    "type": "boolean",
+                    "description": "Determines whether to perform gene list filtering or not"
+                },
+                "skip_gene_pair_stats_filtering": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip filtering data by the spearman r, spearman p, and gini index values"
+                },
+                "skip_marker_gene_qc": {
+                    "type": "boolean",
+                    "description": "Skip marker gene QC"
+                },
+                "skip_marker_barnyard_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating Barnyard Plots for gene pairs"
+                }
+            },
+            "fa_icon": "fas fa-dna"
+        },
+        "cell_shape_qc": {
+            "title": "Cell Shape QC",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_pre_cell_shape_qc": {
+                    "type": "boolean",
+                    "description": "Skip Cell Shape QC steps for pre-filtered datea"
+                },
+                "skip_pre_cell_segm_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Segmentation Proportion Plot for pre-filtered data"
+                },
+                "skip_pre_cell_shape_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Shape Proportion Plot for pre-filtered data"
+                },
+                "skip_post_cell_shape_qc": {
+                    "type": "boolean",
+                    "description": "Skip Cell Shape QC steps for pre-filtered datea"
+                },
+                "skip_post_cell_segm_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Segmentation Proportion Plot for post-filtered data"
+                },
+                "skip_post_cell_shape_prop_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Cell Shape Proportion Plot for post-filtered data"
+                }
+            }
+        },
+        "cell_area_qc_options": {
+            "title": "Cell Area QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_pre_cell_area_qc": {
+                    "type": "boolean",
+                    "description": "Skip the Cell Area QC steps for pre-filtered data"
+                },
+                "skip_pre_area_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Histogram Plot for pre-filtered data"
+                },
+                "skip_pre_area_box_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Box Plot for pre-filtered data"
+                },
+                "skip_pre_area_overlap_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Overlapping Histogram for pre-filtered data"
+                },
+                "skip_post_cell_area_qc": {
+                    "type": "boolean",
+                    "description": "Skip the Cell Area QC steps for post-filtered data"
+                },
+                "skip_post_area_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Histogram Plot for post-filtered data"
+                },
+                "skip_post_area_box_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Box Plot for post-filtered data"
+                },
+                "skip_post_area_overlap_histogram_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the Area Box Plot for post-filtered data"
+                }
+            }
+        },
+        "cluster_qc_options": {
+            "title": "Cluster QC Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_cluster_umap_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the UMAP plot for clustered data"
+                },
+                "skip_cluster_split_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the UMAP + Spatial Dim plot split out by sample"
+                },
+                "skip_cluster_vln_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the marker violin plot for clustered data",
+                    "default": true
+                },
+                "skip_cluster_dot_plot": {
+                    "type": "boolean",
+                    "description": "Skip generating the marker dot plot for clustered data"
+                }
+            }
+        },
+        "institutional_config_options": {
+            "title": "Institutional Config Options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "custom_config_version": {
+                    "type": "string",
+                    "description": "Git commit id for Institutional configs.",
+                    "default": "master",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "custom_config_base": {
+                    "type": "string",
+                    "description": "Base directory for Institutional configs.",
+                    "hidden": true,
+                    "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_contact": {
+                    "type": "string",
+                    "description": "Institutional config contact information.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_url": {
+                    "type": "string",
+                    "description": "Institutional config URL link.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic Options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+            "properties": {
+                "version": {
+                    "type": "boolean",
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "hidden": true
+                },
+                "trace_report_suffix": {
+                    "type": "string",
+                    "fa_icon": "far calendar",
+                    "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
+                    "hidden": true
                 }
             }
         }
@@ -348,13 +538,10 @@
             "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/$defs/institutional_config_options"
+            "$ref": "#/$defs/general_pipeline_options"
         },
         {
-            "$ref": "#/$defs/generic_options"
-        },
-        {
-            "$ref": "#/$defs/marker_gene_qc_options"
+            "$ref": "#/$defs/manual_annotation_options"
         },
         {
             "$ref": "#/$defs/filtering_options"
@@ -363,10 +550,31 @@
             "$ref": "#/$defs/normalization_options"
         },
         {
-            "$ref": "#/$defs/integration_options"
+            "$ref": "#/$defs/seurat_clustering_options"
         },
         {
-            "$ref": "#/$defs/banksy_options"
+            "$ref": "#/$defs/banksy_clustering_options"
+        },
+        {
+            "$ref": "#/$defs/general_qc_options"
+        },
+        {
+            "$ref": "#/$defs/marker_gene_qc_options"
+        },
+        {
+            "$ref": "#/$defs/cell_shape_qc"
+        },
+        {
+            "$ref": "#/$defs/cell_area_qc_options"
+        },
+        {
+            "$ref": "#/$defs/cluster_qc_options"
+        },
+        {
+            "$ref": "#/$defs/institutional_config_options"
+        },
+        {
+            "$ref": "#/$defs/generic_options"
         }
     ]
 }

@@ -5,8 +5,8 @@ process ADD_CLUSTER_DATA_TO_SEURAT {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -22,14 +22,14 @@ process ADD_CLUSTER_DATA_TO_SEURAT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def assay_flag = "--assay ${meta.assay}"
 
     """
     add_cluster_data_to_seurat.R \\
         $args \\
         $assay_flag \\
         --input "$xenium_object" \\
-        --clusters "${cluster_metadata_csv.join(',')}" \\
+        --clusters "${cluster_metadata_csv}" \\
         --embeddings "${embeddings_csv.join(',')}" \\
         --loadings "${loadings_csv.join(',')}" \\
         --stdev "${stdev_csv.join(',')}" \\

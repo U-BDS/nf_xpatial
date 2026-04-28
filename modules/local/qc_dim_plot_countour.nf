@@ -5,8 +5,8 @@ process QC_DIM_PLOT_COUNTOUR {
     container "${ 
         (workflow.containerEngine == 'singularity') &&
             (!task.ext.singularity_pull_docker_container) ?
-            'docker://uabbds/nf_xenium_analysis:0.0.2' :
-            'docker.io/uabbds/nf_xenium_analysis:0.0.2' 
+            'library://atrull314/uabbds/nf_xpatial:0.0.5' :
+            'docker.io/uabbds/nf_xenium_analysis:0.0.5' 
         }"
 
     input:
@@ -25,19 +25,30 @@ process QC_DIM_PLOT_COUNTOUR {
 
     def embeddings_flag = ''
     if ( "${meta.clustering_method}" == "BANKSY" ){
-        embeddings_flag = "--embedding BSKY_UMAPBANKSYharmony_d" + "${meta.nPCs}"
-    } else if ( "${meta.clustering_method}" == "Harmony"){
-        embeddings_flag = "--embedding HMY_umap_d" + "${meta.dim}"
+        embeddings_flag = "--embedding BANKSY_umap_l" + "${meta.lambda}" + 
+            ".k" + "${meta.k_geom}" + 
+            ".d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "Seurat"){
+        embeddings_flag = "--embedding Seurat_umap_d" + "${meta.dim}"
+    } else if ( "${meta.clustering_method}" == "BANKSYSeurat"){
+        embeddings_flag = "--embedding BANKSYSeurat_umap_l" + "${meta.lambda}" + 
+            ".k" + "${meta.k_geom}" + 
+            ".d" + "${meta.dim}"
     }
 
     def cluster_flag = ''
     if ("${meta.clustering_method}" == "BANKSY"){
-        cluster_flag = "--cluster_col clust_BSKY_AGF1_L" + "${meta.lambda}" + 
+        cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
             "_k" + "${meta.k_geom}" + 
-            "_PC" + "${meta.nPCs}" + 
-            "_R" + "${meta.res}"
-    } else if ("${meta.clustering_method}" == "Harmony"){
-        cluster_flag = "--cluster_col clust_HMY_d" + "${meta.dim}" + 
+            "_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "Seurat"){
+        cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
+            "_r" + "${meta.res}"
+    } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
+        cluster_flag = "--cluster_col clust_BSKYSEU_l" + "${meta.lambda}" + 
+            "_k" + "${meta.k_geom}" + 
+            "_d" + "${meta.dim}" + 
             "_r" + "${meta.res}"
     }
 

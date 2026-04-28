@@ -19,9 +19,7 @@ lint:
     - .prettierignore
     - .prettierignore
     - CODE_OF_CONDUCT.md
-    - assets/nf-core-nf_xenium_analysis_logo_light.png
-    - docs/images/nf-core-nf_xenium_analysis_logo_light.png
-    - docs/images/nf-core-nf_xenium_analysis_logo_dark.png
+    - assets/nf_xpatial_metro.png
     - .github/ISSUE_TEMPLATE/bug_report.yml
     - .github/CONTRIBUTING.md
     - .github/PULL_REQUEST_TEMPLATE.md
@@ -49,18 +47,16 @@ lint:
     - assets/sendmail_template.txt
     - assets/email_template.txt
     - CODE_OF_CONDUCT.md
-    - assets/nf-core-nf_xenium_analysis_logo_light.png
-    - docs/images/nf-core-nf_xenium_analysis_logo_light.png
-    - docs/images/nf-core-nf_xenium_analysis_logo_dark.png
+    - assets/nf_xpatial_metro.png
     - .github/ISSUE_TEMPLATE/config.yml
     - .github/workflows/awstest.yml
     - .github/workflows/awsfulltest.yml
 
 template:
   org: U-BDS
-  name: nf_xenium_analysis
+  name: nf_xpatial
   description: This pipeline is used to automate analysis of Xenium data
-  author: Nilesh Kumar, Luke Potter, Austyn Trull, Lara Ianov
+  author: Luke Potter, Nilesh Kumar, Austyn Trull, Lara Ianov
   version: 1.0.0dev
   force: true
   outdir: .
