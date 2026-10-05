@@ -18,6 +18,35 @@ workflow CLUSTER_QC {
     main:
         ch_versions = Channel.empty()
 
+        // Build the cluster and reduction names
+        ch_clustered_xenium_obj = ch_clustered_xenium_obj
+            .map {
+                meta, xenium_obj ->
+                    def cluster_abbr = ""
+                    if( meta.clustering_method == 'BANKSY' )
+                        cluster_abbr = 'BSKY'
+                    else if( meta.clustering_method == 'Seurat' )
+                        cluster_abbr = 'SEU'
+                    else if( meta.clustering_method == 'BANKSYSeurat' )
+                        cluster_abbr = 'BSKYSEU'
+
+                    def param_str = ""
+                    if (meta.clustering_method == 'BANKSY' || meta.clustering_method == 'BANKSYSeurat') {
+                        param_str = "l${meta.lambda}_k${meta.k_geom}_d${meta.dim}"
+                    } else if (meta.clustering_method == 'Seurat') {
+                        param_str = "d${meta.dim}"
+                    }
+
+                    def cluster_param = "clust_${cluster_abbr}_${param_str}_r${meta.res}"
+                    def reduction_param = "${meta.clustering_method}_umap_${param_str.replace('_','.')}"
+
+                    def new_meta = meta + [
+                        cluster_name: cluster_param,
+                        embedding_name: reduction_param
+                    ]
+                    return tuple(new_meta, xenium_obj)
+            }
+
         //
         // MODULE: Generate a dim plot with contours for UMAP
         //
