@@ -52,8 +52,8 @@ workflow NF_XPATIAL {
 
     ch_input_types = ch_samplesheet
         .branch {
-            meta, xenium_input, metadata, manual_annotation ->
-                seurat_obj: xenium_input.endsWith('.rds')
+            meta, xenium_input, xenium_rds, metadata, manual_annotation ->
+                seurat_obj: xenium_rds
                 xenium_out: true
         }
 
@@ -63,7 +63,7 @@ workflow NF_XPATIAL {
     CREATE_XENIUM_OBJ (
         ch_input_types.xenium_out
             .map{
-                meta, xenium_input, metadata, manual_annotation ->
+                meta, xenium_input, xenium_rds, metadata, manual_annotation ->
                 [meta, xenium_input]
             }
     )
@@ -73,18 +73,24 @@ workflow NF_XPATIAL {
 
     ADD_METADATA (
         ch_xenium_obj
-            .join ( ch_samplesheet )
-            .mix ( ch_input_types.seurat_obj )
-            .map { meta, xenium_obj, xenium_input, metadata, manual_annotation ->
-                [meta, xenium_obj, metadata]
-            }
+            .join ( 
+                ch_input_types.xenium_out.map {
+                    meta, xenium_input, xenium_rds, metadata, manual_annotation ->
+                        [meta, metadata]
+                } )
+            .mix ( 
+                ch_input_types.seurat_obj
+                    .map { meta, xenium_input, xenium_rds, metadata, manual_annotation ->
+                        [meta, xenium_rds, metadata]
+                    }
+            )
     )
 
     //
     // SUBWORKFLOW: Add manual annotations and produce qc plots
     //
     MANUAL_ANNOTATIONS_QC (
-        ch_samplesheet,
+        ch_samplesheet.map {meta, xenium_dir, xenium_rds, metadata, manual_annotation -> [meta, manual_annotation] },
         ADD_METADATA.out.metadata_xenium_obj,
         params.skip_man_ann_dim_plot
     )
@@ -193,7 +199,8 @@ workflow NF_XPATIAL {
             GET_VARIABLE_FEATURES.out.vf_xenium_obj,
             params.dim_Seurat.split(',').collect { it as Integer },
             params.res_Seurat.split(',').collect { it as Float },
-            params.skip_qc || params.skip_tsne_plot
+            params.skip_qc || params.skip_tsne_plot,
+            params.skip_harmony
         )
 
         ch_cluster_params = CLUSTER_SEURAT.out.seurat_clustered_xenium_obj
@@ -217,7 +224,8 @@ workflow NF_XPATIAL {
             params.k_geom_BANKSY.split(',').collect { it as Integer },
             params.nPCs_BANKSY.split(',').collect { it as Integer },
             params.res_BANKSY.split(',').collect { it as Float },
-            params.use_agf_BANKSY
+            params.use_agf_BANKSY,
+            params.skip_harmony
         )
 
         ch_cluster_params = ch_cluster_params
@@ -245,7 +253,8 @@ workflow NF_XPATIAL {
             params.k_geom_BANKSY.split(',').collect { it as Integer },
             params.nPCs_BANKSY.split(',').collect { it as Integer },
             params.res_BANKSY.split(',').collect { it as Float },
-            params.use_agf_BANKSY
+            params.use_agf_BANKSY,
+            params.skip_harmony
         )
 
         ch_cluster_params = ch_cluster_params
@@ -289,7 +298,8 @@ workflow NF_XPATIAL {
             params.skip_qc || params.skip_cluster_umap_plot,
             params.skip_qc || params.skip_cluster_split_plot,
             params.skip_qc || params.skip_cluster_vln_plot,
-            params.skip_qc || params.skip_cluster_dot_plot
+            params.skip_qc || params.skip_cluster_dot_plot,
+            params.skip_harmony
         )
     }
 

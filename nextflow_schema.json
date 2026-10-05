@@ -60,6 +60,10 @@
                 "skip_qc": {
                     "type": "boolean",
                     "description": "Skip all QC Plots"
+                },
+                "skip_harmony": {
+                    "type": "boolean",
+                    "description": "Skip harmony integration"
                 }
             },
             "required": ["clustering_methods"]

@@ -20,6 +20,13 @@
                 "pattern": "^\\S+$",
                 "errorMessage": "Xenium input file must be provided and cannot contain spaces"
             },
+            "xenium_rds": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+.rds$",
+                "errorMessage": "Xenium rds file must be provided and cannot contain spaces"
+            },
             "metadata": {
                 "type": "string",
                 "format": "file-path",
@@ -34,6 +41,17 @@
                 "pattern": "^\\S+$"
             }
         },
-        "required": ["sample", "xenium", "metadata"]
+        "required": ["sample", "metadata"],
+        "oneOf": [
+        {
+            "required": ["xenium"],
+            "not": { "required": ["xenium_rds"] }
+        },
+        {
+            "required": ["xenium_rds"],
+            "not": { "required": ["xenium"] }
+        }
+    ]
+        
     }
 }

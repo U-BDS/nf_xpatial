@@ -22,14 +22,10 @@ process FIND_NEIGHBORS {
     script:
     def args       = task.ext.args ?: ""
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = "--assay ${meta.assay}"
 
     """
-
     find_neighbors.R \\
         $args \\
-        $assay_flag \\
-        --reduction "harmony" \\
         --dim "${meta.dim}" \\
         --input "$xenium_object" \\
         --outfile ${prefix}_find_neighbors.rds

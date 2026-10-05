@@ -22,13 +22,10 @@ process RUN_UMAP {
     script:
     def args       = task.ext.args ?: ""
     def prefix     = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = "--assay ${meta.assay}"
 
     """
     run_umap.R \\
         $args \\
-        $assay_flag \\
-        --reduction "harmony" \\
         --dim "${meta.dim}" \\
         --input "$xenium_object" \\
         --outfile ${prefix}_umap.rds
