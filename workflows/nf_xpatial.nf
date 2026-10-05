@@ -298,7 +298,8 @@ workflow NF_XPATIAL {
             params.skip_qc || params.skip_cluster_umap_plot,
             params.skip_qc || params.skip_cluster_split_plot,
             params.skip_qc || params.skip_cluster_vln_plot,
-            params.skip_qc || params.skip_cluster_dot_plot
+            params.skip_qc || params.skip_cluster_dot_plot,
+            params.skip_harmony
         )
     }
 

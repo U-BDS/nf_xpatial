@@ -14,6 +14,7 @@ workflow CLUSTER_QC {
         skip_split_cluster_plot    // bool: whether to skip the split cluster plots
         skip_cluster_vln_plot      // bool: whether to skip the marker violin plots
         skip_cluster_dot_plot      // bool: whether to skip the marker dot plots
+        skip_harmony               // bool: whether to skip the harmony reduction
 
     main:
         ch_versions = Channel.empty()
@@ -38,7 +39,12 @@ workflow CLUSTER_QC {
                     }
 
                     def cluster_param = "clust_${cluster_abbr}_${param_str}_r${meta.res}"
-                    def reduction_param = "${meta.clustering_method}_umap_${param_str.replace('_','.')}"
+                    def reduction_param = ""
+                    if (meta.clustering_method == "BANKSY" && skip_harmony) {
+                        reduction_param = "${meta.clustering_method}_umappca_${param_str.replace('_','.')}"
+                    } else {
+                        reduction_param = "${meta.clustering_method}_umap_${param_str.replace('_','.')}"
+                    }
 
                     def new_meta = meta + [
                         cluster_name: cluster_param,
