@@ -24,8 +24,8 @@ process QC_SPLIT_CLUSTER_PLOTS {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     def assay_flag = "--assay ${meta.assay}"
-    def embeddings_flag = "--embedding ${meta.embedding_name}"
-    def cluster_flag = "--cluster_col ${meta.cluster_col}"
+    def embeddings_flag = "--reduction ${meta.embedding_name}"
+    def cluster_flag = "--cluster_col ${meta.cluster_name}"
 
     """
     qc_split_cluster_plots.R \\

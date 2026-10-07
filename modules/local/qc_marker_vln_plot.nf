@@ -25,7 +25,7 @@ process QC_MARKER_VLN_PLOT {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
-    def cluster_flag = "--cluster_col ${meta.cluster_col}"
+    def cluster_flag = "--cluster_col ${meta.cluster_name}"
 
     """
     qc_marker_vln_plot.R \\

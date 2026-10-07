@@ -56,12 +56,27 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
 
         if (skip_harmony) {
             ch_pre_umap = RUN_PCA.out.pca_xenium_obj
+                .map { meta, xenium_obj ->
+                    def reduction_name = ""
+                    if (meta.assay == 'AreaNorm_BANKSY') {
+                        reduction_name = 'pca_area_norm'
+                    } else {
+                        reduction_name = 'pca_log_norm'
+                    }
+                    def new_meta = meta + [reduction: reduction_name]
+                    [new_meta, xenium_obj]
+                }
         }
         else {
             // MODULE: Run Harmony
             RUN_HARMONY ( RUN_PCA.out.pca_xenium_obj )
 
             ch_pre_umap = RUN_HARMONY.out.integrated_xenium_obj
+                .map { meta, xenium_obj ->
+                    def reduction_name = "harmony"
+                    def new_meta = meta + [reduction: reduction_name]
+                    [new_meta, xenium_obj]
+                }
         }
 
         // MODULE: Generate UMAPs for Harmony

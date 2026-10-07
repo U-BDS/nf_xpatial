@@ -24,7 +24,7 @@ process QC_DIM_PLOT_COUNTOUR {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     def embeddings_flag = "--embedding ${meta.embedding_name}"
-    def cluster_flag = "--cluster_col ${meta.cluster_col}"
+    def cluster_flag = "--cluster_col ${meta.cluster_name}"
 
     """
     qc_dim_plot_countour.R \\
