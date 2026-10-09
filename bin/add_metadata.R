@@ -7,20 +7,9 @@ set.seed(1234)
 ######################
 
 # General Utilities
-library(arrow)      # For reading/writing Parquet files
-library(dplyr)      # For data manipulation
-library(jsonlite)   # For working with JSON data
-library(knitr)      # For generating reports
 library(optparse)   # For parsing commandline arguments
-library(progressr)  # For progress bars
 library(purrr)      # Functional programming tools
 library(Seurat)     # Main analysis package
-
-# Plotting
-library(patchwork)  # For combining plots
-
-# Set options
-options(future.globals.maxSize = 8192 * 1024^2)
 
 ###############################
 ### COMMAND-LINE PARAMETERS ###
@@ -103,9 +92,6 @@ print(addl_metadata_cols)
 # only grab the row containing the sample
 sample_metadata <- sample_metadata[sample_metadata$SampleID == opt$sample, ]
 
-nrow(sample_metadata)
-sample_metadata
-
 if (nrow(sample_metadata) > 1) {
     stop(paste("The metadata should only contain one row for each sample. Sample ", opt$sample, "occurs multiple times"))
 }
@@ -123,11 +109,40 @@ sample_metadata_row <- sample_metadata[1,]
 # Load xenium object
 xenium.obj <- readRDS(file = opt$input)
 
+# Set size limit to object size plus a little
+options(future.globals.maxSize = as.numeric(object.size(xenium.obj)) * 3.2)
+
 # Add additional metadata
 for (col in setdiff(names(sample_metadata_row), append(req_cols, "flip.xy"))) {
     xenium.obj[[col]] <- as.character(sample_metadata_row[[col]])
     xenium.obj@meta.data[[col]] <- as.factor(xenium.obj@meta.data[[col]])
 }
+print("Added metdata columns to xenium")
+###########################
+### ADD SAMPLE METADATA ###
+############################
+
+# Replace underscores with dashes in feature names
+rownames(xenium.obj) <- gsub("_", "-", rownames(xenium.obj))
+print("Replaced underscores with dashes in feature names")
+
+# Assign sample name
+project <- opt$sample
+
+xenium.obj@project.name <- project
+xenium.obj$Sample <- project
+
+xenium.obj$orig.ident <- project
+Idents(xenium.obj) <- xenium.obj$orig.ident
+print("Added sample name to various places in metadata")
+
+### ADD CELL IDS
+xenium.obj@meta.data$Cell_ID <- rownames(xenium.obj@meta.data)
+print("Added cell IDs to xenium object")
+
+### ADD CELL COUNT
+Misc(xenium.obj, slot = "cell_count") <- sum(table(xenium.obj@meta.data$orig.ident))
+print("Added cell count to xenium object")
 
 #####################
 ### ADD CELL AREA ###

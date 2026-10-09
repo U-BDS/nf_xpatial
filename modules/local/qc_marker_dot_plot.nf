@@ -23,23 +23,9 @@ process QC_MARKER_DOT_PLOT {
     script:
     def args   = task.ext.args ?: ""
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
 
-    def cluster_flag = ''
-    if ("${meta.clustering_method}" == "BANKSY"){
-        cluster_flag = "--cluster_col clust_BSKY_l" + "${meta.lambda}" + 
-            "_k" + "${meta.k_geom}" + 
-            "_d" + "${meta.dim}" + 
-            "_r" + "${meta.res}"
-    } else if ("${meta.clustering_method}" == "Seurat"){
-        cluster_flag = "--cluster_col clust_SEU_d" + "${meta.dim}" + 
-            "_r" + "${meta.res}"
-    } else if ("${meta.clustering_method}" == "BANKSYSeurat"){
-        cluster_flag = "--cluster_col clust_BSKYSEU_l" + "${meta.lambda}" + 
-            "_k" + "${meta.k_geom}" + 
-            "_d" + "${meta.dim}" + 
-            "_r" + "${meta.res}"
-    }
+    def assay_flag = meta.normalization == 'area_norm' ? '--assay AreaNorm' : '--assay Xenium'
+    def cluster_flag = "--cluster_col ${meta.cluster_name}"
 
     """
     qc_marker_dot_plot.R \\

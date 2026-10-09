@@ -7,7 +7,7 @@ include { COMPILE_OBJECTS as COMPILE_MANUAL_ANNOTATIONS       } from '../../../m
 
 workflow MANUAL_ANNOTATIONS_QC {
     take:
-        ch_samplesheet        // channel: samplesheet read in from --input
+        ch_manual_annotations // channel: manual annotation files
         ch_xenium_obj         // channel: xenium object generated from samplesheet inputs
         skip_man_ann_dim_plot // bool: whether to skip the image dimension plot for manual annotations
 
@@ -15,22 +15,13 @@ workflow MANUAL_ANNOTATIONS_QC {
         ch_versions = Channel.empty()
 
         // Separate the samples that have manual annotations
-        ch_sep_objects = ch_samplesheet
-            .join(ch_xenium_obj)
-            .map {
-                meta, xenium_input, metadata, manual_annotation, xenium_rds ->
-                    [meta, xenium_rds, manual_annotation]
-            }
+        ch_sep_objects = ch_xenium_obj
+            .join(ch_manual_annotations)
             .branch {
                 meta, xenium_rds, manual_annotation ->
                     with_annotation: manual_annotation
                     no_annotation: true
             }
-
-        //
-        // MODULE: Convert Xenium Explorer output to easily usable format
-        //
-        // GATHER_XENIUM_EXPLORER_ANNOTATIONS ( )
 
         //
         // MODULE: Add manual annotations where possible

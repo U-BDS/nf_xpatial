@@ -18,7 +18,7 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
         nPCs_list               // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
         use_agf_BANKSY          // boolean: whether to use AGF in BANKSY
-
+        skip_harmony            // boolean: whether to skip Harmony integration
 
     main:
         ch_versions = Channel.empty()
@@ -53,12 +53,35 @@ workflow CLUSTER_BANKSY_SEURAT_WRAPPER {
             ch_banksy_xenium_obj
         )
 
-        // // MODULE: Run Harmony
-        RUN_HARMONY ( RUN_PCA.out.pca_xenium_obj )
+
+        if (skip_harmony) {
+            ch_pre_umap = RUN_PCA.out.pca_xenium_obj
+                .map { meta, xenium_obj ->
+                    def reduction_name = ""
+                    if (meta.assay == 'AreaNorm_BANKSY') {
+                        reduction_name = 'pca_area_norm'
+                    } else {
+                        reduction_name = 'pca_log_norm'
+                    }
+                    def new_meta = meta + [reduction: reduction_name]
+                    [new_meta, xenium_obj]
+                }
+        }
+        else {
+            // MODULE: Run Harmony
+            RUN_HARMONY ( RUN_PCA.out.pca_xenium_obj )
+
+            ch_pre_umap = RUN_HARMONY.out.integrated_xenium_obj
+                .map { meta, xenium_obj ->
+                    def reduction_name = "harmony"
+                    def new_meta = meta + [reduction: reduction_name]
+                    [new_meta, xenium_obj]
+                }
+        }
 
         // MODULE: Generate UMAPs for Harmony
         RUN_UMAP (
-            RUN_HARMONY.out.integrated_xenium_obj
+            ch_pre_umap
                 .combine( Channel.from(nPCs_list) )
                 .map { meta, xenium_obj, dim ->
                     def new_meta = meta + [dim: dim]
