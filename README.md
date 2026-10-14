@@ -210,7 +210,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 If you use U-BDS/nf_xpatial for your analysis, please cite it using the following:
 
-> Luke Potter, Nilesh Kumar, Austyn Trull, Lara Ianov, U-BDS/nf_xpatial, [10.5281/zenodo.19861933](https://doi.org/10.5281/zenodo.19861933)
+> Potter L, Trull A, Kumar N, Drake O, Nogueira M, Peters J, Heinsbroek J, Day J, Worthey E, Ianov L. nf_xpatial: A Reproducible Framework for Standardized Preprocessing and Clustering of Xenium Data. bioRxiv. August 2026; doi: 10.64898/2026.08.25.747147.
 
 We also ask to please check regularly since the citation is expected to be changed once a pre-print is available.
 
