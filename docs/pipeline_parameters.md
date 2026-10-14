@@ -97,6 +97,7 @@ Define where the pipeline should find input data and save output data.
                                                                                                                                                                                               
 | Parameter | Description | Type | Default | Required | Hidden |                                                                                                                              
 |-----------|-----------|-----------|-----------|-----------|-----------|                                                                                                                     
+| `skip_harmony` | Skip harmony integration | `boolean` | False |  |  |
 | `skip_pre_general_qc` | Skip the General QC steps for pre-filtered data | `boolean` |  |  |  |                                                                                              
 | `skip_pre_general_dim_plot` | Skip generating dim plot for pre-filtered data | `boolean` |  |  |  |                                                                                         
 | `skip_pre_general_vln_plot` | Skip generating vln plot for pre-filtered data | `boolean` |  |  |  |                                                                                         

@@ -117,7 +117,7 @@ for (col in setdiff(names(sample_metadata_row), append(req_cols, "flip.xy"))) {
     xenium.obj[[col]] <- as.character(sample_metadata_row[[col]])
     xenium.obj@meta.data[[col]] <- as.factor(xenium.obj@meta.data[[col]])
 }
-print("Added metdata columns to xenium")
+print("Added metadata columns to xenium")
 ###########################
 ### ADD SAMPLE METADATA ###
 ############################
