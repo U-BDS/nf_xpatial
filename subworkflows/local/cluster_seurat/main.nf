@@ -16,6 +16,7 @@ workflow CLUSTER_SEURAT {
         dim_list                // list: list of dimensions to evaluate
         res_list                // list: list of resolutions to evaluate
         skip_tsne_plot          // boolean: whether to skip TSNE plot generation
+        skip_harmony            // boolean: whether to skip Harmony integration
 
     main:
         ch_versions = Channel.empty()
@@ -29,12 +30,34 @@ workflow CLUSTER_SEURAT {
         // MODULE: Generate elbow plot
         QC_ELBOW_PLOT ( RUN_PCA.out.pca_xenium_obj )
 
-        // MODULE: Run Harmony
-        RUN_HARMONY ( RUN_PCA.out.pca_xenium_obj )
+        if (skip_harmony) {
+            ch_pre_umap = RUN_PCA.out.pca_xenium_obj
+                .map { meta, xenium_obj ->
+                    def reduction_name = ""
+                    if (meta.assay == 'AreaNorm') {
+                        reduction_name = 'pca_area_norm'
+                    } else {
+                        reduction_name = 'pca_log_norm'
+                    }
+                    def new_meta = meta + [reduction: reduction_name]
+                    [new_meta, xenium_obj]
+                }
+        }
+        else {
+            // MODULE: Run Harmony
+            RUN_HARMONY ( RUN_PCA.out.pca_xenium_obj )
+
+            ch_pre_umap = RUN_HARMONY.out.integrated_xenium_obj
+                .map { meta, xenium_obj ->
+                    def reduction_name = "harmony"
+                    def new_meta = meta + [reduction: reduction_name]
+                    [new_meta, xenium_obj]
+                }
+        }
 
         // MODULE: Generate UMAPs for Harmony
         RUN_UMAP (
-            RUN_HARMONY.out.integrated_xenium_obj
+            ch_pre_umap
                 .combine( Channel.from(dim_list) )
                 .map { meta, xenium_obj, dim ->
                     def new_meta = meta + [dim: dim]

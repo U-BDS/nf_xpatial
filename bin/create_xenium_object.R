@@ -123,29 +123,6 @@ xenium.obj <- LoadXenium(
         mols.qv.threshold = opt$mols_qv_threshold
 )
 
-# Replace underscores with dashes in feature names
-rownames(xenium.obj) <- gsub("_", "-", rownames(xenium.obj))
-
-# Assign sample name
-project <- opt$sample
-
-xenium.obj@project.name <- project
-xenium.obj$Sample <- project
-
-xenium.obj$orig.ident <- project
-Idents(xenium.obj) <- xenium.obj$orig.ident
-
-####################
-### ADD CELL IDS ###
-####################
-
-xenium.obj@meta.data$Cell_ID <- rownames(xenium.obj@meta.data)
-
-######################
-### ADD CELL COUNT ###
-######################
-Misc(xenium.obj, slot = "cell_count") <- sum(table(xenium.obj@meta.data$orig.ident))
-
 ###############################
 ### PARSE PANEL AND FEATURE ###
 ###############################

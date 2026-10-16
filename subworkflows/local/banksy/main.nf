@@ -16,6 +16,7 @@ workflow BANKSY {
         dim_list                // list: list of nPCs values to evaluate
         res_list                // list: list of resolutions to evaluate
         use_agf_BANKSY          // boolean: whether to use AGF in BANKSY
+        skip_harmony            // boolean: whether to skip Harmony integration
 
     main:
         ch_versions = Channel.empty()
@@ -66,20 +67,28 @@ workflow BANKSY {
                 }
         )
 
+        ch_banksy_pca_spe_obj = COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
+            .combine ( Channel.of(dim_list).flatten() )
+            .map {
+                meta, spe, dims ->
+                    def new_meta = meta + [dim: dims]
+                    [new_meta, spe]
+            }
+
+        if (skip_harmony) {
+            ch_pre_umap_banksy = ch_banksy_pca_spe_obj
+        } else {
         // MODULE: Run BANKSY Harmony
-        RUN_HARMONY_BANKSY (
-            COMPUTE_BANKSY_PCA.out.banksy_pca_spe_obj
-                .combine ( Channel.of(dim_list).flatten() )
-                .map {
-                    meta, spe, dims ->
-                        def new_meta = meta + [dim: dims]
-                        [new_meta, spe]
-                }
-        )
+            RUN_HARMONY_BANKSY (
+                ch_banksy_pca_spe_obj
+            )
+
+            ch_pre_umap_banksy = RUN_HARMONY_BANKSY.out.banksy_pca_harmony_obj
+        }
 
         // MODULE: Run BANKSY UMAP
         RUN_UMAP_BANKSY (
-            RUN_HARMONY_BANKSY.out.banksy_pca_harmony_obj
+            ch_pre_umap_banksy
         )
 
         // MODULE: CLUSTER BANKSY
