@@ -5,6 +5,16 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
+- nf_xpatial
+  - [Introduction](#introduction)
+  - [Pipeline Summary](#pipeline-summary)
+  - [Usage](#usage)
+  - [Outputs](#outputs)
+  - [Detailed outputs](#detailed-outputs)
+  - [Credits](#credits)
+  - [Contributions and Support](#contributions-and-support)
+  - [Citations](#citations)
+
 
 ## Introduction
 
